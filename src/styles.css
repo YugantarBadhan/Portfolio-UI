@@ -1,1 +1,43 @@
-/* You can add global styles to this file, and also import other style files */
+/* Global styles */
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  transition: all 0.3s ease;
+  /* Default to dark theme */
+  color: #ffffff !important;
+  background: linear-gradient(135deg, #1a1a1a 0%, #2c2c2c 100%) !important;
+}
+
+/* Light theme override */
+body:not(.dark-theme) {
+  color: #333 !important;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Force text colors */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+span,
+div {
+  color: inherit;
+}

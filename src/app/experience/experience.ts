@@ -1,8 +1,8 @@
 import { Component, OnInit, inject, signal, PLATFORM_ID, Inject } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
-import { ExperienceService } from './experience.service';
-import { Experience } from './experience.model';
+import { ExperienceService } from '../services/experience.service';
+import { Experience } from '../model/experience.model';
 
 @Component({
   selector: 'app-experience',

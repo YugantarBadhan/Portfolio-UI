@@ -6,7 +6,7 @@ import {
   PLATFORM_ID,
 } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { ExperienceComponent } from './experience/experience';
+import { ExperienceComponent } from '../app/experience/experience';
 
 @Component({
   selector: 'app-root',

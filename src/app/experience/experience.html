@@ -1,0 +1,172 @@
+<section id="experience" class="experience-section">
+  <div class="container">
+    <!-- Section Header -->
+    <div class="section-header">
+      <h2 class="section-title">Experience</h2>
+      <p class="section-subtitle">My professional journey</p>
+      
+      <!-- Admin Toggle Button -->
+      <div class="admin-controls">
+        <button 
+          class="admin-toggle-btn"
+          (click)="toggleAdminMode()"
+          [class.active]="isAdmin()">
+          {{ isAdmin() ? 'Exit Admin' : 'Admin' }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="isLoading()" class="loading-spinner">
+      <div class="spinner"></div>
+      <p>Loading experiences...</p>
+    </div>
+
+    <!-- Admin Add Button -->
+    <div *ngIf="isAdmin() && !showForm()" class="admin-actions">
+      <button class="btn-add" (click)="openForm()">
+        + Add New Experience
+      </button>
+    </div>
+
+    <!-- Experience Form -->
+    <div *ngIf="showForm() && isAdmin()" class="experience-form-container">
+      <div class="form-header">
+        <h3>{{ editingId() ? 'Edit Experience' : 'Add New Experience' }}</h3>
+        <button class="close-btn" (click)="closeForm()">×</button>
+      </div>
+
+      <form [formGroup]="experienceForm" (ngSubmit)="onSubmit()" class="experience-form">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="companyName">Company Name *</label>
+            <input 
+              type="text" 
+              id="companyName" 
+              formControlName="companyName"
+              placeholder="Enter company name">
+            <div *ngIf="experienceForm.get('companyName')?.invalid && experienceForm.get('companyName')?.touched" class="error-message">
+              Company name is required (min 2 characters)
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="role">Role *</label>
+            <input 
+              type="text" 
+              id="role" 
+              formControlName="role"
+              placeholder="Enter your role">
+            <div *ngIf="experienceForm.get('role')?.invalid && experienceForm.get('role')?.touched" class="error-message">
+              Role is required (min 2 characters)
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="startDate">Start Date *</label>
+            <input 
+              type="date" 
+              id="startDate" 
+              formControlName="startDate">
+            <div *ngIf="experienceForm.get('startDate')?.invalid && experienceForm.get('startDate')?.touched" class="error-message">
+              Start date is required
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="checkbox-label">
+              <input type="checkbox" formControlName="current"> Currently Working
+            </label>
+          </div>
+        </div>
+
+        <div class="form-group" *ngIf="!experienceForm.get('current')?.value">
+          <label for="endDate">End Date</label>
+          <input 
+            type="date" 
+            id="endDate" 
+            formControlName="endDate">
+        </div>
+
+        <div class="form-group">
+          <label for="description">Description *</label>
+          <textarea 
+            id="description" 
+            formControlName="description"
+            placeholder="Describe your role and responsibilities"
+            rows="4"></textarea>
+          <div *ngIf="experienceForm.get('description')?.invalid && experienceForm.get('description')?.touched" class="error-message">
+            Description is required (min 10 characters)
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Skills *</label>
+          <div class="skills-container">
+            <div *ngFor="let skill of skillsArray.controls; let i = index" class="skill-input">
+              <input 
+                type="text" 
+                [formControlName]="i"
+                placeholder="Enter skill">
+              <button type="button" class="remove-skill-btn" (click)="removeSkill(i)">-</button>
+            </div>
+            <button type="button" class="add-skill-btn" (click)="addSkill()">+ Add Skill</button>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn-cancel" (click)="closeForm()">Cancel</button>
+          <button type="submit" class="btn-submit" [disabled]="experienceForm.invalid || isLoading()">
+            {{ isLoading() ? 'Saving...' : (editingId() ? 'Update' : 'Create') }}
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Experience Timeline -->
+    <div *ngIf="!isLoading()" class="experience-timeline">
+      <div *ngIf="experiences().length === 0" class="no-experiences">
+        <p>No experience records found.</p>
+      </div>
+
+      <div *ngFor="let exp of experiences(); let i = index" class="timeline-item">
+        <div class="timeline-marker">
+          <div class="timeline-dot" [class.current]="exp.current"></div>
+          <div class="timeline-line" *ngIf="i !== experiences().length - 1"></div>
+        </div>
+
+        <div class="experience-card">
+          <div class="card-header">
+            <div class="company-info">
+              <h3 class="company-name">{{ exp.companyName }}</h3>
+              <h4 class="role-title">{{ exp.role }}</h4>
+              <div class="date-range">
+                <span>{{ formatDate(exp.startDate) }} - {{ exp.current ? 'Present' : formatDate(exp.endDate!) }}</span>
+                <span class="duration">({{ calculateDuration(exp.startDate, exp.endDate, exp.current) }})</span>
+              </div>
+            </div>
+            
+            <!-- Admin Actions -->
+            <div *ngIf="isAdmin()" class="admin-actions-card">
+              <button class="action-btn edit-btn" (click)="openForm(exp)" title="Edit">✏️</button>
+              <button class="action-btn delete-btn" (click)="deleteExperience(exp.id, exp.companyName)" title="Delete">🗑️</button>
+            </div>
+          </div>
+
+          <div class="card-body">
+            <p class="description">{{ exp.description }}</p>
+            
+            <div class="skills-section" *ngIf="exp.skills && exp.skills.length > 0">
+              <strong>Skills:</strong>
+              <div class="skills-list">
+                <span *ngFor="let skill of exp.skills" class="skill-tag">{{ skill }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

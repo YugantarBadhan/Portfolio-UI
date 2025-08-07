@@ -1,8 +1,15 @@
 /* Experience Section - matches your existing design */
 .experience-section {
   padding: 80px 0;
-  background-color: #f8f9fa;
+  background-color: transparent;
   min-height: 100vh;
+  color: inherit;
+}
+
+/* Dark theme styles */
+body.dark-theme .experience-section {
+  background-color: transparent;
+  color: #ffffff;
 }
 
 .container {
@@ -22,7 +29,7 @@
   font-size: 3rem;
   font-weight: 700;
   margin-bottom: 20px;
-  color: #333;
+  color: inherit;
 }
 
 .section-subtitle {
@@ -30,6 +37,10 @@
   color: #666;
   max-width: 600px;
   margin: 0 auto;
+}
+
+body.dark-theme .section-subtitle {
+  color: #ccc;
 }
 
 .admin-controls {
@@ -75,6 +86,11 @@
   margin: 0 auto 20px;
 }
 
+body.dark-theme .spinner {
+  border-color: #444;
+  border-top-color: #64b5f6;
+}
+
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
@@ -111,6 +127,11 @@
   box-shadow: 0 5px 20px rgba(0,0,0,0.1);
 }
 
+body.dark-theme .experience-form-container {
+  background: #2c2c2c;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+}
+
 .form-header {
   display: flex;
   justify-content: space-between;
@@ -120,11 +141,19 @@
   padding-bottom: 15px;
 }
 
+body.dark-theme .form-header {
+  border-bottom-color: #444;
+}
+
 .form-header h3 {
   font-size: 1.5rem;
   font-weight: 600;
   color: #333;
   margin: 0;
+}
+
+body.dark-theme .form-header h3 {
+  color: #fff;
 }
 
 .close-btn {
@@ -167,6 +196,10 @@
   color: #333;
 }
 
+body.dark-theme .form-group label {
+  color: #fff;
+}
+
 .checkbox-label {
   display: flex;
   align-items: center;
@@ -183,12 +216,27 @@
   border-radius: 8px;
   font-size: 1rem;
   transition: border-color 0.3s ease;
+  background: white;
+  color: #333;
+}
+
+body.dark-theme .form-group input[type="text"],
+body.dark-theme .form-group input[type="date"],
+body.dark-theme .form-group textarea {
+  background: #1a1a1a;
+  border-color: #555;
+  color: #fff;
 }
 
 .form-group input:focus,
 .form-group textarea:focus {
   outline: none;
   border-color: #007bff;
+}
+
+body.dark-theme .form-group input:focus,
+body.dark-theme .form-group textarea:focus {
+  border-color: #64b5f6;
 }
 
 .form-group textarea {
@@ -262,6 +310,10 @@
   border-top: 1px solid #f0f0f0;
 }
 
+body.dark-theme .form-actions {
+  border-top-color: #444;
+}
+
 .btn-cancel {
   padding: 10px 20px;
   border: 1px solid #6c757d;
@@ -271,6 +323,12 @@
   cursor: pointer;
   font-weight: 500;
   transition: all 0.3s ease;
+}
+
+body.dark-theme .btn-cancel {
+  background: #1a1a1a;
+  color: #ccc;
+  border-color: #555;
 }
 
 .btn-cancel:hover {
@@ -310,6 +368,10 @@
   font-size: 1.1rem;
 }
 
+body.dark-theme .no-experiences {
+  color: #ccc;
+}
+
 .timeline-item {
   display: flex;
   margin-bottom: 30px;
@@ -335,10 +397,20 @@
   box-shadow: 0 0 0 3px #007bff;
 }
 
+body.dark-theme .timeline-dot {
+  border-color: #2c2c2c;
+  background: #64b5f6;
+  box-shadow: 0 0 0 3px #64b5f6;
+}
+
 .timeline-dot.current {
   background: #28a745;
   box-shadow: 0 0 0 3px #28a745, 0 0 0 6px rgba(40, 167, 69, 0.2);
   animation: pulse 2s infinite;
+}
+
+body.dark-theme .timeline-dot.current {
+  box-shadow: 0 0 0 3px #28a745, 0 0 0 6px rgba(40, 167, 69, 0.2);
 }
 
 @keyframes pulse {
@@ -360,6 +432,10 @@
   margin-top: 10px;
 }
 
+body.dark-theme .timeline-line {
+  background: #555;
+}
+
 /* Experience Card */
 .experience-card {
   background: white;
@@ -371,9 +447,18 @@
   position: relative;
 }
 
+body.dark-theme .experience-card {
+  background: #2c2c2c;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+}
+
 .experience-card:hover {
   transform: translateY(-3px);
   box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+}
+
+body.dark-theme .experience-card:hover {
+  box-shadow: 0 8px 25px rgba(0,0,0,0.4);
 }
 
 .card-header {
@@ -394,6 +479,10 @@
   color: #333;
 }
 
+body.dark-theme .company-name {
+  color: #fff;
+}
+
 .role-title {
   font-size: 1.1rem;
   font-weight: 600;
@@ -401,9 +490,17 @@
   margin-bottom: 8px;
 }
 
+body.dark-theme .role-title {
+  color: #64b5f6;
+}
+
 .date-range {
   font-size: 0.95rem;
   color: #666;
+}
+
+body.dark-theme .date-range {
+  color: #ccc;
 }
 
 .duration {
@@ -411,6 +508,10 @@
   font-size: 0.9rem;
   color: #888;
   margin-left: 5px;
+}
+
+body.dark-theme .duration {
+  color: #aaa;
 }
 
 /* Admin Actions in Card */
@@ -459,6 +560,10 @@
   color: #555;
 }
 
+body.dark-theme .card-body .description {
+  color: #ddd;
+}
+
 .skills-section {
   margin-top: 15px;
 }
@@ -467,6 +572,10 @@
   color: #333;
   margin-bottom: 8px;
   display: block;
+}
+
+body.dark-theme .skills-section strong {
+  color: #fff;
 }
 
 .skills-list {
@@ -484,6 +593,12 @@
   font-size: 0.85rem;
   font-weight: 500;
   border: 1px solid #dee2e6;
+}
+
+body.dark-theme .skill-tag {
+  background: #1a1a1a;
+  color: #ccc;
+  border-color: #555;
 }
 
 /* Responsive Design */

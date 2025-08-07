@@ -6,11 +6,12 @@ import {
   PLATFORM_ID,
 } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { ExperienceComponent } from './experience/experience';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, ExperienceComponent],
   templateUrl: './app.html',
   styleUrls: ['./app.css'],
 })
@@ -18,6 +19,7 @@ export class AppComponent implements OnInit {
   title = 'Portfolio-UI';
   isDarkTheme = true; // Default to dark theme
   isScrolled = false;
+  isMobileMenuOpen = false;
 
   constructor(@Inject(PLATFORM_ID) private platformId: Object) {}
 
@@ -38,7 +40,9 @@ export class AppComponent implements OnInit {
 
   @HostListener('window:scroll')
   onWindowScroll() {
-    this.isScrolled = window.scrollY > 50;
+    if (isPlatformBrowser(this.platformId)) {
+      this.isScrolled = window.scrollY > 50;
+    }
   }
 
   toggleTheme() {
@@ -75,16 +79,34 @@ export class AppComponent implements OnInit {
     }
   }
 
+  toggleMobileMenu() {
+    this.isMobileMenuOpen = !this.isMobileMenuOpen;
+    
+    if (isPlatformBrowser(this.platformId)) {
+      // Prevent body scroll when mobile menu is open
+      document.body.style.overflow = this.isMobileMenuOpen ? 'hidden' : 'auto';
+    }
+  }
+
   scrollToSection(sectionId: string, event: Event) {
     event.preventDefault();
+
+    // Close mobile menu if open
+    this.isMobileMenuOpen = false;
+    if (isPlatformBrowser(this.platformId)) {
+      document.body.style.overflow = 'auto';
+    }
 
     // Only execute in browser environment
     if (isPlatformBrowser(this.platformId)) {
       const element = document.getElementById(sectionId);
       if (element) {
-        element.scrollIntoView({
-          behavior: 'smooth',
-          block: 'start',
+        const navbarHeight = 80; // Adjust based on your navbar height
+        const elementPosition = element.offsetTop - navbarHeight;
+        
+        window.scrollTo({
+          top: elementPosition,
+          behavior: 'smooth'
         });
       }
     }

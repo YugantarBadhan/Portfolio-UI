@@ -8,7 +8,8 @@
     <i class="fas fa-briefcase"></i>
     Portfolio
   </div>
-  <ul class="nav-links">
+  <!-- Desktop Navigation -->
+  <ul class="nav-links desktop-nav">
     <li><a href="#home" (click)="scrollToSection('home', $event)">Home</a></li>
     <li>
       <a href="#experience" (click)="scrollToSection('experience', $event)"
@@ -36,6 +37,12 @@
       <a href="#awards" (click)="scrollToSection('awards', $event)">Awards</a>
     </li>
   </ul>
+
+  <!-- Mobile Menu Button -->
+  <button class="mobile-menu-btn" (click)="toggleMobileMenu()">
+    <i class="fas fa-bars" *ngIf="!isMobileMenuOpen"></i>
+    <i class="fas fa-times" *ngIf="isMobileMenuOpen"></i>
+  </button>
   <div class="nav-actions">
     <div class="social-buttons">
       <a
@@ -85,6 +92,18 @@
   </div>
 </nav>
 
+<!-- Mobile Navigation Menu -->
+<div class="mobile-menu" [class.open]="isMobileMenuOpen" [class.dark-theme]="isDarkTheme">
+  <ul class="mobile-nav-links">
+    <li><a href="#home" (click)="scrollToSection('home', $event); toggleMobileMenu()">Home</a></li>
+    <li><a href="#experience" (click)="scrollToSection('experience', $event); toggleMobileMenu()">Experience</a></li>
+    <li><a href="#projects" (click)="scrollToSection('projects', $event); toggleMobileMenu()">Projects</a></li>
+    <li><a href="#certifications" (click)="scrollToSection('certifications', $event); toggleMobileMenu()">Certifications</a></li>
+    <li><a href="#educations" (click)="scrollToSection('educations', $event); toggleMobileMenu()">Educations</a></li>
+    <li><a href="#awards" (click)="scrollToSection('awards', $event); toggleMobileMenu()">Awards</a></li>
+  </ul>
+</div>
+
 <!-- Hero Section -->
 <section class="hero" [class.dark-theme]="isDarkTheme" id="home">
   <div class="hero-content">
@@ -121,5 +140,40 @@
         Download My Resume
       </button>
     </div>
+  </div>
+</section>
+
+<!-- Experience Section -->
+<app-experience></app-experience>
+
+<!-- Projects Section - Placeholder -->
+<section class="section" [class.dark-theme]="isDarkTheme" id="projects">
+  <div class="container">
+    <h2>Projects</h2>
+    <p>Coming soon...</p>
+  </div>
+</section>
+
+<!-- Certifications Section - Placeholder -->
+<section class="section" [class.dark-theme]="isDarkTheme" id="certifications">
+  <div class="container">
+    <h2>Certifications</h2>
+    <p>Coming soon...</p>
+  </div>
+</section>
+
+<!-- Education Section - Placeholder -->
+<section class="section" [class.dark-theme]="isDarkTheme" id="educations">
+  <div class="container">
+    <h2>Education</h2>
+    <p>Coming soon...</p>
+  </div>
+</section>
+
+<!-- Awards Section - Placeholder -->
+<section class="section" [class.dark-theme]="isDarkTheme" id="awards">
+  <div class="container">
+    <h2>Awards</h2>
+    <p>Coming soon...</p>
   </div>
 </section>

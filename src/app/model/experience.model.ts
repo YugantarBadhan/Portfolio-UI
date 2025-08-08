@@ -12,9 +12,9 @@ export interface Experience {
 export interface ExperienceRequest {
   companyName: string;
   role: string;
-  startDate: string; // Format: YYYY-MM-DD
+  startDate: string; // Format: YYYY-MM-DD (to match Java LocalDate)
   endDate: string | null; // Format: YYYY-MM-DD or null for current
   current: boolean;
-  description: string;
+  description: string; // Required field but no minimum length validation on backend
   skills: string[];
 }

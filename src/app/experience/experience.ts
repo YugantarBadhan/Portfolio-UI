@@ -29,14 +29,15 @@ export class ExperienceComponent implements OnInit {
   constructor(@Inject(PLATFORM_ID) platformId: Object) {
     this.isBrowser = isPlatformBrowser(platformId);
     
+    // Simplified form validation to match backend requirements
     this.experienceForm = this.fb.group({
-      companyName: ['', [Validators.required, Validators.minLength(2)]],
-      role: ['', [Validators.required, Validators.minLength(2)]],
-      startDate: ['', Validators.required],
-      endDate: [''],
+      companyName: ['', [Validators.required]], // Just required, no minLength
+      role: ['', [Validators.required]], // Just required, no minLength  
+      startDate: ['', [Validators.required]], // Required
+      endDate: [''], // No validation initially
       current: [false],
-      description: ['', [Validators.required, Validators.minLength(10)]],
-      skills: this.fb.array([this.fb.control('', [Validators.required, Validators.minLength(1)])])
+      description: ['', [Validators.required]], // Required but no minLength
+      skills: this.fb.array([this.fb.control('', [Validators.required])])
     });
 
     this.checkAdminStatus();
@@ -109,7 +110,7 @@ export class ExperienceComponent implements OnInit {
   }
 
   addSkill() {
-    const skillControl = this.fb.control('', [Validators.required, Validators.minLength(1)]);
+    const skillControl = this.fb.control('', [Validators.required]);
     this.skillsArray.push(skillControl);
   }
 
@@ -119,7 +120,7 @@ export class ExperienceComponent implements OnInit {
     }
   }
 
-  // Fixed validation method
+  // Simplified skills validation
   hasValidSkills(): boolean {
     if (this.skillsArray.length === 0) return false;
     
@@ -132,47 +133,53 @@ export class ExperienceComponent implements OnInit {
     return validSkills.length > 0;
   }
 
-  // Fixed form validation method
+  // Much simpler form validation matching backend requirements exactly
   isFormValid(): boolean {
-    const form = this.experienceForm;
+    const formValue = this.experienceForm.value;
     
-    // Get form controls
-    const companyName = form.get('companyName');
-    const role = form.get('role');
-    const startDate = form.get('startDate');
-    const description = form.get('description');
-    const current = form.get('current');
-    const endDate = form.get('endDate');
+    // Check required fields exactly as backend expects
+    const companyName = formValue.companyName?.trim();
+    const role = formValue.role?.trim();
+    const startDate = formValue.startDate;
+    const description = formValue.description?.trim();
+    const current = formValue.current;
+    const endDate = formValue.endDate;
 
-    // Check basic form validity
-    const companyNameValid = companyName?.valid && companyName?.value?.trim().length >= 2;
-    const roleValid = role?.valid && role?.value?.trim().length >= 2;
-    const startDateValid = startDate?.valid && startDate?.value;
-    const descriptionValid = description?.valid && description?.value?.trim().length >= 10;
-
-    // Check end date only if not currently working
-    const dateValid = current?.value === true || (endDate?.valid && endDate?.value);
-
-    // Check skills - at least one valid skill
-    const skillsValid = this.hasValidSkills();
-
-    const isValid = companyNameValid && roleValid && startDateValid && descriptionValid && dateValid && skillsValid;
+    // Basic validation - all required fields must have values
+    const hasCompanyName = !!companyName;
+    const hasRole = !!role;
+    const hasStartDate = !!startDate;
+    const hasDescription = !!description;
     
-    console.log('Form validation:', {
-      companyNameValid,
-      roleValid,
-      startDateValid,
-      descriptionValid,
-      dateValid,
-      skillsValid,
-      isValid
+    // End date is only required if not currently working
+    const hasValidEndDate = current === true || !!endDate;
+    
+    // At least one valid skill
+    const hasValidSkills = this.hasValidSkills();
+
+    const isValid = hasCompanyName && hasRole && hasStartDate && hasDescription && hasValidEndDate && hasValidSkills;
+    
+    // Debug logging
+    console.log('=== FORM VALIDATION DEBUG ===');
+    console.log('Company Name:', { value: companyName, valid: hasCompanyName });
+    console.log('Role:', { value: role, valid: hasRole });
+    console.log('Start Date:', { value: startDate, valid: hasStartDate });
+    console.log('Description:', { value: description, valid: hasDescription });
+    console.log('Current:', { value: current });
+    console.log('End Date:', { value: endDate, required: !current, valid: hasValidEndDate });
+    console.log('Skills:', { 
+      count: this.skillsArray.length, 
+      values: this.skillsArray.controls.map(c => c.value),
+      valid: hasValidSkills 
     });
+    console.log('FORM IS VALID:', isValid);
+    console.log('=== END DEBUG ===');
 
     return isValid;
   }
 
   onSkillChange() {
-    // Trigger form validation update
+    // Simple change detection trigger
     setTimeout(() => {
       this.experienceForm.updateValueAndValidity();
     }, 0);
@@ -189,6 +196,9 @@ export class ExperienceComponent implements OnInit {
       endDateControl?.setValidators([Validators.required]);
     }
     endDateControl?.updateValueAndValidity();
+    
+    // Trigger validation update
+    this.onSkillChange();
   }
 
   openForm(experience?: Experience) {
@@ -217,11 +227,11 @@ export class ExperienceComponent implements OnInit {
       this.skillsArray.clear();
       if (experience.skills && experience.skills.length > 0) {
         experience.skills.forEach(skill => {
-          this.skillsArray.push(this.fb.control(skill, [Validators.required, Validators.minLength(1)]));
+          this.skillsArray.push(this.fb.control(skill, [Validators.required]));
         });
       } else {
         // Add at least one empty skill field
-        this.skillsArray.push(this.fb.control('', [Validators.required, Validators.minLength(1)]));
+        this.skillsArray.push(this.fb.control('', [Validators.required]));
       }
     } else {
       this.editingId.set(null);
@@ -249,26 +259,21 @@ export class ExperienceComponent implements OnInit {
     this.experienceForm.reset();
     this.skillsArray.clear();
     // Add one empty skill field
-    this.skillsArray.push(this.fb.control('', [Validators.required, Validators.minLength(1)]));
+    this.skillsArray.push(this.fb.control('', [Validators.required]));
     this.experienceForm.patchValue({ current: false });
     this.editingId.set(null);
   }
 
   async onSubmit() {
-    console.log('Form submitted, validation status:', this.isFormValid());
+    console.log('=== FORM SUBMISSION ===');
     console.log('Form value:', this.experienceForm.value);
+    console.log('Form valid check:', this.isFormValid());
     
     if (!this.isFormValid()) {
-      // Mark all fields as touched to show validation errors
-      Object.keys(this.experienceForm.controls).forEach(key => {
-        const control = this.experienceForm.get(key);
-        if (control) {
-          control.markAsTouched();
-        }
-      });
+      console.log('Form validation failed - marking fields as touched');
       
-      // Mark skills as touched
-      this.skillsArray.controls.forEach(control => control.markAsTouched());
+      // Mark all fields as touched to show validation errors
+      this.markAllFieldsAsTouched();
       
       alert('Please fill all required fields correctly');
       return;
@@ -287,19 +292,19 @@ export class ExperienceComponent implements OnInit {
         }
       });
       
-      console.log('Valid skills:', validSkills);
+      console.log('Processed valid skills:', validSkills);
       
       const experienceData = {
         companyName: formValue.companyName.trim(),
         role: formValue.role.trim(),
-        startDate: formValue.startDate,
+        startDate: formValue.startDate, // Already in YYYY-MM-DD format from date input
         endDate: formValue.current ? null : formValue.endDate,
         current: formValue.current,
         description: formValue.description.trim(),
         skills: validSkills
       };
 
-      console.log('Sending experience data:', experienceData);
+      console.log('Final experience data to send:', experienceData);
 
       if (this.editingId()) {
         await this.experienceService.updateExperience(this.editingId()!, experienceData);
@@ -316,6 +321,21 @@ export class ExperienceComponent implements OnInit {
     } finally {
       this.isLoading.set(false);
     }
+  }
+
+  private markAllFieldsAsTouched() {
+    // Mark all form controls as touched
+    Object.keys(this.experienceForm.controls).forEach(key => {
+      const control = this.experienceForm.get(key);
+      if (control) {
+        control.markAsTouched();
+      }
+    });
+    
+    // Mark skills array controls as touched
+    this.skillsArray.controls.forEach(control => {
+      control.markAsTouched();
+    });
   }
 
   async deleteExperience(id: number, companyName: string) {
@@ -335,7 +355,7 @@ export class ExperienceComponent implements OnInit {
 
   private formatDateForInput(dateString: string): string {
     const date = new Date(dateString);
-    return date.toISOString().split('T')[0];
+    return date.toISOString().split('T')[0]; // This gives YYYY-MM-DD format
   }
 
   formatDate(dateString: string): string {

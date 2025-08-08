@@ -133,24 +133,24 @@ export class ExperienceService {
   private validateExperienceData(data: ExperienceRequest): void {
     const errors: string[] = [];
 
+    // Validate company name (matches @NotBlank in Java)
     if (!data.companyName?.trim()) {
       errors.push('Company name is required');
-    } else if (data.companyName.trim().length < 2) {
-      errors.push('Company name must be at least 2 characters');
     }
 
+    // Validate role (matches @NotBlank in Java)
     if (!data.role?.trim()) {
       errors.push('Role is required');
-    } else if (data.role.trim().length < 2) {
-      errors.push('Role must be at least 2 characters');
     }
 
+    // Validate start date (matches @NotNull in Java)
     if (!data.startDate) {
       errors.push('Start date is required');
     } else if (!this.isValidDate(data.startDate)) {
       errors.push('Invalid start date format');
     }
 
+    // Validate end date only if not current (no backend validation for this)
     if (!data.current && data.endDate) {
       if (!this.isValidDate(data.endDate)) {
         errors.push('Invalid end date format');
@@ -159,18 +159,18 @@ export class ExperienceService {
       }
     }
 
+    // Description validation - backend doesn't have validation, so just check if it exists
     if (!data.description?.trim()) {
       errors.push('Description is required');
-    } else if (data.description.trim().length < 10) {
-      errors.push('Description must be at least 10 characters');
     }
 
+    // Skills validation - backend doesn't have validation, but we want at least one skill
     if (!data.skills || data.skills.length === 0) {
       errors.push('At least one skill is required');
     } else {
-      const invalidSkills = data.skills.filter(skill => !skill?.trim());
-      if (invalidSkills.length > 0) {
-        errors.push('All skills must be non-empty');
+      const validSkills = data.skills.filter(skill => skill?.trim());
+      if (validSkills.length === 0) {
+        errors.push('At least one valid skill is required');
       }
     }
 
@@ -180,8 +180,14 @@ export class ExperienceService {
   }
 
   private isValidDate(dateString: string): boolean {
+    // Check if the date string matches YYYY-MM-DD format
+    const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+    if (!dateRegex.test(dateString)) {
+      return false;
+    }
+    
     const date = new Date(dateString);
-    return date instanceof Date && !isNaN(date.getTime()) && !!dateString.match(/^\d{4}-\d{2}-\d{2}$/);
+    return date instanceof Date && !isNaN(date.getTime());
   }
 
   private getErrorMessage(error: any, defaultMessage: string): string {

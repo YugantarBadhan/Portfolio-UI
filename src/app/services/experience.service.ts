@@ -50,22 +50,34 @@ export class ExperienceService {
 
   async createExperience(experienceData: ExperienceRequest): Promise<string> {
     try {
+      console.log('Creating experience with data:', experienceData);
+      console.log('API URL:', `${this.baseUrl}/create/experience`);
+      console.log('Headers:', this.getAdminHeaders());
+      
       // Validate the experience data before sending
       this.validateExperienceData(experienceData);
 
       const response = await firstValueFrom(
-        this.http.post<string>(
+        this.http.post(
           `${this.baseUrl}/create/experience`, 
           experienceData, 
           { 
-            headers: this.getAdminHeaders(), 
-            responseType: 'text' as 'json' 
+            headers: this.getAdminHeaders(),
+            responseType: 'text'
           }
         )
       );
+      
+      console.log('Create experience response:', response);
       return response || 'Experience created successfully';
     } catch (error: any) {
       console.error('Error creating experience:', error);
+      console.error('Error details:', {
+        status: error.status,
+        message: error.message,
+        error: error.error,
+        url: error.url
+      });
       throw new Error(this.getErrorMessage(error, 'Failed to create experience'));
     }
   }

@@ -36,7 +36,7 @@ export class ExperienceComponent implements OnInit {
       endDate: [''],
       current: [false],
       description: ['', [Validators.required, Validators.minLength(10)]],
-      skills: this.fb.array([])
+      skills: this.fb.array([this.fb.control('', [Validators.required, Validators.minLength(1)])])
     });
 
     this.checkAdminStatus();
@@ -114,49 +114,68 @@ export class ExperienceComponent implements OnInit {
   }
 
   removeSkill(index: number) {
-    this.skillsArray.removeAt(index);
+    if (this.skillsArray.length > 1) {
+      this.skillsArray.removeAt(index);
+    }
   }
 
-  // Simplified validation methods
+  // Fixed validation method
   hasValidSkills(): boolean {
     if (this.skillsArray.length === 0) return false;
     
-    // Check if at least one skill has a valid value
-    for (let i = 0; i < this.skillsArray.length; i++) {
-      const value = this.skillsArray.at(i).value;
-      if (value && value.trim().length > 0) {
-        return true;
-      }
-    }
-    return false;
+    // Check if at least one skill has a valid value (non-empty and trimmed)
+    const validSkills = this.skillsArray.controls.filter(control => {
+      const value = control.value;
+      return value && typeof value === 'string' && value.trim().length > 0;
+    });
+    
+    return validSkills.length > 0;
   }
 
+  // Fixed form validation method
   isFormValid(): boolean {
-    // Check basic form fields
-    const companyName = this.experienceForm.get('companyName');
-    const role = this.experienceForm.get('role');
-    const startDate = this.experienceForm.get('startDate');
-    const description = this.experienceForm.get('description');
-    const current = this.experienceForm.get('current');
-    const endDate = this.experienceForm.get('endDate');
+    const form = this.experienceForm;
+    
+    // Get form controls
+    const companyName = form.get('companyName');
+    const role = form.get('role');
+    const startDate = form.get('startDate');
+    const description = form.get('description');
+    const current = form.get('current');
+    const endDate = form.get('endDate');
 
-    const basicValid = companyName?.valid && 
-                      role?.valid && 
-                      startDate?.valid && 
-                      description?.valid;
+    // Check basic form validity
+    const companyNameValid = companyName?.valid && companyName?.value?.trim().length >= 2;
+    const roleValid = role?.valid && role?.value?.trim().length >= 2;
+    const startDateValid = startDate?.valid && startDate?.value;
+    const descriptionValid = description?.valid && description?.value?.trim().length >= 10;
 
     // Check end date only if not currently working
-    const dateValid = current?.value || endDate?.valid;
+    const dateValid = current?.value === true || (endDate?.valid && endDate?.value);
 
-    // Check skills
+    // Check skills - at least one valid skill
     const skillsValid = this.hasValidSkills();
 
-    return !!(basicValid && dateValid && skillsValid);
+    const isValid = companyNameValid && roleValid && startDateValid && descriptionValid && dateValid && skillsValid;
+    
+    console.log('Form validation:', {
+      companyNameValid,
+      roleValid,
+      startDateValid,
+      descriptionValid,
+      dateValid,
+      skillsValid,
+      isValid
+    });
+
+    return isValid;
   }
 
   onSkillChange() {
-    // Simple trigger for change detection
-    this.experienceForm.updateValueAndValidity();
+    // Trigger form validation update
+    setTimeout(() => {
+      this.experienceForm.updateValueAndValidity();
+    }, 0);
   }
 
   onCurrentChange() {
@@ -196,13 +215,17 @@ export class ExperienceComponent implements OnInit {
       
       // Set skills
       this.skillsArray.clear();
-      experience.skills.forEach(skill => {
-        this.skillsArray.push(this.fb.control(skill, [Validators.required, Validators.minLength(1)]));
-      });
+      if (experience.skills && experience.skills.length > 0) {
+        experience.skills.forEach(skill => {
+          this.skillsArray.push(this.fb.control(skill, [Validators.required, Validators.minLength(1)]));
+        });
+      } else {
+        // Add at least one empty skill field
+        this.skillsArray.push(this.fb.control('', [Validators.required, Validators.minLength(1)]));
+      }
     } else {
       this.editingId.set(null);
-      // Add one empty skill field by default
-      this.addSkill();
+      // Form already has one empty skill field from constructor
     }
     this.showForm.set(true);
   }
@@ -225,51 +248,73 @@ export class ExperienceComponent implements OnInit {
   resetForm() {
     this.experienceForm.reset();
     this.skillsArray.clear();
+    // Add one empty skill field
+    this.skillsArray.push(this.fb.control('', [Validators.required, Validators.minLength(1)]));
     this.experienceForm.patchValue({ current: false });
     this.editingId.set(null);
   }
 
-  async onSubmit() {    
-    if (this.isFormValid()) {
-      this.isLoading.set(true);
-      try {
-        const formValue = this.experienceForm.value;
-        
-        // Get valid skills
-        const validSkills: string[] = [];
-        for (let i = 0; i < this.skillsArray.length; i++) {
-          const skill = this.skillsArray.at(i).value;
-          if (skill && skill.trim().length > 0) {
-            validSkills.push(skill.trim());
-          }
+  async onSubmit() {
+    console.log('Form submitted, validation status:', this.isFormValid());
+    console.log('Form value:', this.experienceForm.value);
+    
+    if (!this.isFormValid()) {
+      // Mark all fields as touched to show validation errors
+      Object.keys(this.experienceForm.controls).forEach(key => {
+        const control = this.experienceForm.get(key);
+        if (control) {
+          control.markAsTouched();
         }
-        
-        const experienceData = {
-          companyName: formValue.companyName,
-          role: formValue.role,
-          startDate: formValue.startDate,
-          endDate: formValue.current ? null : formValue.endDate,
-          current: formValue.current,
-          description: formValue.description,
-          skills: validSkills
-        };
-
-        if (this.editingId()) {
-          await this.experienceService.updateExperience(this.editingId()!, experienceData);
-        } else {
-          await this.experienceService.createExperience(experienceData);
-        }
-        
-        await this.loadExperiences();
-        this.closeForm();
-      } catch (error: any) {
-        console.error('Submission error:', error);
-        alert(error.message || 'An error occurred');
-      } finally {
-        this.isLoading.set(false);
-      }
-    } else {
+      });
+      
+      // Mark skills as touched
+      this.skillsArray.controls.forEach(control => control.markAsTouched());
+      
       alert('Please fill all required fields correctly');
+      return;
+    }
+
+    this.isLoading.set(true);
+    try {
+      const formValue = this.experienceForm.value;
+      
+      // Get valid skills (filter out empty ones)
+      const validSkills: string[] = [];
+      this.skillsArray.controls.forEach(control => {
+        const skill = control.value;
+        if (skill && typeof skill === 'string' && skill.trim().length > 0) {
+          validSkills.push(skill.trim());
+        }
+      });
+      
+      console.log('Valid skills:', validSkills);
+      
+      const experienceData = {
+        companyName: formValue.companyName.trim(),
+        role: formValue.role.trim(),
+        startDate: formValue.startDate,
+        endDate: formValue.current ? null : formValue.endDate,
+        current: formValue.current,
+        description: formValue.description.trim(),
+        skills: validSkills
+      };
+
+      console.log('Sending experience data:', experienceData);
+
+      if (this.editingId()) {
+        await this.experienceService.updateExperience(this.editingId()!, experienceData);
+      } else {
+        await this.experienceService.createExperience(experienceData);
+      }
+      
+      await this.loadExperiences();
+      this.closeForm();
+      alert('Experience saved successfully!');
+    } catch (error: any) {
+      console.error('Submission error:', error);
+      alert(error.message || 'An error occurred while saving');
+    } finally {
+      this.isLoading.set(false);
     }
   }
 
@@ -279,6 +324,7 @@ export class ExperienceComponent implements OnInit {
       try {
         await this.experienceService.deleteExperience(id);
         await this.loadExperiences();
+        alert('Experience deleted successfully!');
       } catch (error: any) {
         alert(error.message || 'Failed to delete experience');
       } finally {
@@ -333,6 +379,6 @@ export class ExperienceComponent implements OnInit {
 
   // Helper method for skills error display
   shouldShowSkillsError(): boolean {
-    return this.skillsArray.length > 0 && !this.hasValidSkills();
+    return this.skillsArray.length > 0 && !this.hasValidSkills() && this.skillsArray.controls.some(control => control.touched);
   }
 }

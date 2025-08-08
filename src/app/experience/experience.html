@@ -44,7 +44,8 @@
                 type="text" 
                 id="companyName" 
                 formControlName="companyName"
-                placeholder="Enter company name">
+                placeholder="Enter company name"
+                (input)="onSkillChange()">
               <div *ngIf="experienceForm.get('companyName')?.invalid && experienceForm.get('companyName')?.touched" class="error-message">
                 Company name is required (min 2 characters)
               </div>
@@ -56,7 +57,8 @@
                 type="text" 
                 id="role" 
                 formControlName="role"
-                placeholder="Enter your role">
+                placeholder="Enter your role"
+                (input)="onSkillChange()">
               <div *ngIf="experienceForm.get('role')?.invalid && experienceForm.get('role')?.touched" class="error-message">
                 Role is required (min 2 characters)
               </div>
@@ -69,7 +71,8 @@
               <input 
                 type="date" 
                 id="startDate" 
-                formControlName="startDate">
+                formControlName="startDate"
+                (change)="onSkillChange()">
               <div *ngIf="experienceForm.get('startDate')?.invalid && experienceForm.get('startDate')?.touched" class="error-message">
                 Start date is required
               </div>
@@ -77,7 +80,7 @@
 
             <div class="form-group">
               <label class="checkbox-label">
-                <input type="checkbox" formControlName="current" (change)="onCurrentChange()"> Currently Working
+                <input type="checkbox" formControlName="current" (change)="onCurrentChange(); onSkillChange()"> Currently Working
               </label>
             </div>
           </div>
@@ -87,7 +90,8 @@
             <input 
               type="date" 
               id="endDate" 
-              formControlName="endDate">
+              formControlName="endDate"
+              (change)="onSkillChange()">
             <div *ngIf="!experienceForm.get('current')?.value && experienceForm.get('endDate')?.invalid && experienceForm.get('endDate')?.touched" class="error-message">
               End date is required when not currently working
             </div>
@@ -99,7 +103,8 @@
               id="description" 
               formControlName="description"
               placeholder="Describe your role and responsibilities"
-              rows="4"></textarea>
+              rows="4"
+              (input)="onSkillChange()"></textarea>
             <div *ngIf="experienceForm.get('description')?.invalid && experienceForm.get('description')?.touched" class="error-message">
               Description is required (min 10 characters)
             </div>
@@ -115,9 +120,18 @@
                   placeholder="Enter skill"
                   (input)="onSkillChange()"
                   (keyup)="onSkillChange()">
-                <button type="button" class="remove-skill-btn" (click)="removeSkill(i)" *ngIf="skillsArray.length > 1">-</button>
+                <button 
+                  type="button" 
+                  class="remove-skill-btn" 
+                  (click)="removeSkill(i)" 
+                  *ngIf="skillsArray.length > 1"
+                  title="Remove skill">
+                  <i class="fas fa-minus"></i>
+                </button>
               </div>
-              <button type="button" class="add-skill-btn" (click)="addSkill()">+ Add Skill</button>
+              <button type="button" class="add-skill-btn" (click)="addSkill()">
+                <i class="fas fa-plus"></i> Add Skill
+              </button>
             </div>
             <div *ngIf="shouldShowSkillsError()" class="error-message">
               At least one valid skill is required
@@ -130,7 +144,7 @@
               type="submit" 
               class="btn-submit" 
               [disabled]="!isFormValid() || isLoading()">
-              {{ isLoading() ? 'Saving...' : (editingId() ? 'Update' : 'Create') }}
+              {{ isLoading() ? 'Saving...' : (editingId() ? 'Update Experience' : 'Create Experience') }}
             </button>
           </div>
         </form>
@@ -164,8 +178,12 @@
             
             <!-- Admin Actions -->
             <div *ngIf="isAdmin()" class="admin-actions-card">
-              <button class="action-btn edit-btn" (click)="openForm(exp)" title="Edit">✏️</button>
-              <button class="action-btn delete-btn" (click)="deleteExperience(exp.id, exp.companyName)" title="Delete">🗑️</button>
+              <button class="action-btn edit-btn" (click)="openForm(exp)" title="Edit">
+                <i class="fas fa-edit"></i>
+              </button>
+              <button class="action-btn delete-btn" (click)="deleteExperience(exp.id, exp.companyName)" title="Delete">
+                <i class="fas fa-trash"></i>
+              </button>
             </div>
           </div>
 

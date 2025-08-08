@@ -47,7 +47,8 @@
                 placeholder="Enter company name"
                 (input)="onSkillChange()">
               <div *ngIf="experienceForm.get('companyName')?.invalid && experienceForm.get('companyName')?.touched" class="error-message">
-                Company name is required (min 2 characters)
+                <span *ngIf="experienceForm.get('companyName')?.errors?.['required']">Company name is required</span>
+                <span *ngIf="experienceForm.get('companyName')?.errors?.['minlength']">Company name must be at least 2 characters</span>
               </div>
             </div>
 
@@ -60,19 +61,21 @@
                 placeholder="Enter your role"
                 (input)="onSkillChange()">
               <div *ngIf="experienceForm.get('role')?.invalid && experienceForm.get('role')?.touched" class="error-message">
-                Role is required (min 2 characters)
+                <span *ngIf="experienceForm.get('role')?.errors?.['required']">Role is required</span>
+                <span *ngIf="experienceForm.get('role')?.errors?.['minlength']">Role must be at least 2 characters</span>
               </div>
             </div>
           </div>
 
           <div class="form-row">
             <div class="form-group">
-              <label for="startDate">Start Date * (DD/MM/YYYY)</label>
+              <label for="startDate">Start Date * (YYYY-MM-DD)</label>
               <input 
                 type="date" 
                 id="startDate" 
                 formControlName="startDate"
-                (change)="onSkillChange()">
+                (change)="onSkillChange()"
+                placeholder="YYYY-MM-DD">
               <div *ngIf="experienceForm.get('startDate')?.invalid && experienceForm.get('startDate')?.touched" class="error-message">
                 Start date is required
               </div>
@@ -86,12 +89,13 @@
           </div>
 
           <div class="form-group" *ngIf="!experienceForm.get('current')?.value">
-            <label for="endDate">End Date (DD/MM/YYYY)</label>
+            <label for="endDate">End Date (YYYY-MM-DD)</label>
             <input 
               type="date" 
               id="endDate" 
               formControlName="endDate"
-              (change)="onSkillChange()">
+              (change)="onSkillChange()"
+              placeholder="YYYY-MM-DD">
             <div *ngIf="!experienceForm.get('current')?.value && experienceForm.get('endDate')?.invalid && experienceForm.get('endDate')?.touched" class="error-message">
               End date is required when not currently working
             </div>
@@ -102,11 +106,12 @@
             <textarea 
               id="description" 
               formControlName="description"
-              placeholder="Describe your role and responsibilities"
+              placeholder="Describe your role and responsibilities (minimum 10 characters)"
               rows="4"
               (input)="onSkillChange()"></textarea>
             <div *ngIf="experienceForm.get('description')?.invalid && experienceForm.get('description')?.touched" class="error-message">
-              Description is required (min 10 characters)
+              <span *ngIf="experienceForm.get('description')?.errors?.['required']">Description is required</span>
+              <span *ngIf="experienceForm.get('description')?.errors?.['minlength']">Description must be at least 10 characters</span>
             </div>
           </div>
 
@@ -119,17 +124,19 @@
                   [formControlName]="i"
                   placeholder="Enter skill"
                   (input)="onSkillChange()"
-                  (keyup)="onSkillChange()">
+                  (keyup)="onSkillChange()"
+                  (blur)="onSkillChange()"
+                  (change)="onSkillChange()">
                 <button 
                   type="button" 
                   class="remove-skill-btn" 
-                  (click)="removeSkill(i)" 
+                  (click)="removeSkill(i); onSkillChange()" 
                   *ngIf="skillsArray.length > 1"
                   title="Remove skill">
                   <i class="fas fa-minus"></i>
                 </button>
               </div>
-              <button type="button" class="add-skill-btn" (click)="addSkill()">
+              <button type="button" class="add-skill-btn" (click)="addSkill(); onSkillChange()">
                 <i class="fas fa-plus"></i> Add Skill
               </button>
             </div>
@@ -146,6 +153,23 @@
               [disabled]="!isFormValid() || isLoading()">
               {{ isLoading() ? 'Saving...' : (editingId() ? 'Update Experience' : 'Create Experience') }}
             </button>
+          </div>
+          
+          <!-- Debug info (remove in production) -->
+          <div style="margin-top: 20px; padding: 10px; background: #f8f9fa; border-radius: 5px; font-size: 12px;">
+            <strong>Form Debug Info:</strong><br>
+            Form Valid: {{ experienceForm.valid }}<br>
+            Custom Valid: {{ isFormValid() }}<br>
+            Has Valid Skills: {{ hasValidSkills() }}<br>
+            Company: {{ experienceForm.get('companyName')?.valid }} ({{ experienceForm.get('companyName')?.value }})<br>
+            Role: {{ experienceForm.get('role')?.valid }} ({{ experienceForm.get('role')?.value }})<br>
+            Start Date: {{ experienceForm.get('startDate')?.valid }} ({{ experienceForm.get('startDate')?.value }})<br>
+            End Date: {{ experienceForm.get('endDate')?.valid || experienceForm.get('current')?.value }} ({{ experienceForm.get('endDate')?.value }})<br>
+            Current: {{ experienceForm.get('current')?.value }}<br>
+            Description: {{ experienceForm.get('description')?.valid }} (length: {{ experienceForm.get('description')?.value?.length || 0 }})<br>
+            Skills Count: {{ skillsArray.length }}<br>
+            Skills Values: <span *ngFor="let skill of skillsArray.controls; let i = index">[{{ i }}]: "{{ skill.value }}" (valid: {{ skill.valid }}) </span><br>
+            Skills Array Valid: {{ skillsArray.valid }}
           </div>
         </form>
       </div>

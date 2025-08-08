@@ -26,17 +26,48 @@ export class ExperienceComponent implements OnInit {
 
   experienceForm: FormGroup;
 
+  // Manual validation check - bypassing Angular's form validation issues
+  private manualFormValidation(): boolean {
+    const formValue = this.experienceForm.value;
+    
+    // Required field checks
+    const companyNameValid = !!(formValue.companyName?.trim() && formValue.companyName.trim().length >= 2);
+    const roleValid = !!(formValue.role?.trim() && formValue.role.trim().length >= 2);
+    const startDateValid = !!formValue.startDate;
+    const descriptionValid = !!(formValue.description?.trim() && formValue.description.trim().length >= 10);
+    
+    // End date check
+    const endDateValid = formValue.current === true || !!formValue.endDate;
+    
+    // Skills check
+    const skillsValid = this.hasValidSkills();
+    
+    const isValid = companyNameValid && roleValid && startDateValid && descriptionValid && endDateValid && skillsValid;
+    
+    console.log('=== MANUAL VALIDATION CHECK ===');
+    console.log('Company Name Valid:', companyNameValid, `"${formValue.companyName}"`);
+    console.log('Role Valid:', roleValid, `"${formValue.role}"`);
+    console.log('Start Date Valid:', startDateValid, `"${formValue.startDate}"`);
+    console.log('Description Valid:', descriptionValid, `"${formValue.description}" (length: ${formValue.description?.length})`);
+    console.log('End Date Valid:', endDateValid, `current: ${formValue.current}, endDate: "${formValue.endDate}"`);
+    console.log('Skills Valid:', skillsValid);
+    console.log('MANUAL VALIDATION RESULT:', isValid);
+    console.log('=== END MANUAL VALIDATION ===');
+    
+    return isValid;
+  }
+
   constructor(@Inject(PLATFORM_ID) platformId: Object) {
     this.isBrowser = isPlatformBrowser(platformId);
     
-    // Simplified form validation to match backend requirements
+    // Create form with proper validation
     this.experienceForm = this.fb.group({
-      companyName: ['', [Validators.required]], // Just required, no minLength
-      role: ['', [Validators.required]], // Just required, no minLength  
-      startDate: ['', [Validators.required]], // Required
-      endDate: [''], // No validation initially
+      companyName: ['', [Validators.required, Validators.minLength(2)]],
+      role: ['', [Validators.required, Validators.minLength(2)]], 
+      startDate: ['', [Validators.required]], 
+      endDate: [''], 
       current: [false],
-      description: ['', [Validators.required]], // Required but no minLength
+      description: ['', [Validators.required, Validators.minLength(10)]], 
       skills: this.fb.array([this.fb.control('', [Validators.required])])
     });
 
@@ -112,32 +143,48 @@ export class ExperienceComponent implements OnInit {
   addSkill() {
     const skillControl = this.fb.control('', [Validators.required]);
     this.skillsArray.push(skillControl);
+    // Trigger validation update
+    setTimeout(() => this.onSkillChange(), 100);
   }
 
   removeSkill(index: number) {
     if (this.skillsArray.length > 1) {
       this.skillsArray.removeAt(index);
+      // Trigger validation update
+      setTimeout(() => this.onSkillChange(), 100);
     }
   }
 
-  // Simplified skills validation
+  // Simplified and more reliable skills validation
   hasValidSkills(): boolean {
-    if (this.skillsArray.length === 0) return false;
+    if (!this.skillsArray || this.skillsArray.length === 0) {
+      console.log('No skills array or empty array');
+      return false;
+    }
     
-    // Check if at least one skill has a valid value (non-empty and trimmed)
-    const validSkills = this.skillsArray.controls.filter(control => {
-      const value = control.value;
-      return value && typeof value === 'string' && value.trim().length > 0;
+    // Get all skill values and filter for valid ones
+    const allSkillValues = this.skillsArray.controls.map(control => control.value);
+    const validSkills = allSkillValues.filter(value => {
+      const isValid = value && typeof value === 'string' && value.trim().length > 0;
+      return isValid;
+    });
+    
+    console.log('Skills validation check:', {
+      totalControls: this.skillsArray.length,
+      allValues: allSkillValues,
+      validSkills: validSkills,
+      validCount: validSkills.length,
+      result: validSkills.length > 0
     });
     
     return validSkills.length > 0;
   }
 
-  // Much simpler form validation matching backend requirements exactly
+  // Improved form validation
   isFormValid(): boolean {
     const formValue = this.experienceForm.value;
     
-    // Check required fields exactly as backend expects
+    // Check required fields
     const companyName = formValue.companyName?.trim();
     const role = formValue.role?.trim();
     const startDate = formValue.startDate;
@@ -145,44 +192,68 @@ export class ExperienceComponent implements OnInit {
     const current = formValue.current;
     const endDate = formValue.endDate;
 
-    // Basic validation - all required fields must have values
-    const hasCompanyName = !!companyName;
-    const hasRole = !!role;
+    // Basic validation
+    const hasCompanyName = !!companyName && companyName.length >= 2;
+    const hasRole = !!role && role.length >= 2;
     const hasStartDate = !!startDate;
-    const hasDescription = !!description;
+    const hasDescription = !!description && description.length >= 10;
     
-    // End date is only required if not currently working
+    // End date validation
     const hasValidEndDate = current === true || !!endDate;
     
-    // At least one valid skill
+    // Date format validation (ensure it's in YYYY-MM-DD format)
+    const isValidStartDate = this.isValidDateFormat(startDate);
+    const isValidEndDate = current || !endDate || this.isValidDateFormat(endDate);
+    
+    // Skills validation - simplified approach
     const hasValidSkills = this.hasValidSkills();
 
-    const isValid = hasCompanyName && hasRole && hasStartDate && hasDescription && hasValidEndDate && hasValidSkills;
+    const isValid = hasCompanyName && hasRole && hasStartDate && hasDescription && 
+                   hasValidEndDate && isValidStartDate && isValidEndDate && hasValidSkills;
     
-    // Debug logging
-    console.log('=== FORM VALIDATION DEBUG ===');
-    console.log('Company Name:', { value: companyName, valid: hasCompanyName });
-    console.log('Role:', { value: role, valid: hasRole });
-    console.log('Start Date:', { value: startDate, valid: hasStartDate });
-    console.log('Description:', { value: description, valid: hasDescription });
-    console.log('Current:', { value: current });
-    console.log('End Date:', { value: endDate, required: !current, valid: hasValidEndDate });
-    console.log('Skills:', { 
-      count: this.skillsArray.length, 
-      values: this.skillsArray.controls.map(c => c.value),
-      valid: hasValidSkills 
-    });
-    console.log('FORM IS VALID:', isValid);
-    console.log('=== END DEBUG ===');
-
+    console.log('=== DETAILED FORM VALIDATION ===');
+    console.log('Company Name:', { value: `"${companyName}"`, valid: hasCompanyName });
+    console.log('Role:', { value: `"${role}"`, valid: hasRole });
+    console.log('Start Date:', { value: `"${startDate}"`, valid: hasStartDate && isValidStartDate });
+    console.log('Description:', { value: `"${description}"`, length: description?.length, valid: hasDescription });
+    console.log('Current Working:', current);
+    console.log('End Date:', { value: `"${endDate}"`, required: !current, valid: hasValidEndDate && isValidEndDate });
+    console.log('Skills Valid:', hasValidSkills);
+    console.log('Angular Form Valid:', this.experienceForm.valid);
+    console.log('FINAL RESULT:', isValid);
+    console.log('=== END VALIDATION ===');
+    
     return isValid;
   }
 
+  // Helper method to validate date format
+  private isValidDateFormat(dateString: string): boolean {
+    if (!dateString) return false;
+    
+    // Check if the date string matches YYYY-MM-DD format
+    const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+    if (!dateRegex.test(dateString)) {
+      return false;
+    }
+    
+    const date = new Date(dateString);
+    return date instanceof Date && !isNaN(date.getTime());
+  }
+
   onSkillChange() {
-    // Simple change detection trigger
+    // Trigger form validation update
     setTimeout(() => {
+      // Force update skills array validation
+      this.skillsArray.controls.forEach(control => {
+        control.updateValueAndValidity();
+      });
+      
+      // Update form validation
       this.experienceForm.updateValueAndValidity();
-    }, 0);
+      
+      // Force change detection for skills validation
+      console.log('Skills changed - current values:', this.skillsArray.controls.map(c => c.value));
+    }, 50); // Increased timeout to ensure DOM updates are captured
   }
 
   onCurrentChange() {
@@ -211,8 +282,9 @@ export class ExperienceComponent implements OnInit {
     if (experience) {
       this.editingId.set(experience.id);
       
-      const startDate = this.formatDateForInput(experience.startDate);
-      const endDate = experience.endDate ? this.formatDateForInput(experience.endDate) : '';
+      // Convert dates to YYYY-MM-DD format for the date inputs
+      const startDate = this.convertToDateInputFormat(experience.startDate);
+      const endDate = experience.endDate ? this.convertToDateInputFormat(experience.endDate) : '';
       
       this.experienceForm.patchValue({
         companyName: experience.companyName,
@@ -230,12 +302,10 @@ export class ExperienceComponent implements OnInit {
           this.skillsArray.push(this.fb.control(skill, [Validators.required]));
         });
       } else {
-        // Add at least one empty skill field
         this.skillsArray.push(this.fb.control('', [Validators.required]));
       }
     } else {
       this.editingId.set(null);
-      // Form already has one empty skill field from constructor
     }
     this.showForm.set(true);
   }
@@ -258,7 +328,6 @@ export class ExperienceComponent implements OnInit {
   resetForm() {
     this.experienceForm.reset();
     this.skillsArray.clear();
-    // Add one empty skill field
     this.skillsArray.push(this.fb.control('', [Validators.required]));
     this.experienceForm.patchValue({ current: false });
     this.editingId.set(null);
@@ -271,10 +340,7 @@ export class ExperienceComponent implements OnInit {
     
     if (!this.isFormValid()) {
       console.log('Form validation failed - marking fields as touched');
-      
-      // Mark all fields as touched to show validation errors
       this.markAllFieldsAsTouched();
-      
       alert('Please fill all required fields correctly');
       return;
     }
@@ -294,11 +360,15 @@ export class ExperienceComponent implements OnInit {
       
       console.log('Processed valid skills:', validSkills);
       
+      // Ensure dates are in correct format (YYYY-MM-DD)
+      const startDate = this.convertToApiDateFormat(formValue.startDate);
+      const endDate = formValue.current ? null : this.convertToApiDateFormat(formValue.endDate);
+      
       const experienceData = {
         companyName: formValue.companyName.trim(),
         role: formValue.role.trim(),
-        startDate: formValue.startDate, // Already in YYYY-MM-DD format from date input
-        endDate: formValue.current ? null : formValue.endDate,
+        startDate: startDate,
+        endDate: endDate,
         current: formValue.current,
         description: formValue.description.trim(),
         skills: validSkills
@@ -353,11 +423,43 @@ export class ExperienceComponent implements OnInit {
     }
   }
 
-  private formatDateForInput(dateString: string): string {
+  // Convert date string to format suitable for HTML date input (YYYY-MM-DD)
+  private convertToDateInputFormat(dateString: string): string {
+    if (!dateString) return '';
+    
+    // If it's already in YYYY-MM-DD format, return as is
+    if (/^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
+      return dateString;
+    }
+    
+    // Try to parse and convert to YYYY-MM-DD
     const date = new Date(dateString);
-    return date.toISOString().split('T')[0]; // This gives YYYY-MM-DD format
+    if (isNaN(date.getTime())) {
+      return '';
+    }
+    
+    return date.toISOString().split('T')[0];
   }
 
+  // Convert date from form to API format (ensure YYYY-MM-DD)
+  private convertToApiDateFormat(dateString: string): string {
+    if (!dateString) return '';
+    
+    // If it's already in YYYY-MM-DD format, return as is
+    if (/^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
+      return dateString;
+    }
+    
+    // Try to parse and convert to YYYY-MM-DD
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) {
+      throw new Error('Invalid date format');
+    }
+    
+    return date.toISOString().split('T')[0];
+  }
+
+  // Format date for display (DD Month YYYY)
   formatDate(dateString: string): string {
     const date = new Date(dateString);
     const months = [
@@ -399,6 +501,12 @@ export class ExperienceComponent implements OnInit {
 
   // Helper method for skills error display
   shouldShowSkillsError(): boolean {
-    return this.skillsArray.length > 0 && !this.hasValidSkills() && this.skillsArray.controls.some(control => control.touched);
+    const hasInvalidSkills = this.skillsArray.controls.some(control => 
+      control.invalid && control.touched
+    );
+    const hasNoValidSkills = !this.hasValidSkills() && 
+      this.skillsArray.controls.some(control => control.touched);
+    
+    return hasInvalidSkills || hasNoValidSkills;
   }
 }

@@ -1,14 +1,9 @@
-/* Experience Section - Reduced padding */
+/* Experience Section - Consistent Background */
 .experience-section {
   padding: 2rem 0;
-  background: inherit !important;
   min-height: 60vh;
   color: inherit;
-}
-
-body.dark-theme .experience-section {
-  background: inherit !important;
-  color: #ffffff;
+  /* Remove any background declarations to inherit from body */
 }
 
 .container {
@@ -67,7 +62,7 @@ body.dark-theme .experience-section {
 .spinner {
   width: 40px;
   height: 40px;
-  border: 4px solid #f3f3f3;
+  border: 4px solid rgba(255, 255, 255, 0.3);
   border-radius: 50%;
   border-top-color: #007bff;
   animation: spin 1s ease-in-out infinite;
@@ -75,8 +70,13 @@ body.dark-theme .experience-section {
 }
 
 body.dark-theme .spinner {
-  border-color: #444;
+  border-color: rgba(255, 255, 255, 0.2);
   border-top-color: #64b5f6;
+}
+
+body:not(.dark-theme) .spinner {
+  border-color: rgba(0, 0, 0, 0.2);
+  border-top-color: #667eea;
 }
 
 @keyframes spin {
@@ -245,19 +245,6 @@ body.dark-theme .form-group label {
   color: #333;
 }
 
-/* Date input styling to show DD/MM/YYYY format */
-.form-group input[type="date"] {
-  position: relative;
-}
-
-.form-group input[type="date"]::-webkit-calendar-picker-indicator {
-  background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 4 5"><path fill="%23666" d="M2 0L0 2h4L2 0zM0 3l2 2 2-2H0z"/></svg>');
-  background-size: 12px;
-  background-repeat: no-repeat;
-  background-position: center;
-  cursor: pointer;
-}
-
 body.dark-theme .form-group input[type="text"],
 body.dark-theme .form-group input[type="date"],
 body.dark-theme .form-group textarea {
@@ -283,9 +270,10 @@ body.dark-theme .form-group textarea:focus {
 }
 
 .error-message {
-  color: #dc3545;
+  color: #dc3545 !important;
   font-size: 0.875rem;
   margin-top: 5px;
+  font-weight: 500;
 }
 
 /* Skills Section in Form */
@@ -402,12 +390,12 @@ body.dark-theme .btn-cancel {
 .no-experiences {
   text-align: center;
   padding: 40px 20px;
-  color: #666;
+  color: rgba(255, 255, 255, 0.7);
   font-size: 1.1rem;
 }
 
-body.dark-theme .no-experiences {
-  color: #ccc;
+body:not(.dark-theme) .no-experiences {
+  color: rgba(255, 255, 255, 0.8);
 }
 
 .timeline-item {
@@ -429,7 +417,7 @@ body.dark-theme .no-experiences {
   width: 12px;
   height: 12px;
   background: #007bff;
-  border: 3px solid white;
+  border: 3px solid rgba(255, 255, 255, 0.9);
   border-radius: 50%;
   position: relative;
   z-index: 2;
@@ -438,19 +426,21 @@ body.dark-theme .no-experiences {
 }
 
 body.dark-theme .timeline-dot {
-  border-color: #2c3e50;
+  border-color: rgba(255, 255, 255, 0.2);
   background: #64b5f6;
   box-shadow: 0 0 0 3px #64b5f6;
+}
+
+body:not(.dark-theme) .timeline-dot {
+  border-color: rgba(255, 255, 255, 0.8);
+  background: #667eea;
+  box-shadow: 0 0 0 3px #667eea;
 }
 
 .timeline-dot.current {
   background: #28a745;
   box-shadow: 0 0 0 3px #28a745, 0 0 0 6px rgba(40, 167, 69, 0.2);
   animation: pulse 2s infinite;
-}
-
-body.dark-theme .timeline-dot.current {
-  box-shadow: 0 0 0 3px #28a745, 0 0 0 6px rgba(40, 167, 69, 0.2);
 }
 
 @keyframes pulse {
@@ -465,47 +455,65 @@ body.dark-theme .timeline-dot.current {
   }
 }
 
-/* Timeline line extends for all items dynamically */
+/* Timeline line - Show for all items except the last one */
 .timeline-line {
   width: 2px;
-  background: #ddd;
+  background: rgba(255, 255, 255, 0.3);
   flex: 1;
   margin-top: 10px;
   min-height: 80px;
 }
 
 body.dark-theme .timeline-line {
-  background: #555;
+  background: rgba(255, 255, 255, 0.2);
 }
 
-/* Hide timeline line only for the very last experience */
-.timeline-item:last-child .timeline-line {
+body:not(.dark-theme) .timeline-line {
+  background: rgba(255, 255, 255, 0.4);
+}
+
+/* Show timeline line for all items except the last one */
+.timeline-item:not(.last-item) .timeline-line {
+  display: block;
+}
+
+.timeline-item.last-item .timeline-line {
   display: none;
 }
 
 /* Experience Card */
 .experience-card {
-  background: white;
+  background: rgba(255, 255, 255, 0.95);
   border-radius: 15px;
   padding: 25px;
   flex: 1;
-  box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+  box-shadow: 0 5px 20px rgba(0,0,0,0.1);
   transition: all 0.3s ease;
   position: relative;
+  backdrop-filter: blur(10px);
 }
 
 body.dark-theme .experience-card {
-  background: #2c3e50;
+  background: rgba(44, 62, 80, 0.95);
   box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+}
+
+body:not(.dark-theme) .experience-card {
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 5px 20px rgba(0,0,0,0.15);
 }
 
 .experience-card:hover {
   transform: translateY(-3px);
-  box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.2);
 }
 
 body.dark-theme .experience-card:hover {
   box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+}
+
+body:not(.dark-theme) .experience-card:hover {
+  box-shadow: 0 8px 25px rgba(0,0,0,0.25);
 }
 
 .card-header {
@@ -530,6 +538,10 @@ body.dark-theme .company-name {
   color: #fff;
 }
 
+body:not(.dark-theme) .company-name {
+  color: #333;
+}
+
 .role-title {
   font-size: 1.1rem;
   font-weight: 600;
@@ -541,6 +553,10 @@ body.dark-theme .role-title {
   color: #64b5f6;
 }
 
+body:not(.dark-theme) .role-title {
+  color: #667eea;
+}
+
 .date-range {
   font-size: 0.95rem;
   color: #666;
@@ -548,6 +564,10 @@ body.dark-theme .role-title {
 
 body.dark-theme .date-range {
   color: #ccc;
+}
+
+body:not(.dark-theme) .date-range {
+  color: #555;
 }
 
 .duration {
@@ -559,6 +579,10 @@ body.dark-theme .date-range {
 
 body.dark-theme .duration {
   color: #aaa;
+}
+
+body:not(.dark-theme) .duration {
+  color: #666;
 }
 
 /* Admin Actions in Card */
@@ -611,6 +635,10 @@ body.dark-theme .card-body .description {
   color: #ddd;
 }
 
+body:not(.dark-theme) .card-body .description {
+  color: #444;
+}
+
 .skills-section {
   margin-top: 15px;
 }
@@ -625,6 +653,10 @@ body.dark-theme .skills-section strong {
   color: #fff;
 }
 
+body:not(.dark-theme) .skills-section strong {
+  color: #333;
+}
+
 .skills-list {
   display: flex;
   flex-wrap: wrap;
@@ -633,19 +665,25 @@ body.dark-theme .skills-section strong {
 }
 
 .skill-tag {
-  background: #e9ecef;
+  background: rgba(233, 236, 239, 0.9);
   color: #495057;
   padding: 4px 12px;
   border-radius: 15px;
   font-size: 0.85rem;
   font-weight: 500;
-  border: 1px solid #dee2e6;
+  border: 1px solid rgba(222, 226, 230, 0.7);
 }
 
 body.dark-theme .skill-tag {
-  background: #34495e;
+  background: rgba(52, 73, 94, 0.9);
   color: #ccc;
-  border-color: #555;
+  border-color: rgba(85, 85, 85, 0.7);
+}
+
+body:not(.dark-theme) .skill-tag {
+  background: rgba(255, 255, 255, 0.8);
+  color: #495057;
+  border-color: rgba(0, 0, 0, 0.1);
 }
 
 /* Responsive Design */

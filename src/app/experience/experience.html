@@ -113,19 +113,23 @@
                   type="text" 
                   [formControlName]="i"
                   placeholder="Enter skill"
-                  (input)="onSkillChange()">
-                <button type="button" class="remove-skill-btn" (click)="removeSkill(i)">-</button>
+                  (input)="onSkillChange()"
+                  (keyup)="onSkillChange()">
+                <button type="button" class="remove-skill-btn" (click)="removeSkill(i)" *ngIf="skillsArray.length > 1">-</button>
               </div>
               <button type="button" class="add-skill-btn" (click)="addSkill()">+ Add Skill</button>
             </div>
-            <div *ngIf="skillsArray.length > 0 && !hasValidSkills()" class="error-message">
-              At least one skill is required
+            <div *ngIf="shouldShowSkillsError()" class="error-message">
+              At least one valid skill is required
             </div>
           </div>
 
           <div class="form-actions">
             <button type="button" class="btn-cancel" (click)="closeForm()">Cancel</button>
-            <button type="submit" class="btn-submit" [disabled]="!isFormValid() || isLoading()">
+            <button 
+              type="submit" 
+              class="btn-submit" 
+              [disabled]="!isFormValid() || isLoading()">
               {{ isLoading() ? 'Saving...' : (editingId() ? 'Update' : 'Create') }}
             </button>
           </div>
@@ -139,10 +143,12 @@
         <p>No experience records found.</p>
       </div>
 
-      <div *ngFor="let exp of experiences(); let i = index" class="timeline-item">
+      <div *ngFor="let exp of experiences(); let i = index" 
+           class="timeline-item" 
+           [class.last-item]="isLastExperience(i)">
         <div class="timeline-marker">
           <div class="timeline-dot" [class.current]="exp.current"></div>
-          <div class="timeline-line"></div>
+          <div class="timeline-line" *ngIf="!isLastExperience(i)"></div>
         </div>
 
         <div class="experience-card">

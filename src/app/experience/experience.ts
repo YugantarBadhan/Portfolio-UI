@@ -39,7 +39,6 @@ export class ExperienceComponent implements OnInit {
       skills: this.fb.array([])
     });
 
-    // Check if user is admin by checking if they have the admin token
     this.checkAdminStatus();
   }
 
@@ -60,26 +59,20 @@ export class ExperienceComponent implements OnInit {
       }
       endDateControl?.updateValueAndValidity();
     });
-
-    // Add validation for skills array
-    this.skillsArray.valueChanges.subscribe(() => {
-      this.experienceForm.updateValueAndValidity();
-    });
   }
 
   private checkAdminStatus() {
     if (!this.isBrowser) {
-      return; // Skip localStorage access during SSR
+      return;
     }
     
-    // Use admin token from environment config
     const adminToken = localStorage.getItem('adminToken');
     this.isAdmin.set(adminToken === this.configService.adminToken);
   }
 
   toggleAdminMode() {
     if (!this.isBrowser) {
-      return; // Skip localStorage access during SSR
+      return;
     }
     
     const currentToken = localStorage.getItem('adminToken');
@@ -101,7 +94,6 @@ export class ExperienceComponent implements OnInit {
     this.isLoading.set(true);
     try {
       const experiences = await this.experienceService.getAllExperiences();
-      // Sort by start date (most recent first)
       experiences.sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime());
       this.experiences.set(experiences);
     } catch (error) {
@@ -117,32 +109,54 @@ export class ExperienceComponent implements OnInit {
   }
 
   addSkill() {
-    this.skillsArray.push(this.fb.control('', [Validators.required, Validators.minLength(1)]));
-    // Trigger form validation update
-    setTimeout(() => this.experienceForm.updateValueAndValidity(), 0);
+    const skillControl = this.fb.control('', [Validators.required, Validators.minLength(1)]);
+    this.skillsArray.push(skillControl);
   }
 
   removeSkill(index: number) {
     this.skillsArray.removeAt(index);
-    // Trigger form validation update
-    setTimeout(() => this.experienceForm.updateValueAndValidity(), 0);
   }
 
+  // Simplified validation methods
   hasValidSkills(): boolean {
     if (this.skillsArray.length === 0) return false;
-    const skills = this.skillsArray.value as string[];
-    return skills.some(skill => skill && skill.trim().length > 0);
+    
+    // Check if at least one skill has a valid value
+    for (let i = 0; i < this.skillsArray.length; i++) {
+      const value = this.skillsArray.at(i).value;
+      if (value && value.trim().length > 0) {
+        return true;
+      }
+    }
+    return false;
   }
 
   isFormValid(): boolean {
-    return this.experienceForm.valid && this.hasValidSkills();
+    // Check basic form fields
+    const companyName = this.experienceForm.get('companyName');
+    const role = this.experienceForm.get('role');
+    const startDate = this.experienceForm.get('startDate');
+    const description = this.experienceForm.get('description');
+    const current = this.experienceForm.get('current');
+    const endDate = this.experienceForm.get('endDate');
+
+    const basicValid = companyName?.valid && 
+                      role?.valid && 
+                      startDate?.valid && 
+                      description?.valid;
+
+    // Check end date only if not currently working
+    const dateValid = current?.value || endDate?.valid;
+
+    // Check skills
+    const skillsValid = this.hasValidSkills();
+
+    return !!(basicValid && dateValid && skillsValid);
   }
 
   onSkillChange() {
-    // Trigger form validation update when skills change
-    setTimeout(() => {
-      this.experienceForm.updateValueAndValidity();
-    }, 0);
+    // Simple trigger for change detection
+    this.experienceForm.updateValueAndValidity();
   }
 
   onCurrentChange() {
@@ -161,7 +175,6 @@ export class ExperienceComponent implements OnInit {
   openForm(experience?: Experience) {
     this.resetForm();
     
-    // Prevent body scroll when modal opens
     if (this.isBrowser) {
       document.body.style.overflow = 'hidden';
     }
@@ -169,7 +182,6 @@ export class ExperienceComponent implements OnInit {
     if (experience) {
       this.editingId.set(experience.id);
       
-      // Format dates for form inputs (date inputs expect YYYY-MM-DD)
       const startDate = this.formatDateForInput(experience.startDate);
       const endDate = experience.endDate ? this.formatDateForInput(experience.endDate) : '';
       
@@ -185,11 +197,12 @@ export class ExperienceComponent implements OnInit {
       // Set skills
       this.skillsArray.clear();
       experience.skills.forEach(skill => {
-        this.skillsArray.push(this.fb.control(skill, Validators.required));
+        this.skillsArray.push(this.fb.control(skill, [Validators.required, Validators.minLength(1)]));
       });
     } else {
       this.editingId.set(null);
-      this.addSkill(); // Add one skill field by default
+      // Add one empty skill field by default
+      this.addSkill();
     }
     this.showForm.set(true);
   }
@@ -198,7 +211,6 @@ export class ExperienceComponent implements OnInit {
     this.showForm.set(false);
     this.resetForm();
     
-    // Restore body scroll when modal closes
     if (this.isBrowser) {
       document.body.style.overflow = 'auto';
     }
@@ -214,17 +226,32 @@ export class ExperienceComponent implements OnInit {
     this.experienceForm.reset();
     this.skillsArray.clear();
     this.experienceForm.patchValue({ current: false });
+    this.editingId.set(null);
   }
 
-  async onSubmit() {
+  async onSubmit() {    
     if (this.isFormValid()) {
       this.isLoading.set(true);
       try {
         const formValue = this.experienceForm.value;
+        
+        // Get valid skills
+        const validSkills: string[] = [];
+        for (let i = 0; i < this.skillsArray.length; i++) {
+          const skill = this.skillsArray.at(i).value;
+          if (skill && skill.trim().length > 0) {
+            validSkills.push(skill.trim());
+          }
+        }
+        
         const experienceData = {
-          ...formValue,
-          skills: formValue.skills.filter((skill: string) => skill && skill.trim() !== ''),
-          endDate: formValue.current ? null : formValue.endDate
+          companyName: formValue.companyName,
+          role: formValue.role,
+          startDate: formValue.startDate,
+          endDate: formValue.current ? null : formValue.endDate,
+          current: formValue.current,
+          description: formValue.description,
+          skills: validSkills
         };
 
         if (this.editingId()) {
@@ -236,10 +263,13 @@ export class ExperienceComponent implements OnInit {
         await this.loadExperiences();
         this.closeForm();
       } catch (error: any) {
+        console.error('Submission error:', error);
         alert(error.message || 'An error occurred');
       } finally {
         this.isLoading.set(false);
       }
+    } else {
+      alert('Please fill all required fields correctly');
     }
   }
 
@@ -257,13 +287,11 @@ export class ExperienceComponent implements OnInit {
     }
   }
 
-  // Format date for input fields (YYYY-MM-DD)
   private formatDateForInput(dateString: string): string {
     const date = new Date(dateString);
     return date.toISOString().split('T')[0];
   }
 
-  // Format date for display (DD Month YYYY)
   formatDate(dateString: string): string {
     const date = new Date(dateString);
     const months = [
@@ -296,5 +324,15 @@ export class ExperienceComponent implements OnInit {
     } else {
       return 'Less than a month';
     }
+  }
+
+  // Helper method to check if it's the last item for timeline rendering
+  isLastExperience(index: number): boolean {
+    return index === this.experiences().length - 1;
+  }
+
+  // Helper method for skills error display
+  shouldShowSkillsError(): boolean {
+    return this.skillsArray.length > 0 && !this.hasValidSkills();
   }
 }

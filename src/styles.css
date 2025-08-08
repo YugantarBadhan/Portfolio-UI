@@ -11,13 +11,13 @@ body {
   transition: all 0.3s ease;
   /* Default to dark theme */
   color: #ffffff !important;
-  background: linear-gradient(135deg, #1a1a1a 0%, #2c2c2c 100%) !important;
+  background: #2c3e50 !important;
 }
 
 /* Light theme override */
 body:not(.dark-theme) {
   color: #333 !important;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  background: #667eea !important;
 }
 
 * {
@@ -29,7 +29,7 @@ html {
   scroll-behavior: smooth;
 }
 
-/* Force text colors */
+/* Force text colors to inherit from body */
 h1,
 h2,
 h3,
@@ -38,6 +38,38 @@ h5,
 h6,
 p,
 span,
-div {
+div,
+section {
+  color: inherit !important;
+}
+
+/* Ensure consistent background inheritance */
+.hero,
+.section,
+.experience-section,
+main,
+app-root {
+  background: inherit !important;
+  color: inherit !important;
+}
+
+/* Override any conflicting background styles */
+body * {
+  background: inherit;
   color: inherit;
+}
+
+/* Exception for specific UI elements that need their own colors */
+button,
+input,
+textarea,
+.social-btn,
+.navbar,
+.mobile-menu,
+.experience-card,
+.experience-form-container,
+.timeline-dot,
+.skill-tag {
+  background: initial;
+  color: initial;
 }

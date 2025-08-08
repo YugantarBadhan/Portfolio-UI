@@ -1,14 +1,13 @@
-/* Experience Section - matches your existing design */
+/* Experience Section - Reduced padding */
 .experience-section {
-  padding: 80px 0;
-  background-color: transparent;
-  min-height: 100vh;
+  padding: 2rem 0;
+  background: inherit !important;
+  min-height: 60vh;
   color: inherit;
 }
 
-/* Dark theme styles */
 body.dark-theme .experience-section {
-  background-color: transparent;
+  background: inherit !important;
   color: #ffffff;
 }
 
@@ -21,26 +20,15 @@ body.dark-theme .experience-section {
 /* Section Header */
 .section-header {
   text-align: center;
-  margin-bottom: 60px;
+  margin-bottom: 2rem;
   position: relative;
 }
 
 .section-title {
-  font-size: 3rem;
+  font-size: 2.5rem;
   font-weight: 700;
-  margin-bottom: 20px;
+  margin-bottom: 1rem;
   color: inherit;
-}
-
-.section-subtitle {
-  font-size: 1.2rem;
-  color: #666;
-  max-width: 600px;
-  margin: 0 auto;
-}
-
-body.dark-theme .section-subtitle {
-  color: #ccc;
 }
 
 .admin-controls {
@@ -73,7 +61,7 @@ body.dark-theme .section-subtitle {
 /* Loading Spinner */
 .loading-spinner {
   text-align: center;
-  padding: 60px 20px;
+  padding: 40px 20px;
 }
 
 .spinner {
@@ -98,7 +86,7 @@ body.dark-theme .spinner {
 /* Admin Actions */
 .admin-actions {
   text-align: center;
-  margin-bottom: 40px;
+  margin-bottom: 2rem;
 }
 
 .btn-add {
@@ -118,18 +106,55 @@ body.dark-theme .spinner {
   transform: translateY(-1px);
 }
 
-/* Experience Form */
+/* Modal Overlay and Popup */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(5px);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Experience Form - Modal Style */
 .experience-form-container {
   background: white;
   border-radius: 15px;
   padding: 30px;
-  margin-bottom: 50px;
-  box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+  max-width: 800px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  position: relative;
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from { 
+    opacity: 0;
+    transform: scale(0.9) translateY(-20px);
+  }
+  to { 
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
 }
 
 body.dark-theme .experience-form-container {
-  background: #2c2c2c;
-  box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+  background: #2c3e50;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
 }
 
 .form-header {
@@ -220,10 +245,23 @@ body.dark-theme .form-group label {
   color: #333;
 }
 
+/* Date input styling to show DD/MM/YYYY format */
+.form-group input[type="date"] {
+  position: relative;
+}
+
+.form-group input[type="date"]::-webkit-calendar-picker-indicator {
+  background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 4 5"><path fill="%23666" d="M2 0L0 2h4L2 0zM0 3l2 2 2-2H0z"/></svg>');
+  background-size: 12px;
+  background-repeat: no-repeat;
+  background-position: center;
+  cursor: pointer;
+}
+
 body.dark-theme .form-group input[type="text"],
 body.dark-theme .form-group input[type="date"],
 body.dark-theme .form-group textarea {
-  background: #1a1a1a;
+  background: #34495e;
   border-color: #555;
   color: #fff;
 }
@@ -326,7 +364,7 @@ body.dark-theme .form-actions {
 }
 
 body.dark-theme .btn-cancel {
-  background: #1a1a1a;
+  background: #34495e;
   color: #ccc;
   border-color: #555;
 }
@@ -363,7 +401,7 @@ body.dark-theme .btn-cancel {
 
 .no-experiences {
   text-align: center;
-  padding: 60px 20px;
+  padding: 40px 20px;
   color: #666;
   font-size: 1.1rem;
 }
@@ -384,6 +422,7 @@ body.dark-theme .no-experiences {
   display: flex;
   flex-direction: column;
   align-items: center;
+  min-height: 100%;
 }
 
 .timeline-dot {
@@ -395,10 +434,11 @@ body.dark-theme .no-experiences {
   position: relative;
   z-index: 2;
   box-shadow: 0 0 0 3px #007bff;
+  flex-shrink: 0;
 }
 
 body.dark-theme .timeline-dot {
-  border-color: #2c2c2c;
+  border-color: #2c3e50;
   background: #64b5f6;
   box-shadow: 0 0 0 3px #64b5f6;
 }
@@ -425,15 +465,22 @@ body.dark-theme .timeline-dot.current {
   }
 }
 
+/* Timeline line extends for all items dynamically */
 .timeline-line {
   width: 2px;
   background: #ddd;
   flex: 1;
   margin-top: 10px;
+  min-height: 80px;
 }
 
 body.dark-theme .timeline-line {
   background: #555;
+}
+
+/* Hide timeline line only for the very last experience */
+.timeline-item:last-child .timeline-line {
+  display: none;
 }
 
 /* Experience Card */
@@ -448,7 +495,7 @@ body.dark-theme .timeline-line {
 }
 
 body.dark-theme .experience-card {
-  background: #2c2c2c;
+  background: #2c3e50;
   box-shadow: 0 5px 20px rgba(0,0,0,0.3);
 }
 
@@ -596,7 +643,7 @@ body.dark-theme .skills-section strong {
 }
 
 body.dark-theme .skill-tag {
-  background: #1a1a1a;
+  background: #34495e;
   color: #ccc;
   border-color: #555;
 }
@@ -604,7 +651,7 @@ body.dark-theme .skill-tag {
 /* Responsive Design */
 @media (max-width: 768px) {
   .experience-section {
-    padding: 60px 0;
+    padding: 1.5rem 0;
   }
 
   .container {
@@ -612,7 +659,7 @@ body.dark-theme .skill-tag {
   }
 
   .section-title {
-    font-size: 2.5rem;
+    font-size: 2rem;
   }
 
   .admin-controls {
@@ -622,6 +669,7 @@ body.dark-theme .skill-tag {
 
   .experience-form-container {
     padding: 20px;
+    width: 95%;
   }
 
   .form-row {
@@ -668,11 +716,12 @@ body.dark-theme .skill-tag {
 
 @media (max-width: 480px) {
   .section-title {
-    font-size: 2rem;
+    font-size: 1.8rem;
   }
 
   .experience-form-container {
     padding: 15px;
+    width: 98%;
   }
 
   .experience-card {

@@ -8,25 +8,24 @@ body {
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   line-height: 1.6;
   transition: all 0.3s ease;
-  color: #ffffff !important; /* Force white text as default */
-  background: linear-gradient(
-    135deg,
-    #1a1a1a 0%,
-    #2c2c2c 100%
-  ) !important; /* Force dark background as default */
   min-height: 100vh;
 }
 
-/* Light Theme Override */
+/* Light Theme - Default */
 body:not(.dark-theme) {
   color: #333 !important;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  background: #667eea !important;
 }
 
-/* Dark Theme - Remove since it's now default */
+/* Dark Theme */
 body.dark-theme {
   color: #ffffff !important;
-  background: linear-gradient(135deg, #1a1a1a 0%, #2c2c2c 100%) !important;
+  background: #2c3e50 !important;
+}
+
+/* Ensure all sections inherit the same background */
+.section, .experience-section, .hero {
+  background: inherit !important;
 }
 
 /* Navigation Bar */
@@ -46,7 +45,7 @@ body.dark-theme {
 }
 
 .navbar.dark-theme {
-  background: rgba(26, 26, 26, 0.95);
+  background: rgba(44, 62, 80, 0.95);
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
@@ -56,7 +55,7 @@ body.dark-theme {
 }
 
 .navbar.dark-theme.scrolled {
-  background: rgba(26, 26, 26, 0.98);
+  background: rgba(44, 62, 80, 0.98);
   box-shadow: 0 2px 25px rgba(0, 0, 0, 0.3);
 }
 
@@ -118,7 +117,7 @@ body.dark-theme {
 }
 
 .mobile-menu.dark-theme {
-  background: rgba(26, 26, 26, 0.98);
+  background: rgba(44, 62, 80, 0.98);
 }
 
 .mobile-menu.open {
@@ -287,7 +286,7 @@ body.dark-theme {
   min-height: 100vh;
   display: flex;
   align-items: center;
-  padding: 6rem 2rem 2rem;
+  padding: 4rem 2rem 2rem;
   max-width: 1200px;
   margin: 0 auto;
   position: relative;
@@ -401,13 +400,13 @@ body.dark-theme {
   background: linear-gradient(45deg, #2196f3, #64b5f6);
 }
 
-/* Content sections - Add styles for other sections that will be dark theme compatible */
+/* Content sections - Reduced padding */
 .section {
-  padding: 4rem 2rem;
+  padding: 2rem 2rem;
   max-width: 1200px;
   margin: 0 auto;
   color: inherit;
-  min-height: 50vh;
+  min-height: 40vh;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -525,6 +524,10 @@ body.dark-theme {
   .profile-image,
   .profile-image-placeholder {
     height: 250px;
+  }
+
+  .section {
+    padding: 1.5rem 1rem;
   }
 }
 

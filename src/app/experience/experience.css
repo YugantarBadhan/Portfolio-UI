@@ -1,7 +1,7 @@
-/* Experience Section - Consistent Background */
+/* Experience Section - Optimized spacing */
 .experience-section {
-  padding: 2rem 0;
-  min-height: 60vh;
+  padding: 2rem 0; /* Reduced top padding to minimize gap from hero section */
+  /* Removed min-height to eliminate unnecessary spacing */
   color: inherit;
   /* Remove any background declarations to inherit from body */
 }
@@ -400,13 +400,13 @@ body:not(.dark-theme) .no-experiences {
 
 .timeline-item {
   display: flex;
-  margin-bottom: 30px;
+  margin-bottom: 20px; /* Reduced from 30px to make timeline more compact */
   position: relative;
 }
 
 .timeline-marker {
   position: relative;
-  margin-right: 30px;
+  margin-right: 25px; /* Reduced from 30px */
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -461,7 +461,7 @@ body:not(.dark-theme) .timeline-dot {
   background: rgba(255, 255, 255, 0.3);
   flex: 1;
   margin-top: 10px;
-  min-height: 80px;
+  min-height: 60px; /* Reduced from 80px to make more compact */
 }
 
 body.dark-theme .timeline-line {
@@ -481,11 +481,11 @@ body:not(.dark-theme) .timeline-line {
   display: none;
 }
 
-/* Experience Card */
+/* Experience Card - Optimized spacing */
 .experience-card {
   background: rgba(255, 255, 255, 0.95);
   border-radius: 15px;
-  padding: 25px;
+  padding: 20px; /* Reduced from 25px */
   flex: 1;
   box-shadow: 0 5px 20px rgba(0,0,0,0.1);
   transition: all 0.3s ease;
@@ -520,7 +520,7 @@ body:not(.dark-theme) .experience-card:hover {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 15px;
+  margin-bottom: 12px; /* Reduced from 15px */
 }
 
 .company-info {
@@ -530,7 +530,7 @@ body:not(.dark-theme) .experience-card:hover {
 .company-name {
   font-size: 1.4rem;
   font-weight: 700;
-  margin-bottom: 5px;
+  margin-bottom: 4px; /* Reduced from 5px */
   color: #333;
 }
 
@@ -546,7 +546,7 @@ body:not(.dark-theme) .company-name {
   font-size: 1.1rem;
   font-weight: 600;
   color: #007bff;
-  margin-bottom: 8px;
+  margin-bottom: 6px; /* Reduced from 8px */
 }
 
 body.dark-theme .role-title {
@@ -627,7 +627,7 @@ body:not(.dark-theme) .duration {
 .card-body .description {
   font-size: 1rem;
   line-height: 1.6;
-  margin-bottom: 20px;
+  margin-bottom: 15px; /* Reduced from 20px */
   color: #555;
 }
 
@@ -640,12 +640,12 @@ body:not(.dark-theme) .card-body .description {
 }
 
 .skills-section {
-  margin-top: 15px;
+  margin-top: 12px; /* Reduced from 15px */
 }
 
 .skills-section strong {
   color: #333;
-  margin-bottom: 8px;
+  margin-bottom: 6px; /* Reduced from 8px */
   display: block;
 }
 
@@ -660,8 +660,8 @@ body:not(.dark-theme) .skills-section strong {
 .skills-list {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 8px;
+  gap: 6px; /* Reduced from 8px */
+  margin-top: 6px; /* Reduced from 8px */
 }
 
 .skill-tag {
@@ -689,7 +689,7 @@ body:not(.dark-theme) .skill-tag {
 /* Responsive Design */
 @media (max-width: 768px) {
   .experience-section {
-    padding: 1.5rem 0;
+    padding: 1.5rem 0; /* Reduced for mobile */
   }
 
   .container {
@@ -720,7 +720,7 @@ body:not(.dark-theme) .skill-tag {
   }
 
   .timeline-item {
-    margin-bottom: 25px;
+    margin-bottom: 20px; /* Keep consistent with desktop */
   }
 
   .timeline-marker {
@@ -728,13 +728,13 @@ body:not(.dark-theme) .skill-tag {
   }
 
   .experience-card {
-    padding: 20px;
+    padding: 18px; /* Reduced from 20px */
   }
 
   .card-header {
     flex-direction: column;
     align-items: flex-start;
-    gap: 10px;
+    gap: 8px; /* Reduced from 10px */
   }
 
   .admin-actions-card {
@@ -767,7 +767,7 @@ body:not(.dark-theme) .skill-tag {
   }
 
   .skills-list {
-    gap: 6px;
+    gap: 5px; /* Further reduced for small screens */
   }
 
   .skill-tag {

@@ -42,6 +42,7 @@ body:not(.dark-theme) {
   z-index: 1000;
   box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
+  height: 80px; /* Fixed navbar height */
 }
 
 .navbar.dark-theme {
@@ -59,17 +60,19 @@ body:not(.dark-theme) {
   box-shadow: 0 2px 25px rgba(0, 0, 0, 0.3);
 }
 
+/* Fixed Portfolio Logo */
 .logo {
   font-size: 1.5rem;
   font-weight: bold;
-  color: #667eea;
+  color: #000000 !important; /* Black for light theme */
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  transition: color 0.3s ease;
 }
 
 .navbar.dark-theme .logo {
-  color: #64b5f6;
+  color: #ffffff !important; /* White for dark theme */
 }
 
 .nav-links {
@@ -281,12 +284,12 @@ body:not(.dark-theme) {
   color: #333;
 }
 
-/* Hero Section */
+/* Hero Section - Optimized spacing */
 .hero {
-  min-height: 100vh;
+  min-height: 85vh; /* Reduced from 100vh */
   display: flex;
   align-items: center;
-  padding: 4rem 2rem 2rem;
+  padding: 5rem 2rem 1rem; /* Significantly reduced bottom padding */
   max-width: 1200px;
   margin: 0 auto;
   position: relative;
@@ -334,13 +337,24 @@ body:not(.dark-theme) .hero-text .highlight {
   color: inherit;
 }
 
+/* Enhanced Hero Text Styling */
 .hero-text p {
-  font-size: 1.1rem;
+  font-size: 1.2rem; /* Larger font size */
   margin-bottom: 2rem;
-  line-height: 1.6;
-  opacity: 0.9;
+  line-height: 1.8; /* Better line spacing */
   max-width: 600px;
-  color: inherit;
+  font-weight: 400;
+}
+
+body.dark-theme .hero-text p {
+  color: rgba(255, 255, 255, 0.95) !important;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+body:not(.dark-theme) .hero-text p {
+  color: rgba(255, 255, 255, 0.98) !important;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  font-weight: 500; /* Bolder for light theme */
 }
 
 .resume-btn {
@@ -434,13 +448,13 @@ body:not(.dark-theme) .profile-image-placeholder {
   color: #667eea;
 }
 
-/* Content sections */
+/* Content sections - Optimized spacing */
 .section {
-  padding: 2rem 2rem;
+  padding: 2rem 2rem; /* Reduced from 3rem to minimize gaps between sections */
   max-width: 1200px;
   margin: 0 auto;
   color: inherit;
-  min-height: 40vh;
+  /* Removed min-height to eliminate unnecessary spacing */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -457,7 +471,7 @@ body:not(.dark-theme) .profile-image-placeholder {
 .section h2 {
   color: inherit;
   text-align: center;
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem; /* Reduced margin */
   font-size: 2.5rem;
   font-weight: 700;
 }
@@ -465,7 +479,7 @@ body:not(.dark-theme) .profile-image-placeholder {
 .section p {
   font-size: 1.2rem;
   opacity: 0.8;
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem; /* Reduced margin */
   color: inherit;
 }
 
@@ -527,7 +541,8 @@ body:not(.dark-theme) .profile-image-placeholder {
   }
 
   .hero {
-    padding: 2rem 1rem;
+    padding: 2rem 1rem 1rem; /* Significantly reduced padding for mobile */
+    min-height: 80vh; /* Reduced for mobile */
   }
 
   .hero-content {
@@ -563,7 +578,7 @@ body:not(.dark-theme) .profile-image-placeholder {
   }
 
   .section {
-    padding: 1.5rem 1rem;
+    padding: 1.5rem 1rem; /* Further reduced mobile padding */
   }
 }
 
@@ -589,5 +604,9 @@ body:not(.dark-theme) .profile-image-placeholder {
   .profile-image,
   .profile-image-placeholder {
     height: 220px;
+  }
+
+  .section {
+    padding: 1.5rem 1rem; /* Further reduced for small screens */
   }
 }

@@ -33,8 +33,8 @@ body:not(.dark-theme) {
   position: fixed;
   top: 0;
   width: 100%;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
+  background: rgba(102, 126, 234, 0.95); /* Light theme - matches body background */
+  backdrop-filter: blur(15px);
   padding: 1rem 2rem;
   display: flex;
   justify-content: space-between;
@@ -46,25 +46,26 @@ body:not(.dark-theme) {
 }
 
 .navbar.dark-theme {
-  background: rgba(44, 62, 80, 0.95);
+  background: rgba(44, 62, 80, 0.95); /* Dark theme - matches body background */
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
 }
 
 .navbar.scrolled {
-  background: rgba(255, 255, 255, 0.98);
+  background: rgba(102, 126, 234, 0.98); /* Light theme scrolled */
   box-shadow: 0 2px 25px rgba(0, 0, 0, 0.15);
 }
 
 .navbar.dark-theme.scrolled {
-  background: rgba(44, 62, 80, 0.98);
-  box-shadow: 0 2px 25px rgba(0, 0, 0, 0.3);
+  background: rgba(44, 62, 80, 0.98); /* Dark theme scrolled */
+  box-shadow: 0 2px 25px rgba(0, 0, 0, 0.4);
 }
 
 /* Fixed Portfolio Logo */
 .logo {
   font-size: 1.5rem;
   font-weight: bold;
-  color: #000000 !important; /* Black for light theme */
+  color: #ffffff !important; /* White for light theme (since bg is blue) */
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -89,7 +90,7 @@ body:not(.dark-theme) {
   display: none;
   background: transparent;
   border: none;
-  color: #333;
+  color: #ffffff; /* White for light theme (since navbar bg is blue) */
   font-size: 1.5rem;
   cursor: pointer;
   padding: 0.5rem;
@@ -97,7 +98,7 @@ body:not(.dark-theme) {
 }
 
 .navbar.dark-theme .mobile-menu-btn {
-  color: #ffffff;
+  color: #ffffff; /* White for dark theme */
 }
 
 .mobile-menu-btn:hover {
@@ -111,7 +112,7 @@ body:not(.dark-theme) {
   left: 0;
   width: 100%;
   height: calc(100vh - 80px);
-  background: rgba(255, 255, 255, 0.98);
+  background: rgba(102, 126, 234, 0.98); /* Light theme - matches navbar */
   backdrop-filter: blur(10px);
   transform: translateX(-100%);
   transition: transform 0.3s ease;
@@ -120,7 +121,7 @@ body:not(.dark-theme) {
 }
 
 .mobile-menu.dark-theme {
-  background: rgba(44, 62, 80, 0.98);
+  background: rgba(44, 62, 80, 0.98); /* Dark theme - matches navbar */
 }
 
 .mobile-menu.open {
@@ -140,30 +141,30 @@ body:not(.dark-theme) {
   display: block;
   padding: 1rem 0;
   text-decoration: none;
-  color: #333;
+  color: #ffffff; /* White for light theme (since mobile menu bg is blue) */
   font-weight: 500;
   font-size: 1.2rem;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   transition: all 0.3s ease;
 }
 
 .mobile-menu.dark-theme .mobile-nav-links a {
-  color: #ffffff;
+  color: #ffffff; /* White for dark theme */
   border-bottom-color: rgba(255, 255, 255, 0.1);
 }
 
 .mobile-nav-links a:hover {
-  color: #667eea;
+  color: #f0f8ff; /* Light blue on hover for light theme */
   padding-left: 1rem;
 }
 
 .mobile-menu.dark-theme .mobile-nav-links a:hover {
-  color: #64b5f6;
+  color: #64b5f6; /* Blue on hover for dark theme */
 }
 
 .nav-links a {
   text-decoration: none;
-  color: #333;
+  color: #ffffff; /* White for light theme (since navbar bg is blue) */
   font-weight: 500;
   transition: all 0.3s ease;
   position: relative;
@@ -173,16 +174,16 @@ body:not(.dark-theme) {
 }
 
 .navbar.dark-theme .nav-links a {
-  color: #ffffff;
+  color: #ffffff; /* White for dark theme */
 }
 
 .nav-links a:hover {
-  color: #667eea;
-  background: rgba(102, 126, 234, 0.1);
+  color: #f0f8ff; /* Light blue on hover for light theme */
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .navbar.dark-theme .nav-links a:hover {
-  color: #64b5f6;
+  color: #64b5f6; /* Blue on hover for dark theme */
   background: rgba(100, 181, 246, 0.1);
 }
 
@@ -256,9 +257,9 @@ body:not(.dark-theme) {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  border: 2px solid #333;
+  border: 2px solid #ffffff; /* White border for light theme */
   background: transparent;
-  color: #333;
+  color: #ffffff; /* White icon for light theme */
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -269,19 +270,19 @@ body:not(.dark-theme) {
 }
 
 .navbar.dark-theme .theme-toggle {
-  border-color: #ffffff;
-  color: #ffffff;
+  border-color: #ffffff; /* White border for dark theme */
+  color: #ffffff; /* White icon for dark theme */
 }
 
 .theme-toggle:hover {
-  background: #333;
-  color: white;
+  background: #ffffff; /* White background on hover for light theme */
+  color: #667eea; /* Blue icon on hover for light theme */
   transform: scale(1.1);
 }
 
 .navbar.dark-theme .theme-toggle:hover {
-  background: #ffffff;
-  color: #333;
+  background: #ffffff; /* White background on hover for dark theme */
+  color: #2c3e50; /* Dark icon on hover for dark theme */
 }
 
 /* Hero Section - Optimized spacing */
@@ -289,7 +290,7 @@ body:not(.dark-theme) {
   min-height: 85vh; /* Reduced from 100vh */
   display: flex;
   align-items: center;
-  padding: 5rem 2rem 1rem; /* Significantly reduced bottom padding */
+  padding: 7rem 2rem 1rem; /* Added more top padding for spacing from navbar */
   max-width: 1200px;
   margin: 0 auto;
   position: relative;
@@ -339,22 +340,100 @@ body:not(.dark-theme) .hero-text .highlight {
 
 /* Enhanced Hero Text Styling */
 .hero-text p {
-  font-size: 1.2rem; /* Larger font size */
-  margin-bottom: 2rem;
-  line-height: 1.8; /* Better line spacing */
-  max-width: 600px;
+  font-size: 1.3rem; /* Increased font size */
+  margin-bottom: 2.5rem;
+  line-height: 1.9; /* Better line spacing */
+  max-width: 650px;
   font-weight: 400;
+  position: relative;
+  letter-spacing: 0.5px; /* Added letter spacing for better readability */
+  text-align: left; /* Ensure left alignment */
+}
+
+/* Add subtle text animations and styling effects */
+.hero-text p::before {
+  content: '';
+  position: absolute;
+  left: -20px;
+  top: 0;
+  width: 4px;
+  height: 100%;
+  background: linear-gradient(135deg, #2196f3, #64b5f6);
+  border-radius: 2px;
+  opacity: 0.7;
 }
 
 body.dark-theme .hero-text p {
   color: rgba(255, 255, 255, 0.95) !important;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.85));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  /* Fallback for browsers that don't support background-clip: text */
+  -webkit-text-fill-color: rgba(255, 255, 255, 0.95);
+}
+
+body.dark-theme .hero-text p::before {
+  background: linear-gradient(135deg, #64b5f6, #42a5f5);
+  box-shadow: 0 0 10px rgba(100, 181, 246, 0.3);
 }
 
 body:not(.dark-theme) .hero-text p {
   color: rgba(255, 255, 255, 0.98) !important;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-  font-weight: 500; /* Bolder for light theme */
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  font-weight: 600; /* Bolder for light theme */
+  background: linear-gradient(135deg, rgba(255, 255, 255, 1), rgba(255, 255, 255, 0.9));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  /* Fallback for browsers that don't support background-clip: text */
+  -webkit-text-fill-color: rgba(255, 255, 255, 0.98);
+}
+
+body:not(.dark-theme) .hero-text p::before {
+  background: linear-gradient(135deg, #ffffff, #f0f8ff);
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
+}
+
+/* Enhanced text highlighting with spans for key phrases */
+.hero-text p .highlight-text {
+  position: relative;
+  font-weight: 600;
+  padding: 0 4px;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+body.dark-theme .hero-text p .highlight-text {
+  background: rgba(100, 181, 246, 0.15);
+  color: #64b5f6;
+  border-left: 3px solid #64b5f6;
+  padding-left: 8px;
+}
+
+body:not(.dark-theme) .hero-text p .highlight-text {
+  background: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  border-left: 3px solid #ffffff;
+  padding-left: 8px;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+/* Add subtle animation to the text */
+.hero-text p {
+  animation: fadeInText 1.2s ease-out 0.3s both;
+}
+
+@keyframes fadeInText {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .resume-btn {
@@ -541,7 +620,7 @@ body:not(.dark-theme) .profile-image-placeholder {
   }
 
   .hero {
-    padding: 2rem 1rem 1rem; /* Significantly reduced padding for mobile */
+    padding: 6rem 1rem 1rem; /* Increased top padding for mobile */
     min-height: 80vh; /* Reduced for mobile */
   }
 

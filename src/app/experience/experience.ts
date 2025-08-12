@@ -390,9 +390,9 @@ export class ExperienceComponent implements OnInit {
   }
 
   // Helper method to check if it's the last item for timeline rendering
-  isLastExperience(index: number): boolean {
-    return index === this.experiences().length - 1;
-  }
+  // isLastExperience(index: number): boolean {
+  //   return index === this.experiences().length - 1;
+  // }
 
   // Helper method for skills error display
   shouldShowSkillsError(): boolean {

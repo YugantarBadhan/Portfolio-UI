@@ -1,9 +1,12 @@
-import { Component, OnInit, inject, signal, PLATFORM_ID, Inject } from '@angular/core';
+import { Component, OnInit, inject, signal, PLATFORM_ID, Inject, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
 import { ExperienceService } from '../services/experience.service';
 import { Experience } from '../model/experience.model';
 import { ConfigService } from '../services/config.service';
+
+// Declare Quill for TypeScript
+declare var Quill: any;
 
 @Component({
   selector: 'app-experience',
@@ -12,7 +15,9 @@ import { ConfigService } from '../services/config.service';
   templateUrl: './experience.html',
   styleUrls: ['./experience.css']
 })
-export class ExperienceComponent implements OnInit {
+export class ExperienceComponent implements OnInit, AfterViewInit {
+  @ViewChild('quillEditor', { static: false }) quillEditorRef!: ElementRef;
+  
   private experienceService = inject(ExperienceService);
   private fb = inject(FormBuilder);
   private configService = inject(ConfigService);
@@ -23,6 +28,8 @@ export class ExperienceComponent implements OnInit {
   editingId = signal<number | null>(null);
   isAdmin = signal(false);
   private isBrowser: boolean;
+  private quillEditor: any = null;
+  private quillLoaded = false;
 
   experienceForm: FormGroup;
 
@@ -45,6 +52,179 @@ export class ExperienceComponent implements OnInit {
 
   ngOnInit() {
     this.loadExperiences();
+    this.loadQuillEditor();
+  }
+
+  ngAfterViewInit() {
+    // Initialize Quill when the form opens
+    if (this.showForm() && this.quillLoaded) {
+      setTimeout(() => this.initializeQuillEditor(), 100);
+    }
+  }
+
+  private async loadQuillEditor() {
+    if (!this.isBrowser || this.quillLoaded) {
+      return;
+    }
+
+    try {
+      // Load Quill CSS
+      const quillCSS = document.createElement('link');
+      quillCSS.rel = 'stylesheet';
+      quillCSS.href = 'https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.snow.min.css';
+      document.head.appendChild(quillCSS);
+
+      // Load Quill JS
+      const quillJS = document.createElement('script');
+      quillJS.src = 'https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.min.js';
+      
+      return new Promise<void>((resolve, reject) => {
+        quillJS.onload = () => {
+          this.quillLoaded = true;
+          resolve();
+        };
+        quillJS.onerror = reject;
+        document.head.appendChild(quillJS);
+      });
+    } catch (error) {
+      console.error('Failed to load Quill editor:', error);
+    }
+  }
+
+  private initializeQuillEditor() {
+    if (!this.quillLoaded || !this.quillEditorRef?.nativeElement || this.quillEditor) {
+      return;
+    }
+
+    try {
+      // Quill configuration with rich formatting options
+      const toolbarOptions = [
+        [{ 'header': [1, 2, 3, false] }],
+        ['bold', 'italic', 'underline', 'strike'],
+        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+        [{ 'indent': '-1'}, { 'indent': '+1' }],
+        [{ 'color': [] }, { 'background': [] }],
+        [{ 'align': [] }],
+        ['link'],
+        ['clean']
+      ];
+
+      this.quillEditor = new Quill(this.quillEditorRef.nativeElement, {
+        theme: 'snow',
+        modules: {
+          toolbar: toolbarOptions
+        },
+        placeholder: 'Describe your role and responsibilities...',
+        formats: [
+          'header', 'bold', 'italic', 'underline', 'strike',
+          'list', 'bullet', 'indent', 'color', 'background',
+          'align', 'link'
+        ]
+      });
+
+      // SIMPLE FIX: Force white background and black text consistently
+      setTimeout(() => {
+        this.forceWhiteBackgroundBlackText();
+      }, 50);
+
+      // Set initial content if editing
+      const currentDescription = this.experienceForm.get('description')?.value;
+      if (currentDescription) {
+        this.quillEditor.root.innerHTML = currentDescription;
+        // Force styling after setting content
+        setTimeout(() => this.forceWhiteBackgroundBlackText(), 100);
+      }
+
+      // Listen for content changes
+      this.quillEditor.on('text-change', () => {
+        const html = this.quillEditor.root.innerHTML;
+        const text = this.quillEditor.getText().trim();
+        
+        // Update form control with HTML content
+        this.experienceForm.get('description')?.setValue(html);
+        
+        // Trigger validation
+        if (text.length === 0) {
+          this.experienceForm.get('description')?.setErrors({ required: true });
+        } else {
+          this.experienceForm.get('description')?.setErrors(null);
+        }
+
+        // Force styling after each change
+        setTimeout(() => this.forceWhiteBackgroundBlackText(), 10);
+      });
+
+      // Also listen for selection changes
+      this.quillEditor.on('selection-change', () => {
+        setTimeout(() => this.forceWhiteBackgroundBlackText(), 10);
+      });
+
+    } catch (error) {
+      console.error('Error initializing Quill editor:', error);
+      // Fallback to regular textarea if Quill fails
+      this.showQuillFallback();
+    }
+  }
+
+  private forceWhiteBackgroundBlackText() {
+    if (!this.quillEditor || !this.quillEditor.root) {
+      return;
+    }
+
+    const editorElement = this.quillEditor.root;
+    
+    // Force white background and black text on the main editor
+    editorElement.style.setProperty('background', 'white', 'important');
+    editorElement.style.setProperty('color', '#333333', 'important');
+
+    // Also force on the container
+    const container = editorElement.parentElement;
+    if (container && container.classList.contains('ql-container')) {
+      container.style.setProperty('background', 'white', 'important');
+    }
+
+    // Get all elements inside the editor and force black text
+    const allElements = editorElement.querySelectorAll('*');
+    allElements.forEach((element: any) => {
+      element.style.setProperty('color', '#333333', 'important');
+      element.style.setProperty('background', 'transparent', 'important');
+    });
+
+    // Force on specific text elements
+    const textElements = editorElement.querySelectorAll('p, div, span, h1, h2, h3, h4, h5, h6, li, strong, em, u, s');
+    textElements.forEach((element: any) => {
+      element.style.setProperty('color', '#333333', 'important');
+      element.style.setProperty('background', 'transparent', 'important');
+    });
+
+    // Force styles using multiple methods
+    editorElement.setAttribute('style', 'color: #333333 !important; background: white !important; padding: 15px !important; min-height: 120px !important;');
+  }
+
+  private showQuillFallback() {
+    // Hide Quill container and show fallback textarea
+    if (this.quillEditorRef?.nativeElement) {
+      this.quillEditorRef.nativeElement.style.display = 'none';
+      const fallback = document.getElementById('description-fallback');
+      if (fallback) {
+        fallback.style.display = 'block';
+      }
+    }
+  }
+
+  private destroyQuillEditor() {
+    if (this.quillEditor) {
+      try {
+        // Get content before destroying
+        const content = this.quillEditor.root.innerHTML;
+        this.experienceForm.get('description')?.setValue(content);
+        
+        // Destroy the editor
+        this.quillEditor = null;
+      } catch (error) {
+        console.error('Error destroying Quill editor:', error);
+      }
+    }
   }
 
   private setupFormValidation() {
@@ -179,10 +359,17 @@ export class ExperienceComponent implements OnInit {
     } else {
       this.editingId.set(null);
     }
+    
     this.showForm.set(true);
+    
+    // Initialize Quill editor after form is shown
+    if (this.quillLoaded) {
+      setTimeout(() => this.initializeQuillEditor(), 200);
+    }
   }
 
   closeForm() {
+    this.destroyQuillEditor();
     this.showForm.set(false);
     this.resetForm();
     
@@ -206,6 +393,15 @@ export class ExperienceComponent implements OnInit {
   }
 
   async onSubmit() {
+    // Ensure Quill content is saved to form before validation
+    if (this.quillEditor) {
+      const html = this.quillEditor.root.innerHTML;
+      const text = this.quillEditor.getText().trim();
+      if (text.length > 0) {
+        this.experienceForm.get('description')?.setValue(html);
+      }
+    }
+
     if (!this.isFormValid) {
       this.markAllFieldsAsTouched();
       alert('Please fill all required fields correctly');
@@ -233,7 +429,7 @@ export class ExperienceComponent implements OnInit {
         startDate: startDate,
         endDate: endDate,
         current: formValue.current,
-        description: formValue.description.trim(),
+        description: formValue.description, // This now contains HTML from Quill
         skills: validSkills
       };
 

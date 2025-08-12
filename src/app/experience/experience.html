@@ -93,15 +93,30 @@
             </div>
           </div>
 
+          <!-- Rich Text Editor for Description -->
           <div class="form-group">
             <label for="description">Description *</label>
+            
+            <!-- Quill Editor Container -->
+            <div class="quill-editor-container">
+              <div #quillEditor class="quill-editor"></div>
+            </div>
+            
+            <!-- Fallback textarea (hidden by default) -->
             <textarea 
-              id="description" 
+              id="description-fallback" 
               formControlName="description"
               placeholder="Describe your role and responsibilities"
-              rows="4"></textarea>
+              rows="4"
+              style="display: none;"></textarea>
+              
             <div *ngIf="experienceForm.get('description')?.invalid && experienceForm.get('description')?.touched" class="error-message">
               Description is required
+            </div>
+            
+            <!-- Helper text -->
+            <div class="editor-help-text">
+              Use the toolbar above to format your text with bold, italic, lists, and more.
             </div>
           </div>
 
@@ -179,7 +194,8 @@
           </div>
 
           <div class="card-body">
-            <p class="description">{{ exp.description }}</p>
+            <!-- Render HTML description with innerHTML binding -->
+            <div class="description" [innerHTML]="exp.description"></div>
             
             <div class="skills-section" *ngIf="exp.skills && exp.skills.length > 0">
               <strong>Skills:</strong>

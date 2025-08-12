@@ -150,11 +150,9 @@
         <p>No experience records found.</p>
       </div>
 
-      <!-- FIXED: Removed the last-item class logic that was hiding timeline for last experience -->
       <div *ngFor="let exp of experiences(); let i = index" class="timeline-item">
         <div class="timeline-marker">
           <div class="timeline-dot" [class.current]="exp.current"></div>
-          <!-- Timeline line now shows for ALL experiences -->
           <div class="timeline-line"></div>
         </div>
 
@@ -171,11 +169,11 @@
             
             <!-- Admin Actions -->
             <div *ngIf="isAdmin()" class="admin-actions-card">
-              <button class="action-btn edit-btn" (click)="openForm(exp)" title="Edit">
-                <i class="fas fa-edit"></i>
+              <button class="action-btn edit-btn" (click)="openForm(exp)" title="Edit Experience">
+                ✏️
               </button>
-              <button class="action-btn delete-btn" (click)="deleteExperience(exp.id, exp.companyName)" title="Delete">
-                <i class="fas fa-trash"></i>
+              <button class="action-btn delete-btn" (click)="deleteExperience(exp.id, exp.companyName)" title="Delete Experience">
+                🗑️
               </button>
             </div>
           </div>

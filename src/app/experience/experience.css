@@ -33,7 +33,7 @@
 }
 
 .admin-toggle-btn {
-  background: rgba(0, 123, 255, 0.4); /* 40% visibility */
+  background: rgba(0, 123, 255, 0.2); /* 20% visibility */
   border: none;
   color: white;
   padding: 10px 20px;
@@ -46,16 +46,16 @@
 }
 
 .admin-toggle-btn:hover {
-  background: rgba(0, 86, 179, 0.6); /* Slightly more visible on hover */
+  background: rgba(0, 86, 179, 0.4); /* Slightly more visible on hover */
   transform: translateY(-1px);
 }
 
 .admin-toggle-btn.active {
-  background: rgba(40, 167, 69, 0.4); /* 40% visibility for active state */
+  background: rgba(40, 167, 69, 0.2); /* 20% visibility for active state */
 }
 
 .admin-toggle-btn.active:hover {
-  background: rgba(33, 136, 56, 0.6);
+  background: rgba(33, 136, 56, 0.4);
 }
 
 /* Loading Spinner */
@@ -486,114 +486,134 @@ body:not(.dark-theme) .timeline-line {
   display: none;
 }
 
-/* Experience Card - Clean white design for both themes */
+/* Experience Card - Enhanced Design */
 .experience-card {
   background: #ffffff !important;
-  border: 1px solid #e0e0e0;
-  border-radius: 12px;
-  padding: 25px;
+  border: none !important; /* Remove any unwanted borders */
+  border-radius: 16px !important;
+  padding: 28px !important;
   flex: 1;
-  transition: all 0.3s ease;
   position: relative;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-  /* Force all text inside cards to be dark */
   color: #333333 !important;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden; /* Prevent any unwanted lines from overflowing */
+  
+  /* Enhanced shadow system */
+  box-shadow: 
+    0 2px 8px rgba(0, 0, 0, 0.05),
+    0 4px 16px rgba(0, 0, 0, 0.08),
+    0 0 0 1px rgba(0, 0, 0, 0.04);
 }
 
-.experience-card * {
-  color: inherit !important;
-  text-shadow: none !important;
-}
-
-/* Dark theme styling - cards remain white */
+/* Dark theme card styling */
 body.dark-theme .experience-card {
   background: #ffffff !important;
-  border-color: #e0e0e0;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
   color: #333333 !important;
+  box-shadow: 
+    0 4px 12px rgba(0, 0, 0, 0.15),
+    0 8px 24px rgba(0, 0, 0, 0.12),
+    0 0 0 1px rgba(0, 0, 0, 0.08);
 }
 
-body.dark-theme .experience-card * {
-  color: inherit !important;
-  text-shadow: none !important;
-}
-
-/* Light theme styling - cards remain white */
+/* Light theme card styling */
 body:not(.dark-theme) .experience-card {
   background: #ffffff !important;
-  border-color: #e0e0e0;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   color: #333333 !important;
+  box-shadow: 
+    0 2px 8px rgba(0, 0, 0, 0.06),
+    0 4px 16px rgba(0, 0, 0, 0.08),
+    0 0 0 1px rgba(0, 0, 0, 0.04);
 }
 
-body:not(.dark-theme) .experience-card * {
-  color: inherit !important;
-  text-shadow: none !important;
-}
-
-/* Hover effects */
+/* Enhanced hover effects */
 .experience-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
-  border-color: #d0d0d0;
+  transform: translateY(-6px) scale(1.02);
+  box-shadow: 
+    0 8px 24px rgba(0, 0, 0, 0.12),
+    0 16px 40px rgba(0, 0, 0, 0.08),
+    0 0 0 1px rgba(0, 0, 0, 0.06);
+  border: none !important; /* Ensure no border appears on hover */
 }
 
 body.dark-theme .experience-card:hover {
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+  box-shadow: 
+    0 12px 32px rgba(0, 0, 0, 0.25),
+    0 20px 48px rgba(0, 0, 0, 0.15),
+    0 0 0 1px rgba(0, 0, 0, 0.1);
 }
 
 body:not(.dark-theme) .experience-card:hover {
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+  box-shadow: 
+    0 8px 24px rgba(0, 0, 0, 0.12),
+    0 16px 40px rgba(0, 0, 0, 0.08),
+    0 0 0 1px rgba(0, 0, 0, 0.06);
+}
+
+/* Ensure all text elements inherit the card's color and remove any unwanted styles */
+.experience-card *,
+body.dark-theme .experience-card *,
+body:not(.dark-theme) .experience-card * {
+  color: inherit !important;
+  text-shadow: none !important;
+  border: none !important; /* Remove any borders from child elements */
+}
+
+/* Remove any pseudo-elements that might create lines */
+.experience-card::before,
+.experience-card::after,
+.experience-card *::before,
+.experience-card *::after {
+  display: none !important;
 }
 
 .card-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
   position: relative;
   z-index: 2;
+  border: none !important; /* Explicitly remove any borders */
 }
 
 .company-info {
   flex: 1;
 }
 
-/* Override specific elements with accent colors where needed */
-.experience-card .role-title {
-  color: #007bff !important;
+.company-name {
+  font-size: 1.4rem !important;
+  font-weight: 700 !important;
+  margin-bottom: 8px !important;
+  color: #1a1a1a !important;
+  line-height: 1.3;
+  border: none !important;
 }
 
-.experience-card .date-range {
+.role-title {
+  font-size: 1.1rem !important;
+  font-weight: 600 !important;
+  color: #007bff !important;
+  margin-bottom: 12px !important;
+  line-height: 1.4;
+  border: none !important;
+}
+
+.date-range {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.95rem !important;
   color: #666666 !important;
+  font-weight: 500;
+  border: none !important;
 }
 
-.experience-card .duration {
+.duration {
+  font-size: 0.85rem !important;
   color: #888888 !important;
-}
-
-.experience-card .skill-tag {
-  background: rgba(0, 123, 255, 0.1) !important;
-  color: #007bff !important;
-  border-color: rgba(0, 123, 255, 0.2) !important;
-}
-
-body.dark-theme .experience-card .role-title {
-  color: #007bff !important;
-}
-
-body.dark-theme .experience-card .date-range {
-  color: #666666 !important;
-}
-
-body.dark-theme .experience-card .duration {
-  color: #888888 !important;
-}
-
-body.dark-theme .experience-card .skill-tag {
-  background: rgba(0, 123, 255, 0.1) !important;
-  color: #007bff !important;
-  border-color: rgba(0, 123, 255, 0.2) !important;
+  font-weight: 400;
+  font-style: italic;
+  border: none !important;
 }
 
 /* Admin Actions in Card */
@@ -606,15 +626,19 @@ body.dark-theme .experience-card .skill-tag {
   width: 32px;
   height: 32px;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   cursor: pointer;
   transition: all 0.3s ease;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 14px;
+  position: relative;
+  font-family: Arial, sans-serif;
+  font-weight: normal;
 }
 
+/* Simple text-based icons */
 .edit-btn {
   background: #17a2b8;
   color: white;
@@ -635,76 +659,98 @@ body.dark-theme .experience-card .skill-tag {
   transform: scale(1.1);
 }
 
-/* Description - dark text for white cards - Force override */
+/* Hide any FontAwesome icons that might be causing issues */
+.action-btn i {
+  display: none;
+}
+
+/* Card Body */
+.card-body {
+  border: none !important; /* Remove any borders */
+}
+
+/* Description - Enhanced styling */
 .experience-card .card-body .description,
 body.dark-theme .experience-card .card-body .description,
 body:not(.dark-theme) .experience-card .card-body .description {
-  font-size: 1.1rem;
-  line-height: 1.8;
-  margin-bottom: 25px;
-  font-weight: 400;
-  color: #444444 !important; /* Dark gray text for both themes */
+  font-size: 1.05rem !important;
+  line-height: 1.7 !important;
+  margin-bottom: 24px !important;
+  font-weight: 400 !important;
+  color: #4a4a4a !important;
   position: relative;
   z-index: 2;
   text-shadow: none !important;
+  border: none !important;
+  text-align: justify;
 }
 
+/* Skills Section - Enhanced styling */
 .skills-section {
-  margin-top: 20px;
+  margin-top: 24px !important;
   position: relative;
   z-index: 2;
+  border: none !important; /* Remove any borders */
+  padding: 0 !important; /* Remove any padding that might create visual lines */
 }
 
-/* Skills section title - dark text for white cards - Force override */
 .experience-card .skills-section strong,
 body.dark-theme .experience-card .skills-section strong,
 body:not(.dark-theme) .experience-card .skills-section strong {
-  margin-bottom: 12px;
+  margin-bottom: 14px !important;
   display: block;
-  font-size: 1rem;
-  font-weight: 600;
-  color: #333333 !important; /* Dark text for both themes */
+  font-size: 1rem !important;
+  font-weight: 700 !important;
+  color: #2c2c2c !important;
   text-shadow: none !important;
+  border: none !important;
 }
 
 .skills-list {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 12px;
+  gap: 12px;
+  margin-top: 14px !important;
+  border: none !important; /* Remove any borders */
+  padding: 0 !important; /* Remove any padding */
 }
 
-/* Skill tags - styled for white card background - Force override */
+/* Enhanced Skill Tags */
 .experience-card .skill-tag,
 body.dark-theme .experience-card .skill-tag,
 body:not(.dark-theme) .experience-card .skill-tag {
-  padding: 8px 16px;
-  border-radius: 25px;
-  font-size: 0.9rem;
-  font-weight: 500;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  border: 1px solid transparent;
+  padding: 10px 18px !important;
+  border-radius: 20px !important;
+  font-size: 0.9rem !important;
+  font-weight: 600 !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  border: none !important; /* Remove border completely */
   position: relative;
-  background: rgba(0, 123, 255, 0.1) !important; /* Light blue background */
-  color: #007bff !important; /* Blue text */
-  border-color: rgba(0, 123, 255, 0.2) !important;
-  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.1);
+  background: linear-gradient(135deg, rgba(0, 123, 255, 0.08), rgba(0, 123, 255, 0.12)) !important;
+  color: #0056b3 !important;
+  box-shadow: 
+    0 2px 6px rgba(0, 123, 255, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
   text-shadow: none !important;
+  backdrop-filter: blur(10px);
+  cursor: default;
 }
 
 .experience-card .skill-tag:hover,
 body.dark-theme .experience-card .skill-tag:hover,
 body:not(.dark-theme) .experience-card .skill-tag:hover {
-  transform: translateY(-2px) scale(1.05);
-  background: rgba(0, 123, 255, 0.15) !important;
-  border-color: rgba(0, 123, 255, 0.3) !important;
-  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.2);
+  transform: translateY(-3px) scale(1.05) !important;
+  background: linear-gradient(135deg, rgba(0, 123, 255, 0.12), rgba(0, 123, 255, 0.18)) !important;
+  box-shadow: 
+    0 6px 16px rgba(0, 123, 255, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
+  border: none !important;
 }
 
 /* Responsive Design */
 @media (max-width: 768px) {
   .experience-section {
-    padding: 1.5rem 0; /* Reduced for mobile */
+    padding: 1.5rem 0;
   }
 
   .container {
@@ -735,7 +781,7 @@ body:not(.dark-theme) .experience-card .skill-tag:hover {
   }
 
   .timeline-item {
-    margin-bottom: 20px; /* Keep consistent with desktop */
+    margin-bottom: 20px;
   }
 
   .timeline-marker {
@@ -743,13 +789,13 @@ body:not(.dark-theme) .experience-card .skill-tag:hover {
   }
 
   .experience-card {
-    padding: 20px;
+    padding: 22px !important;
   }
 
   .card-header {
     flex-direction: column;
     align-items: flex-start;
-    gap: 10px;
+    gap: 12px;
   }
 
   .admin-actions-card {
@@ -759,11 +805,20 @@ body:not(.dark-theme) .experience-card .skill-tag:hover {
   }
 
   .company-name {
-    font-size: 1.3rem;
+    font-size: 1.25rem !important;
   }
 
   .role-title {
-    font-size: 1.1rem;
+    font-size: 1.05rem !important;
+  }
+
+  .skills-list {
+    gap: 8px;
+  }
+
+  .skill-tag {
+    padding: 8px 14px !important;
+    font-size: 0.85rem !important;
   }
 }
 
@@ -778,7 +833,15 @@ body:not(.dark-theme) .experience-card .skill-tag:hover {
   }
 
   .experience-card {
-    padding: 18px;
+    padding: 20px !important;
+  }
+
+  .company-name {
+    font-size: 1.2rem !important;
+  }
+
+  .role-title {
+    font-size: 1rem !important;
   }
 
   .skills-list {
@@ -786,7 +849,7 @@ body:not(.dark-theme) .experience-card .skill-tag:hover {
   }
 
   .skill-tag {
-    padding: 4px 10px;
-    font-size: 0.85rem;
+    padding: 6px 12px !important;
+    font-size: 0.8rem !important;
   }
 }

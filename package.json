@@ -30,6 +30,7 @@
     "@angular/platform-server": "^20.0.0",
     "@angular/router": "^20.0.0",
     "@angular/ssr": "^20.0.4",
+    "@fortawesome/fontawesome-free": "^7.0.0",
     "express": "^5.1.0",
     "lucide-angular": "^0.536.0",
     "rxjs": "~7.8.0",

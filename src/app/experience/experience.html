@@ -194,8 +194,8 @@
           </div>
 
           <div class="card-body">
-            <!-- Render HTML description with innerHTML binding -->
-            <div class="description" [innerHTML]="exp.description"></div>
+            <!-- Use SafeHtml pipe to render HTML content safely -->
+            <div class="description" [innerHTML]="exp.description | safeHtml"></div>
             
             <div class="skills-section" *ngIf="exp.skills && exp.skills.length > 0">
               <strong>Skills:</strong>

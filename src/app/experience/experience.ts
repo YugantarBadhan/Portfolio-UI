@@ -4,6 +4,7 @@ import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, FormArray } fr
 import { ExperienceService } from '../services/experience.service';
 import { Experience } from '../model/experience.model';
 import { ConfigService } from '../services/config.service';
+import { SafeHtmlPipe } from '../pipes/safe-html.pipe';
 
 // Declare Quill for TypeScript
 declare var Quill: any;
@@ -11,7 +12,7 @@ declare var Quill: any;
 @Component({
   selector: 'app-experience',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, SafeHtmlPipe],
   templateUrl: './experience.html',
   styleUrls: ['./experience.css']
 })
@@ -122,7 +123,7 @@ export class ExperienceComponent implements OnInit, AfterViewInit {
         ]
       });
 
-      // SIMPLE FIX: Force white background and black text consistently
+      // Force white background and black text consistently
       setTimeout(() => {
         this.forceWhiteBackgroundBlackText();
       }, 50);

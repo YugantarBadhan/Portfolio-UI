@@ -92,14 +92,17 @@
 
           <div class="form-row">
             <div class="form-group">
-              <label for="githubLink">GitHub Link</label>
+              <label for="githubLink">GitHub Link(s)</label>
               <input 
-                type="url" 
+                type="text" 
                 id="githubLink" 
                 formControlName="githubLink"
-                placeholder="https://github.com/username/project">
+                placeholder="https://github.com/user/repo1, https://github.com/user/repo2">
               <div *ngIf="projectForm.get('githubLink')?.invalid && projectForm.get('githubLink')?.touched" class="error-message">
-                Please enter a valid URL
+                Please enter valid URL(s)
+              </div>
+              <div class="github-help-text">
+                You can enter multiple repository URLs separated by commas
               </div>
             </div>
 
@@ -129,13 +132,38 @@
       </div>
     </div>
 
+    <!-- GitHub Repositories Modal -->
+    <div *ngIf="showGithubRepos()" class="github-repos-modal" (click)="closeGithubRepos()">
+      <div class="github-repos-container" (click)="$event.stopPropagation()">
+        <div class="repos-header">
+          <h3>Choose Repository</h3>
+        </div>
+        
+        <div class="repos-list">
+          <a *ngFor="let repo of currentGithubRepos(); let i = index" 
+             [href]="repo.url" 
+             target="_blank" 
+             rel="noopener noreferrer"
+             class="repo-item"
+             (click)="closeGithubRepos()">
+            <i class="fab fa-github"></i>
+            <span>{{ repo.name || 'Repository ' + (i + 1) }}</span>
+          </a>
+        </div>
+        
+        <div class="repos-close">
+          <button class="repos-close-btn" (click)="closeGithubRepos()">Close</button>
+        </div>
+      </div>
+    </div>
+
     <!-- Projects Grid -->
     <div *ngIf="!isLoading()" class="projects-grid">
       <div *ngIf="projects().length === 0" class="no-projects">
         <p>No projects found. {{ isAdmin() ? 'Click "Add New Project" to create your first project.' : '' }}</p>
       </div>
 
-      <div *ngFor="let project of projects()" class="project-card">
+      <div *ngFor="let project of projects(); trackBy: trackByProjectId" class="project-card">
         <div class="card-header">
           <div class="project-info">
             <h3 class="project-title">{{ project.title }}</h3>
@@ -153,8 +181,18 @@
         </div>
 
         <div class="card-body">
-          <!-- Project Description with SafeHtml pipe -->
-          <div class="description" [innerHTML]="project.description | safeHtml"></div>
+          <!-- Project Description with Read More/Less functionality -->
+          <div class="description" 
+               [class.collapsed]="!isDescriptionExpanded(project.id)"
+               [class.expanded]="isDescriptionExpanded(project.id)"
+               [innerHTML]="project.description | safeHtml"></div>
+          
+          <!-- Read More/Less Button -->
+          <button *ngIf="shouldShowReadMore(project.description)" 
+                  class="read-more-btn" 
+                  (click)="toggleDescription(project.id)">
+            {{ isDescriptionExpanded(project.id) ? 'Read Less' : 'Read More...' }}
+          </button>
           
           <!-- Tech Stack -->
           <div class="tech-stack-section" *ngIf="project.techStack">
@@ -164,14 +202,26 @@
           
           <!-- Project Links -->
           <div class="project-links" *ngIf="project.githubLink || project.liveDemoLink">
-            <a *ngIf="project.githubLink" 
-               [href]="project.githubLink" 
-               target="_blank" 
-               rel="noopener noreferrer" 
-               class="project-link github-link">
-              <i class="fab fa-github"></i>
-              <span>GitHub</span>
-            </a>
+            <ng-container *ngIf="project.githubLink">
+              <!-- Single GitHub repo -->
+              <a *ngIf="!hasMultipleGithubRepos(project.githubLink)" 
+                 [href]="project.githubLink" 
+                 target="_blank" 
+                 rel="noopener noreferrer" 
+                 class="project-link github-link">
+                <i class="fab fa-github"></i>
+                <span>GitHub</span>
+              </a>
+              
+              <!-- Multiple GitHub repos -->
+              <button *ngIf="hasMultipleGithubRepos(project.githubLink)" 
+                      class="project-link github-link"
+                      (click)="openGithubRepos(project.githubLink)">
+                <i class="fab fa-github"></i>
+                <span>GitHub ({{ getGithubRepoCount(project.githubLink) }})</span>
+              </button>
+            </ng-container>
+            
             <a *ngIf="project.liveDemoLink" 
                [href]="project.liveDemoLink" 
                target="_blank" 

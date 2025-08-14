@@ -1,4 +1,4 @@
-// src/app/projects/projects.ts - SSR Safe Version
+// src/app/projects/projects.ts - Enhanced Version
 import { Component, OnInit, inject, signal, PLATFORM_ID, Inject, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -9,6 +9,11 @@ import { SafeHtmlPipe } from '../pipes/safe-html.pipe';
 
 // Declare Quill for TypeScript
 declare var Quill: any;
+
+interface GitHubRepo {
+  url: string;
+  name: string;
+}
 
 @Component({
   selector: 'app-projects',
@@ -29,6 +34,10 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
   showForm = signal(false);
   editingId = signal<number | null>(null);
   isAdmin = signal(false);
+  showGithubRepos = signal(false);
+  currentGithubRepos = signal<GitHubRepo[]>([]);
+  expandedDescriptions = signal<Set<number>>(new Set());
+  
   private isBrowser: boolean;
   private quillEditor: any = null;
   private quillLoaded = false;
@@ -42,7 +51,7 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
       title: ['', [Validators.required, Validators.maxLength(400)]],
       description: ['', [Validators.required, Validators.minLength(1)]], 
       techStack: [''], 
-      githubLink: ['', [this.urlValidator]], 
+      githubLink: ['', [this.multiUrlValidator]], 
       liveDemoLink: ['', [this.urlValidator]]
     });
 
@@ -64,6 +73,99 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
     // Only initialize Quill in browser environment
     if (this.isBrowser && this.showForm() && this.quillLoaded) {
       setTimeout(() => this.initializeQuillEditor(), 100);
+    }
+  }
+
+  // TrackBy function for better performance
+  trackByProjectId(index: number, project: Project): number {
+    return project.id;
+  }
+
+  // Description expansion functionality
+  isDescriptionExpanded(projectId: number): boolean {
+    return this.expandedDescriptions().has(projectId);
+  }
+
+  toggleDescription(projectId: number): void {
+    const expanded = new Set(this.expandedDescriptions());
+    if (expanded.has(projectId)) {
+      expanded.delete(projectId);
+    } else {
+      expanded.add(projectId);
+    }
+    this.expandedDescriptions.set(expanded);
+  }
+
+  shouldShowReadMore(description: string): boolean {
+    if (!this.isBrowser || !description) return false;
+    
+    // Create a temporary div to measure content
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = description;
+    tempDiv.style.cssText = 'position: absolute; visibility: hidden; font-size: 1.05rem; line-height: 1.7; width: 350px;';
+    document.body.appendChild(tempDiv);
+    
+    const height = tempDiv.offsetHeight;
+    document.body.removeChild(tempDiv);
+    
+    // Check if content would be more than 4 lines (4 * 1.7 * 1.05rem ≈ 118px)
+    return height > 118;
+  }
+
+  // GitHub repositories functionality
+  hasMultipleGithubRepos(githubLink: string): boolean {
+    if (!githubLink) return false;
+    return githubLink.includes(',');
+  }
+
+  getGithubRepoCount(githubLink: string): number {
+    if (!githubLink) return 0;
+    return githubLink.split(',').filter(url => url.trim()).length;
+  }
+
+  openGithubRepos(githubLink: string): void {
+    if (!githubLink) return;
+    
+    const urls = githubLink.split(',').map(url => url.trim()).filter(url => url);
+    const repos: GitHubRepo[] = urls.map((url, index) => ({
+      url: url,
+      name: this.extractRepoName(url) || `Repository ${index + 1}`
+    }));
+    
+    this.currentGithubRepos.set(repos);
+    this.showGithubRepos.set(true);
+    
+    if (this.isBrowser) {
+      document.body.style.overflow = 'hidden';
+    }
+  }
+
+  closeGithubRepos(): void {
+    this.showGithubRepos.set(false);
+    this.currentGithubRepos.set([]);
+    
+    if (this.isBrowser) {
+      document.body.style.overflow = 'auto';
+    }
+  }
+
+  private extractRepoName(url: string): string {
+    try {
+      const urlObj = new URL(url);
+      const pathParts = urlObj.pathname.split('/').filter(part => part);
+      
+      if (pathParts.length >= 2) {
+        return `${pathParts[pathParts.length - 2]}/${pathParts[pathParts.length - 1]}`;
+      }
+      
+      return pathParts[pathParts.length - 1] || '';
+    } catch {
+      // If URL parsing fails, try simple string manipulation
+      const parts = url.split('/').filter(part => part);
+      if (parts.length >= 2) {
+        return `${parts[parts.length - 2]}/${parts[parts.length - 1]}`;
+      }
+      return parts[parts.length - 1] || '';
     }
   }
 
@@ -250,7 +352,7 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
     }
   }
 
-  // Custom URL validator
+  // Enhanced URL validators
   private urlValidator(control: any) {
     const value = control.value;
     if (!value || value.trim() === '') {
@@ -263,6 +365,26 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
     } catch {
       return { invalidUrl: true };
     }
+  }
+
+  private multiUrlValidator(control: any) {
+    const value = control.value;
+    if (!value || value.trim() === '') {
+      return null; // Allow empty values for optional fields
+    }
+    
+    // Split by comma and validate each URL
+    const urls = value.split(',').map((url: string) => url.trim()).filter((url: string) => url);
+    
+    for (const url of urls) {
+      try {
+        new URL(url);
+      } catch {
+        return { invalidUrl: true };
+      }
+    }
+    
+    return null;
   }
 
   private checkAdminStatus() {
@@ -310,6 +432,9 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
       // Sort projects by ID in descending order (newest first)
       projects.sort((a, b) => b.id - a.id);
       this.projects.set(projects);
+      
+      // Reset expanded descriptions when projects are loaded
+      this.expandedDescriptions.set(new Set());
     } catch (error) {
       console.error('Error loading projects:', error);
       this.projects.set([]);

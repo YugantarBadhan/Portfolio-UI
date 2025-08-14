@@ -1,0 +1,947 @@
+/* src/app/projects/projects.css */
+
+/* Projects Section - Optimized spacing */
+.projects-section {
+  padding: 2rem 0; /* Reduced top padding to minimize gap from previous section */
+  /* Removed min-height to eliminate unnecessary spacing */
+  color: inherit;
+  /* Remove any background declarations to inherit from body */
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* Section Header */
+.section-header {
+  text-align: center;
+  margin-bottom: 2rem;
+  position: relative;
+}
+
+.section-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  color: inherit;
+}
+
+.admin-controls {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+.admin-toggle-btn {
+  background: rgba(0, 123, 255, 0.2); /* 20% visibility */
+  border: none;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.admin-toggle-btn:hover {
+  background: rgba(0, 86, 179, 0.4); /* Slightly more visible on hover */
+  transform: translateY(-1px);
+}
+
+.admin-toggle-btn.active {
+  background: rgba(40, 167, 69, 0.2); /* 20% visibility for active state */
+}
+
+.admin-toggle-btn.active:hover {
+  background: rgba(33, 136, 56, 0.4);
+}
+
+/* Loading Spinner */
+.loading-spinner {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: #007bff;
+  animation: spin 1s ease-in-out infinite;
+  margin: 0 auto 20px;
+}
+
+body.dark-theme .spinner {
+  border-color: rgba(255, 255, 255, 0.2);
+  border-top-color: #64b5f6;
+}
+
+body:not(.dark-theme) .spinner {
+  border-color: rgba(0, 0, 0, 0.2);
+  border-top-color: #667eea;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Admin Actions */
+.admin-actions {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.btn-add {
+  background: #28a745;
+  border: none;
+  color: white;
+  padding: 12px 24px;
+  border-radius: 25px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-add:hover {
+  background: #218838;
+  transform: translateY(-1px);
+}
+
+/* Modal Overlay and Popup - ALWAYS LIGHT THEME */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(5px);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Project Form - Modal Style - FORCED LIGHT THEME */
+.project-form-container {
+  background: white !important;
+  border-radius: 15px;
+  padding: 30px;
+  max-width: 900px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  position: relative;
+  animation: slideIn 0.3s ease-out;
+  color: #333 !important; /* Force dark text */
+}
+
+/* Override dark theme for modal - ALWAYS LIGHT */
+body.dark-theme .project-form-container {
+  background: white !important;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  color: #333 !important; /* Force dark text even in dark theme */
+}
+
+@keyframes slideIn {
+  from { 
+    opacity: 0;
+    transform: scale(0.9) translateY(-20px);
+  }
+  to { 
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.form-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+  border-bottom: 2px solid #f0f0f0;
+  padding-bottom: 15px;
+}
+
+/* Force light theme for form header even in dark theme */
+body.dark-theme .form-header {
+  border-bottom-color: #f0f0f0 !important;
+}
+
+.form-header h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #333 !important;
+  margin: 0;
+}
+
+/* Force light theme text even in dark theme */
+body.dark-theme .form-header h3 {
+  color: #333 !important;
+}
+
+.close-btn {
+  background: #dc3545;
+  border: none;
+  color: white;
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 1.2rem;
+  transition: all 0.3s ease;
+}
+
+.close-btn:hover {
+  background: #c82333;
+  transform: scale(1.1);
+}
+
+.project-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group.full-width {
+  grid-column: span 2;
+}
+
+.form-group label {
+  font-weight: 600;
+  margin-bottom: 5px;
+  color: #333 !important;
+}
+
+/* Force light theme labels even in dark theme */
+body.dark-theme .form-group label {
+  color: #333 !important;
+}
+
+.form-group input[type="text"],
+.form-group input[type="url"],
+.form-group textarea {
+  padding: 10px 15px;
+  border: 1px solid #ddd !important;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
+  background: white !important;
+  color: #333 !important;
+}
+
+/* Force light theme inputs even in dark theme */
+body.dark-theme .form-group input[type="text"],
+body.dark-theme .form-group input[type="url"],
+body.dark-theme .form-group textarea {
+  background: white !important;
+  border-color: #ddd !important;
+  color: #333 !important;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #007bff !important;
+}
+
+/* Force light theme focus states even in dark theme */
+body.dark-theme .form-group input:focus,
+body.dark-theme .form-group textarea:focus {
+  border-color: #007bff !important;
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+
+.error-message {
+  color: #dc3545 !important;
+  font-size: 0.875rem;
+  margin-top: 5px;
+  font-weight: 500;
+}
+
+/* Quill Editor Styles - ALWAYS WHITE BACKGROUND */
+.quill-editor-container {
+  position: relative;
+  background: white !important;
+  border-radius: 8px;
+  border: 1px solid #ddd !important;
+  overflow: hidden;
+  transition: border-color 0.3s ease;
+}
+
+/* Force white background regardless of theme */
+body.dark-theme .quill-editor-container {
+  background: white !important;
+  border-color: #ddd !important;
+}
+
+.quill-editor-container:focus-within {
+  border-color: #007bff !important;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+/* Force focus styles regardless of theme */
+body.dark-theme .quill-editor-container:focus-within {
+  border-color: #007bff !important;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+/* Quill toolbar styling - ALWAYS LIGHT */
+.quill-editor .ql-toolbar,
+body.dark-theme .quill-editor .ql-toolbar {
+  border-bottom: 1px solid #ddd !important;
+  background: #f8f9fa !important;
+  border-top: none !important;
+  border-left: none !important;
+  border-right: none !important;
+}
+
+.quill-editor .ql-toolbar .ql-formats {
+  margin-right: 15px;
+}
+
+.quill-editor .ql-toolbar button,
+body.dark-theme .quill-editor .ql-toolbar button {
+  border: none !important;
+  background: transparent !important;
+  color: #495057 !important;
+  padding: 5px !important;
+  border-radius: 3px !important;
+  transition: all 0.2s ease !important;
+}
+
+.quill-editor .ql-toolbar button:hover,
+body.dark-theme .quill-editor .ql-toolbar button:hover {
+  background: rgba(0, 123, 255, 0.1) !important;
+  color: #007bff !important;
+}
+
+.quill-editor .ql-toolbar button.ql-active,
+body.dark-theme .quill-editor .ql-toolbar button.ql-active {
+  background: #007bff !important;
+  color: white !important;
+}
+
+/* Quill container - ALWAYS WHITE */
+.quill-editor .ql-container,
+body.dark-theme .quill-editor .ql-container {
+  font-size: 1rem !important;
+  line-height: 1.5 !important;
+  border: none !important;
+  min-height: 120px !important;
+  background: white !important;
+}
+
+/* Quill editor content area - ALWAYS WHITE BACKGROUND WITH BLACK TEXT */
+.quill-editor .ql-editor,
+body.dark-theme .quill-editor .ql-editor {
+  padding: 15px !important;
+  color: #333333 !important;
+  background: white !important;
+  min-height: 120px !important;
+  font-family: inherit !important;
+  border: none !important;
+}
+
+/* Force ALL text elements to be black regardless of theme */
+.ql-editor,
+.ql-editor p,
+.ql-editor div,
+.ql-editor span,
+.ql-editor strong,
+.ql-editor em,
+.ql-editor u,
+.ql-editor s,
+.ql-editor h1,
+.ql-editor h2,
+.ql-editor h3,
+.ql-editor h4,
+.ql-editor h5,
+.ql-editor h6,
+.ql-editor li,
+.ql-editor ol,
+.ql-editor ul,
+.ql-editor blockquote,
+.ql-editor pre,
+.ql-editor code,
+.ql-editor a,
+body.dark-theme .ql-editor,
+body.dark-theme .ql-editor p,
+body.dark-theme .ql-editor div,
+body.dark-theme .ql-editor span,
+body.dark-theme .ql-editor strong,
+body.dark-theme .ql-editor em,
+body.dark-theme .ql-editor u,
+body.dark-theme .ql-editor s,
+body.dark-theme .ql-editor h1,
+body.dark-theme .ql-editor h2,
+body.dark-theme .ql-editor h3,
+body.dark-theme .ql-editor h4,
+body.dark-theme .ql-editor h5,
+body.dark-theme .ql-editor h6,
+body.dark-theme .ql-editor li,
+body.dark-theme .ql-editor ol,
+body.dark-theme .ql-editor ul,
+body.dark-theme .ql-editor blockquote,
+body.dark-theme .ql-editor pre,
+body.dark-theme .ql-editor code,
+body.dark-theme .ql-editor a {
+  color: #333333 !important;
+  background: transparent !important;
+}
+
+/* Override any inline styles that Quill might apply */
+.ql-editor *,
+body.dark-theme .ql-editor * {
+  color: #333333 !important;
+  background: transparent !important;
+}
+
+/* Placeholder styling - ALWAYS GRAY */
+.ql-editor.ql-blank::before,
+body.dark-theme .ql-editor.ql-blank::before {
+  color: #6c757d !important;
+  font-style: italic !important;
+  opacity: 1 !important;
+  pointer-events: none !important;
+  position: absolute !important;
+  left: 15px !important;
+  right: 15px !important;
+}
+
+/* Editor help text - ALWAYS LIGHT THEME */
+.editor-help-text {
+  font-size: 0.8rem;
+  color: #6c757d !important;
+  margin-top: 5px;
+  font-style: italic;
+}
+
+/* Force light theme help text even in dark theme */
+body.dark-theme .editor-help-text {
+  color: #6c757d !important;
+}
+
+/* Form Actions - ALWAYS LIGHT THEME */
+.form-actions {
+  display: flex;
+  gap: 15px;
+  justify-content: flex-end;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #f0f0f0 !important;
+}
+
+/* Force light theme form actions even in dark theme */
+body.dark-theme .form-actions {
+  border-top-color: #f0f0f0 !important;
+}
+
+.btn-cancel {
+  padding: 10px 20px;
+  border: 1px solid #6c757d !important;
+  background: white !important;
+  color: #6c757d !important;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+/* Force light theme cancel button even in dark theme */
+body.dark-theme .btn-cancel {
+  background: white !important;
+  color: #6c757d !important;
+  border-color: #6c757d !important;
+}
+
+.btn-cancel:hover {
+  background: #6c757d !important;
+  color: white !important;
+}
+
+.btn-submit {
+  padding: 10px 20px;
+  border: none;
+  background: #007bff;
+  color: white;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.btn-submit:hover:not(:disabled) {
+  background: #0056b3;
+}
+
+.btn-submit:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+/* Projects Grid */
+.projects-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.no-projects {
+  text-align: center;
+  padding: 40px 20px;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 1.1rem;
+  grid-column: 1 / -1;
+}
+
+body:not(.dark-theme) .no-projects {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* Enhanced Project Card Design */
+.project-card {
+  background: #ffffff !important;
+  border: none !important;
+  border-radius: 16px !important;
+  padding: 28px !important;
+  position: relative;
+  color: #333333 !important;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  
+  box-shadow: 
+    0 2px 8px rgba(0, 0, 0, 0.05),
+    0 4px 16px rgba(0, 0, 0, 0.08),
+    0 0 0 1px rgba(0, 0, 0, 0.04);
+}
+
+body.dark-theme .project-card {
+  background: #ffffff !important;
+  color: #333333 !important;
+  box-shadow: 
+    0 4px 12px rgba(0, 0, 0, 0.15),
+    0 8px 24px rgba(0, 0, 0, 0.12),
+    0 0 0 1px rgba(0, 0, 0, 0.08);
+}
+
+body:not(.dark-theme) .project-card {
+  background: #ffffff !important;
+  color: #333333 !important;
+  box-shadow: 
+    0 2px 8px rgba(0, 0, 0, 0.06),
+    0 4px 16px rgba(0, 0, 0, 0.08),
+    0 0 0 1px rgba(0, 0, 0, 0.04);
+}
+
+.project-card:hover {
+  transform: translateY(-6px) scale(1.02);
+  box-shadow: 
+    0 8px 24px rgba(0, 0, 0, 0.12),
+    0 16px 40px rgba(0, 0, 0, 0.08),
+    0 0 0 1px rgba(0, 0, 0, 0.06);
+  border: none !important;
+}
+
+body.dark-theme .project-card:hover {
+  box-shadow: 
+    0 12px 32px rgba(0, 0, 0, 0.25),
+    0 20px 48px rgba(0, 0, 0, 0.15),
+    0 0 0 1px rgba(0, 0, 0, 0.1);
+}
+
+body:not(.dark-theme) .project-card:hover {
+  box-shadow: 
+    0 8px 24px rgba(0, 0, 0, 0.12),
+    0 16px 40px rgba(0, 0, 0, 0.08),
+    0 0 0 1px rgba(0, 0, 0, 0.06);
+}
+
+.project-card *,
+body.dark-theme .project-card *,
+body:not(.dark-theme) .project-card * {
+  color: inherit !important;
+  text-shadow: none !important;
+  border: none !important;
+}
+
+.project-card::before,
+.project-card::after,
+.project-card *::before,
+.project-card *::after {
+  display: none !important;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+  position: relative;
+  z-index: 2;
+  border: none !important;
+}
+
+.project-info {
+  flex: 1;
+}
+
+.project-title {
+  font-size: 1.4rem !important;
+  font-weight: 700 !important;
+  margin-bottom: 12px !important;
+  color: #1a1a1a !important;
+  line-height: 1.3;
+  border: none !important;
+}
+
+.admin-actions-card {
+  display: flex;
+  gap: 8px;
+}
+
+.action-btn {
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  position: relative;
+  font-family: Arial, sans-serif;
+  font-weight: normal;
+}
+
+.edit-btn {
+  background: #17a2b8;
+  color: white;
+}
+
+.edit-btn:hover {
+  background: #138496;
+  transform: scale(1.1);
+}
+
+.delete-btn {
+  background: #dc3545;
+  color: white;
+}
+
+.delete-btn:hover {
+  background: #c82333;
+  transform: scale(1.1);
+}
+
+.action-btn i {
+  display: none;
+}
+
+.card-body {
+  border: none !important;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.project-card .card-body .description,
+body.dark-theme .project-card .card-body .description,
+body:not(.dark-theme) .project-card .card-body .description {
+  font-size: 1.05rem !important;
+  line-height: 1.7 !important;
+  margin-bottom: 20px !important;
+  font-weight: 400 !important;
+  color: #4a4a4a !important;
+  position: relative;
+  z-index: 2;
+  text-shadow: none !important;
+  border: none !important;
+  text-align: justify;
+  flex: 1;
+}
+
+.project-card .description h1,
+.project-card .description h2,
+.project-card .description h3 {
+  color: #2c2c2c !important;
+  margin: 0.5em 0 !important;
+  font-weight: 600 !important;
+}
+
+.project-card .description h1 { font-size: 1.4em !important; }
+.project-card .description h2 { font-size: 1.25em !important; }
+.project-card .description h3 { font-size: 1.1em !important; }
+
+.project-card .description strong {
+  font-weight: 700 !important;
+  color: #333 !important;
+}
+
+.project-card .description em {
+  font-style: italic !important;
+  color: #555 !important;
+}
+
+.project-card .description ul,
+.project-card .description ol {
+  margin: 0.5em 0 !important;
+  padding-left: 1.5em !important;
+}
+
+.project-card .description li {
+  margin-bottom: 0.25em !important;
+  line-height: 1.6 !important;
+}
+
+.project-card .description p {
+  margin-bottom: 0.5em !important;
+}
+
+.project-card .description a {
+  color: #007bff !important;
+  text-decoration: underline !important;
+}
+
+.project-card .description a:hover {
+  color: #0056b3 !important;
+}
+
+/* Tech Stack Section */
+.tech-stack-section {
+  margin-bottom: 20px !important;
+  border: none !important;
+  padding: 0 !important;
+}
+
+.project-card .tech-stack-section strong,
+body.dark-theme .project-card .tech-stack-section strong,
+body:not(.dark-theme) .project-card .tech-stack-section strong {
+  display: block;
+  font-size: 0.95rem !important;
+  font-weight: 700 !important;
+  color: #2c2c2c !important;
+  text-shadow: none !important;
+  border: none !important;
+  margin-bottom: 8px !important;
+}
+
+.tech-stack {
+  font-size: 0.95rem !important;
+  color: #666666 !important;
+  font-style: italic;
+  padding: 8px 12px !important;
+  background: rgba(0, 123, 255, 0.05) !important;
+  border-radius: 8px !important;
+  border-left: 3px solid #007bff !important;
+}
+
+/* Project Links Section */
+.project-links {
+  display: flex;
+  gap: 12px;
+  margin-top: auto;
+  padding-top: 16px;
+  border-top: 1px solid #f0f0f0 !important;
+  border: none !important;
+  border-top: 1px solid #f0f0f0 !important;
+}
+
+body.dark-theme .project-links {
+  border-top-color: #f0f0f0 !important;
+}
+
+.project-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px !important;
+  border-radius: 20px !important;
+  font-size: 0.85rem !important;
+  font-weight: 600 !important;
+  text-decoration: none !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  border: none !important;
+  position: relative;
+  cursor: pointer;
+}
+
+.github-link {
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.08), rgba(0, 0, 0, 0.12)) !important;
+  color: #333333 !important;
+  box-shadow: 
+    0 2px 6px rgba(0, 0, 0, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+}
+
+.github-link:hover {
+  transform: translateY(-2px) scale(1.05) !important;
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.12), rgba(0, 0, 0, 0.18)) !important;
+  box-shadow: 
+    0 4px 12px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
+}
+
+.demo-link {
+  background: linear-gradient(135deg, rgba(40, 167, 69, 0.08), rgba(40, 167, 69, 0.12)) !important;
+  color: #28a745 !important;
+  box-shadow: 
+    0 2px 6px rgba(40, 167, 69, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+}
+
+.demo-link:hover {
+  transform: translateY(-2px) scale(1.05) !important;
+  background: linear-gradient(135deg, rgba(40, 167, 69, 0.12), rgba(40, 167, 69, 0.18)) !important;
+  box-shadow: 
+    0 4px 12px rgba(40, 167, 69, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
+}
+
+.project-link i {
+  font-size: 0.8rem !important;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .projects-section {
+    padding: 1.5rem 0;
+  }
+
+  .container {
+    padding: 0 15px;
+  }
+
+  .section-title {
+    font-size: 2rem;
+  }
+
+  .admin-controls {
+    position: static;
+    margin-top: 20px;
+  }
+
+  .project-form-container {
+    padding: 20px;
+    width: 95%;
+    max-width: none;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  .form-group.full-width {
+    grid-column: span 1;
+  }
+
+  .form-actions {
+    flex-direction: column;
+  }
+
+  .projects-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .project-card {
+    padding: 22px !important;
+  }
+
+  .card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .admin-actions-card {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+  }
+
+  .project-title {
+    font-size: 1.25rem !important;
+  }
+
+  .project-links {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  /* Quill editor mobile adjustments */
+  .quill-editor .ql-toolbar {
+    font-size: 14px;
+  }
+
+  .quill-editor .ql-container {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .section-title {
+    font-size: 1.8rem;
+  }
+
+  .project-form-container {
+    padding: 15px;
+    width: 98%;
+  }
+
+  .project-card {
+    padding: 20px !important;
+  }
+
+  .project-title {
+    font-size: 1.2rem !important;
+  }
+
+  .projects-grid {
+    gap: 1rem;
+  }
+
+  /* Mobile Quill toolbar adjustments */
+  .quill-editor .ql-toolbar .ql-formats {
+    margin-right: 8px;
+  }
+
+  .quill-editor .ql-toolbar button {
+    padding: 3px;
+  }
+}

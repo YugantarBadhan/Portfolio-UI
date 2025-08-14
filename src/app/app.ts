@@ -1,3 +1,4 @@
+// Alternative src/app/app.ts with index imports
 import {
   Component,
   OnInit,
@@ -6,12 +7,13 @@ import {
   PLATFORM_ID,
 } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { ExperienceComponent } from '../app/experience/experience';
+import { ExperienceComponent } from './experience/experience';
+import { ProjectsComponent } from './projects/projects';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, ExperienceComponent],
+  imports: [CommonModule, ExperienceComponent, ProjectsComponent],
   templateUrl: './app.html',
   styleUrls: ['./app.css'],
 })

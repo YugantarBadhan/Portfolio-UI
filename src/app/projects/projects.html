@@ -1,0 +1,188 @@
+<!-- src/app/projects/projects.html -->
+<section id="projects" class="projects-section">
+  <div class="container">
+    <!-- Section Header -->
+    <div class="section-header">
+      <h2 class="section-title">Projects</h2>
+      
+      <!-- Admin Toggle Button -->
+      <div class="admin-controls">
+        <button 
+          class="admin-toggle-btn"
+          (click)="toggleAdminMode()"
+          [class.active]="isAdmin()">
+          {{ isAdmin() ? 'Exit Admin' : 'Admin' }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="isLoading()" class="loading-spinner">
+      <div class="spinner"></div>
+      <p>Loading projects...</p>
+    </div>
+
+    <!-- Admin Add Button -->
+    <div *ngIf="isAdmin() && !showForm()" class="admin-actions">
+      <button class="btn-add" (click)="openForm()">
+        + Add New Project
+      </button>
+    </div>
+
+    <!-- Project Form Modal -->
+    <div *ngIf="showForm() && isAdmin()" class="modal-overlay" (click)="closeFormOnBackdrop($event)">
+      <div class="project-form-container" (click)="$event.stopPropagation()">
+        <div class="form-header">
+          <h3>{{ editingId() ? 'Edit Project' : 'Add New Project' }}</h3>
+          <button class="close-btn" (click)="closeForm()">×</button>
+        </div>
+
+        <form [formGroup]="projectForm" (ngSubmit)="onSubmit()" class="project-form">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="title">Project Title *</label>
+              <input 
+                type="text" 
+                id="title" 
+                formControlName="title"
+                placeholder="Enter project title"
+                maxlength="400">
+              <div *ngIf="projectForm.get('title')?.invalid && projectForm.get('title')?.touched" class="error-message">
+                <span *ngIf="projectForm.get('title')?.errors?.['required']">Project title is required</span>
+                <span *ngIf="projectForm.get('title')?.errors?.['maxlength']">Title cannot exceed 400 characters</span>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="techStack">Tech Stack</label>
+              <input 
+                type="text" 
+                id="techStack" 
+                formControlName="techStack"
+                placeholder="e.g., Angular, Spring Boot, MySQL">
+            </div>
+          </div>
+
+          <!-- Rich Text Editor for Description -->
+          <div class="form-group full-width">
+            <label for="description">Description *</label>
+            
+            <!-- Quill Editor Container -->
+            <div class="quill-editor-container">
+              <div #quillEditor class="quill-editor"></div>
+            </div>
+            
+            <!-- Fallback textarea (hidden by default) -->
+            <textarea 
+              id="description-fallback" 
+              formControlName="description"
+              placeholder="Describe your project, its features, and implementation details"
+              rows="6"
+              style="display: none;"></textarea>
+              
+            <div *ngIf="projectForm.get('description')?.invalid && projectForm.get('description')?.touched" class="error-message">
+              Description is required
+            </div>
+            
+            <!-- Helper text -->
+            <div class="editor-help-text">
+              Use the toolbar above to format your text with bold, italic, lists, and more.
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="githubLink">GitHub Link</label>
+              <input 
+                type="url" 
+                id="githubLink" 
+                formControlName="githubLink"
+                placeholder="https://github.com/username/project">
+              <div *ngIf="projectForm.get('githubLink')?.invalid && projectForm.get('githubLink')?.touched" class="error-message">
+                Please enter a valid URL
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="liveDemoLink">Live Demo Link</label>
+              <input 
+                type="url" 
+                id="liveDemoLink" 
+                formControlName="liveDemoLink"
+                placeholder="https://yourproject.com">
+              <div *ngIf="projectForm.get('liveDemoLink')?.invalid && projectForm.get('liveDemoLink')?.touched" class="error-message">
+                Please enter a valid URL
+              </div>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="button" class="btn-cancel" (click)="closeForm()">Cancel</button>
+            <button 
+              type="submit" 
+              class="btn-submit" 
+              [disabled]="!isFormValid || isLoading()">
+              {{ isLoading() ? 'Saving...' : (editingId() ? 'Update Project' : 'Create Project') }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Projects Grid -->
+    <div *ngIf="!isLoading()" class="projects-grid">
+      <div *ngIf="projects().length === 0" class="no-projects">
+        <p>No projects found. {{ isAdmin() ? 'Click "Add New Project" to create your first project.' : '' }}</p>
+      </div>
+
+      <div *ngFor="let project of projects()" class="project-card">
+        <div class="card-header">
+          <div class="project-info">
+            <h3 class="project-title">{{ project.title }}</h3>
+          </div>
+          
+          <!-- Admin Actions -->
+          <div *ngIf="isAdmin()" class="admin-actions-card">
+            <button class="action-btn edit-btn" (click)="openForm(project)" title="Edit Project">
+              ✏️
+            </button>
+            <button class="action-btn delete-btn" (click)="deleteProject(project.id, project.title)" title="Delete Project">
+              🗑️
+            </button>
+          </div>
+        </div>
+
+        <div class="card-body">
+          <!-- Project Description with SafeHtml pipe -->
+          <div class="description" [innerHTML]="project.description | safeHtml"></div>
+          
+          <!-- Tech Stack -->
+          <div class="tech-stack-section" *ngIf="project.techStack">
+            <strong>Tech Stack:</strong>
+            <div class="tech-stack">{{ project.techStack }}</div>
+          </div>
+          
+          <!-- Project Links -->
+          <div class="project-links" *ngIf="project.githubLink || project.liveDemoLink">
+            <a *ngIf="project.githubLink" 
+               [href]="project.githubLink" 
+               target="_blank" 
+               rel="noopener noreferrer" 
+               class="project-link github-link">
+              <i class="fab fa-github"></i>
+              <span>GitHub</span>
+            </a>
+            <a *ngIf="project.liveDemoLink" 
+               [href]="project.liveDemoLink" 
+               target="_blank" 
+               rel="noopener noreferrer" 
+               class="project-link demo-link">
+              <i class="fas fa-external-link-alt"></i>
+              <span>Live Demo</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

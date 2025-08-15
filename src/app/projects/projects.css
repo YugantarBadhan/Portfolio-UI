@@ -1,28 +1,33 @@
-/* src/app/projects/projects.css - Enhanced Version with Fixed Heights and Multiple GitHub Repos */
+/* Enhanced Square Project Cards with Full Screen Layout */
 
-/* Projects Section - Optimized spacing */
+/* Projects Section - Full Screen Optimized */
 .projects-section {
-  padding: 2rem 0; /* Reduced top padding to minimize gap from previous section */
-  /* Removed min-height to eliminate unnecessary spacing */
+  padding: 2rem 0;
+  min-height: 100vh;
   color: inherit;
-  /* Remove any background declarations to inherit from body */
+  display: flex;
+  flex-direction: column;
 }
 
 .container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 20px;
+  max-width: 100vw;
+  margin: 0;
+  padding: 0 2rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 /* Section Header */
 .section-header {
   text-align: center;
-  margin-bottom: 2rem;
+  margin-bottom: 3rem;
   position: relative;
+  padding: 0 2rem;
 }
 
 .section-title {
-  font-size: 2.5rem;
+  font-size: 3rem;
   font-weight: 700;
   margin-bottom: 1rem;
   color: inherit;
@@ -31,29 +36,29 @@
 .admin-controls {
   position: absolute;
   top: 0;
-  right: 0;
+  right: 2rem;
 }
 
 .admin-toggle-btn {
-  background: rgba(0, 123, 255, 0.2); /* 20% visibility */
+  background: rgba(0, 123, 255, 0.2);
   border: none;
   color: white;
-  padding: 10px 20px;
-  border-radius: 20px;
+  padding: 12px 24px;
+  border-radius: 25px;
   cursor: pointer;
-  font-size: 0.9rem;
+  font-size: 1rem;
   font-weight: 600;
   transition: all 0.3s ease;
   backdrop-filter: blur(10px);
 }
 
 .admin-toggle-btn:hover {
-  background: rgba(0, 86, 179, 0.4); /* Slightly more visible on hover */
-  transform: translateY(-1px);
+  background: rgba(0, 86, 179, 0.4);
+  transform: translateY(-2px);
 }
 
 .admin-toggle-btn.active {
-  background: rgba(40, 167, 69, 0.2); /* 20% visibility for active state */
+  background: rgba(40, 167, 69, 0.2);
 }
 
 .admin-toggle-btn.active:hover {
@@ -63,13 +68,18 @@
 /* Loading Spinner */
 .loading-spinner {
   text-align: center;
-  padding: 40px 20px;
+  padding: 60px 20px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
 .spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid rgba(255, 255, 255, 0.3);
+  width: 50px;
+  height: 50px;
+  border: 5px solid rgba(255, 255, 255, 0.3);
   border-radius: 50%;
   border-top-color: #007bff;
   animation: spin 1s ease-in-out infinite;
@@ -93,27 +103,706 @@ body:not(.dark-theme) .spinner {
 /* Admin Actions */
 .admin-actions {
   text-align: center;
-  margin-bottom: 2rem;
+  margin-bottom: 3rem;
 }
 
 .btn-add {
-  background: #28a745;
+  background: linear-gradient(135deg, #28a745, #20c997);
   border: none;
   color: white;
-  padding: 12px 24px;
-  border-radius: 25px;
-  font-size: 1rem;
+  padding: 15px 30px;
+  border-radius: 30px;
+  font-size: 1.1rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
 }
 
 .btn-add:hover {
-  background: #218838;
-  transform: translateY(-1px);
+  background: linear-gradient(135deg, #218838, #1ba085);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
 }
 
-/* Modal Overlay and Popup - ALWAYS LIGHT THEME */
+/* FULL SCREEN SQUARE CAROUSEL LAYOUT */
+.projects-carousel-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  margin-top: 2rem;
+  min-height: 0;
+}
+
+/* Carousel Wrapper - Full Width */
+.carousel-wrapper {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  min-height: 0;
+}
+
+/* Navigation Arrows - Enhanced for Full Screen */
+.carousel-nav {
+  position: relative;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(255, 255, 255, 0.92));
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 100;
+  font-size: 1.6rem;
+  color: #333;
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  box-shadow: 
+    0 10px 30px rgba(0, 0, 0, 0.12),
+    0 6px 15px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  user-select: none;
+  flex-shrink: 0;
+}
+
+body.dark-theme .carousel-nav {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(255, 255, 255, 0.95));
+  border-color: rgba(255, 255, 255, 0.5);
+  color: #2c3e50;
+  box-shadow: 
+    0 12px 35px rgba(0, 0, 0, 0.25),
+    0 8px 20px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+body:not(.dark-theme) .carousel-nav {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.88));
+  border-color: rgba(255, 255, 255, 0.4);
+  color: #667eea;
+  box-shadow: 
+    0 10px 30px rgba(102, 126, 234, 0.18),
+    0 6px 15px rgba(102, 126, 234, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+.carousel-nav:hover:not(.disabled) {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 1), rgba(255, 255, 255, 0.98));
+  transform: scale(1.15);
+  box-shadow: 
+    0 15px 40px rgba(0, 0, 0, 0.18),
+    0 10px 25px rgba(0, 0, 0, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 1);
+}
+
+body.dark-theme .carousel-nav:hover:not(.disabled) {
+  color: #1a365d;
+  box-shadow: 
+    0 18px 45px rgba(0, 0, 0, 0.3),
+    0 12px 30px rgba(0, 0, 0, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 1);
+}
+
+body:not(.dark-theme) .carousel-nav:hover:not(.disabled) {
+  color: #5a67d8;
+  box-shadow: 
+    0 15px 40px rgba(102, 126, 234, 0.25),
+    0 10px 25px rgba(102, 126, 234, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 1);
+}
+
+.carousel-nav:active:not(.disabled) {
+  transform: scale(1.05);
+  box-shadow: 
+    0 8px 25px rgba(0, 0, 0, 0.12),
+    0 4px 10px rgba(0, 0, 0, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+.carousel-nav.disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+  background: rgba(255, 255, 255, 0.4);
+  color: #999;
+  box-shadow: 
+    0 4px 12px rgba(0, 0, 0, 0.05),
+    0 2px 6px rgba(0, 0, 0, 0.03);
+}
+
+.carousel-nav i {
+  pointer-events: none;
+}
+
+/* Projects Grid Container - Full Screen Scrollable */
+.projects-scroll-container {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+  border-radius: 20px;
+  min-height: 0;
+}
+
+.projects-grid {
+  display: flex;
+  flex-direction: row;
+  gap: 2rem;
+  transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  will-change: transform;
+  align-items: stretch;
+  height: 100%;
+  padding: 0;
+  margin: 0;
+}
+
+.no-projects {
+  text-align: center;
+  padding: 100px 60px;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 1.4rem;
+  font-weight: 500;
+  min-width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 20px;
+  border: 2px dashed rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(10px);
+}
+
+body:not(.dark-theme) .no-projects {
+  color: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.35);
+}
+
+/* PERFECT SQUARE PROJECT CARDS - Full Screen Optimized */
+.project-card {
+  background: #ffffff !important;
+  border: none !important;
+  border-radius: 25px !important;
+  padding: 32px !important;
+  position: relative;
+  color: #333333 !important;
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  
+  /* Perfect Square Dimensions - Responsive */
+  width: min(calc((100vw - 12rem) / 3), 500px);
+  height: min(calc((100vw - 12rem) / 3), 500px);
+  min-width: 400px;
+  min-height: 400px;
+  flex-shrink: 0;
+  
+  box-shadow: 
+    0 8px 25px rgba(0, 0, 0, 0.08),
+    0 15px 35px rgba(0, 0, 0, 0.05),
+    0 0 0 1px rgba(0, 0, 0, 0.04);
+}
+
+/* Force square aspect ratio with CSS */
+.project-card::before {
+  content: '';
+  display: block;
+  width: 100%;
+  padding-top: 100%; /* This creates a 1:1 aspect ratio */
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: -1;
+}
+
+body.dark-theme .project-card {
+  background: #ffffff !important;
+  color: #333333 !important;
+  box-shadow: 
+    0 12px 35px rgba(0, 0, 0, 0.15),
+    0 20px 45px rgba(0, 0, 0, 0.08),
+    0 0 0 1px rgba(0, 0, 0, 0.06);
+}
+
+body:not(.dark-theme) .project-card {
+  background: #ffffff !important;
+  color: #333333 !important;
+  box-shadow: 
+    0 8px 25px rgba(0, 0, 0, 0.1),
+    0 15px 35px rgba(0, 0, 0, 0.06),
+    0 0 0 1px rgba(0, 0, 0, 0.04);
+}
+
+.project-card:hover {
+  transform: translateY(-12px) scale(1.03);
+  box-shadow: 
+    0 20px 50px rgba(0, 0, 0, 0.15),
+    0 30px 60px rgba(0, 0, 0, 0.1),
+    0 0 0 1px rgba(0, 0, 0, 0.06);
+  border: none !important;
+}
+
+body.dark-theme .project-card:hover {
+  box-shadow: 
+    0 25px 60px rgba(0, 0, 0, 0.25),
+    0 35px 70px rgba(0, 0, 0, 0.15),
+    0 0 0 1px rgba(0, 0, 0, 0.08);
+}
+
+body:not(.dark-theme) .project-card:hover {
+  box-shadow: 
+    0 20px 50px rgba(0, 0, 0, 0.15),
+    0 30px 60px rgba(0, 0, 0, 0.1),
+    0 0 0 1px rgba(0, 0, 0, 0.06);
+}
+
+/* Remove all inherited styling issues */
+.project-card *,
+body.dark-theme .project-card *,
+body:not(.dark-theme) .project-card * {
+  color: inherit !important;
+  text-shadow: none !important;
+  border: none !important;
+}
+
+.project-card::before,
+.project-card::after,
+.project-card *::before,
+.project-card *::after {
+  display: none !important;
+}
+
+/* Card Header - Optimized for Square Layout */
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 24px;
+  position: relative;
+  z-index: 2;
+  border: none !important;
+  flex-shrink: 0;
+  height: auto;
+}
+
+.project-info {
+  flex: 1;
+  min-height: 0;
+}
+
+.project-title {
+  font-size: 1.6rem !important;
+  font-weight: 800 !important;
+  margin-bottom: 16px !important;
+  color: #1a1a1a !important;
+  line-height: 1.2;
+  border: none !important;
+  max-height: 3.6em;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+}
+
+/* Admin Actions - Enhanced for Square Cards */
+.admin-actions-card {
+  display: flex;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.action-btn {
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  position: relative;
+  font-family: Arial, sans-serif;
+  font-weight: normal;
+}
+
+.edit-btn {
+  background: linear-gradient(135deg, #17a2b8, #20c997);
+  color: white;
+  box-shadow: 0 3px 10px rgba(23, 162, 184, 0.3);
+}
+
+.edit-btn:hover {
+  background: linear-gradient(135deg, #138496, #1ba085);
+  transform: scale(1.15);
+  box-shadow: 0 5px 15px rgba(23, 162, 184, 0.4);
+}
+
+.delete-btn {
+  background: linear-gradient(135deg, #dc3545, #e74c3c);
+  color: white;
+  box-shadow: 0 3px 10px rgba(220, 53, 69, 0.3);
+}
+
+.delete-btn:hover {
+  background: linear-gradient(135deg, #c82333, #c0392b);
+  transform: scale(1.15);
+  box-shadow: 0 5px 15px rgba(220, 53, 69, 0.4);
+}
+
+.action-btn i {
+  display: none;
+}
+
+/* Card Body - Perfect Fit for Square Layout */
+.card-body {
+  border: none !important;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* Description - Optimized for Square Cards */
+.project-card .card-body .description,
+body.dark-theme .project-card .card-body .description,
+body:not(.dark-theme) .project-card .card-body .description {
+  font-size: 1.1rem !important;
+  line-height: 1.6 !important;
+  margin-bottom: 20px !important;
+  font-weight: 400 !important;
+  color: #4a4a4a !important;
+  position: relative;
+  z-index: 2;
+  text-shadow: none !important;
+  border: none !important;
+  text-align: justify;
+  flex: 1;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+/* Description States for Square Layout */
+.description.collapsed {
+  max-height: 6.4em; /* 4 lines × 1.6 line-height */
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  position: relative;
+}
+
+.description.collapsed::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 100%;
+  height: 1.6em;
+  background: linear-gradient(transparent, white 70%);
+  pointer-events: none;
+}
+
+.description.expanded {
+  max-height: 200px !important;
+  overflow-y: auto !important;
+  -webkit-line-clamp: none;
+  -webkit-box-orient: initial;
+  display: block !important;
+  border: 2px solid #f0f0f0;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 12px;
+  background: rgba(248, 249, 250, 0.5);
+  
+  /* Enhanced scrollbar for square cards */
+  scrollbar-width: thin;
+  scrollbar-color: #007bff #f8fafc;
+}
+
+.description.expanded::-webkit-scrollbar {
+  width: 8px;
+}
+
+.description.expanded::-webkit-scrollbar-track {
+  background: #f8fafc;
+  border-radius: 4px;
+  box-shadow: inset 0 0 3px rgba(0,0,0,0.1);
+}
+
+.description.expanded::-webkit-scrollbar-thumb {
+  background: linear-gradient(45deg, #007bff, #0056b3);
+  border-radius: 4px;
+  transition: background 0.3s ease;
+  min-height: 25px;
+}
+
+.description.expanded::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(45deg, #0056b3, #004494);
+}
+
+.description.expanded::after {
+  display: none;
+}
+
+/* Enhanced Read More/Less Button for Square Cards */
+.read-more-btn {
+  background: linear-gradient(135deg, #007bff, #0056b3);
+  border: none;
+  color: white !important;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 8px 16px;
+  margin: 12px 0;
+  text-align: center;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  flex-shrink: 0;
+  border-radius: 18px;
+  box-shadow: 0 3px 8px rgba(0, 123, 255, 0.25);
+  position: relative;
+  overflow: hidden;
+  min-width: 120px;
+  align-self: center;
+}
+
+.read-more-btn:hover {
+  background: linear-gradient(135deg, #0056b3, #004494);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(0, 123, 255, 0.35);
+  text-decoration: none;
+}
+
+.read-more-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 3px 8px rgba(0, 123, 255, 0.25);
+}
+
+/* Theme adjustments for read more button */
+body.dark-theme .read-more-btn {
+  background: linear-gradient(135deg, #64b5f6, #42a5f5);
+  box-shadow: 0 3px 8px rgba(100, 181, 246, 0.25);
+}
+
+body.dark-theme .read-more-btn:hover {
+  background: linear-gradient(135deg, #42a5f5, #2196f3);
+  box-shadow: 0 6px 15px rgba(100, 181, 246, 0.35);
+}
+
+body:not(.dark-theme) .read-more-btn {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  box-shadow: 0 3px 8px rgba(102, 126, 234, 0.25);
+}
+
+body:not(.dark-theme) .read-more-btn:hover {
+  background: linear-gradient(135deg, #5a67d8, #6b46c1);
+  box-shadow: 0 6px 15px rgba(102, 126, 234, 0.35);
+}
+
+/* Rich Text Elements in Description */
+.project-card .description h1,
+.project-card .description h2,
+.project-card .description h3 {
+  color: #2c2c2c !important;
+  margin: 0.6em 0 !important;
+  font-weight: 700 !important;
+}
+
+.project-card .description h1 { font-size: 1.5em !important; }
+.project-card .description h2 { font-size: 1.3em !important; }
+.project-card .description h3 { font-size: 1.15em !important; }
+
+.project-card .description strong {
+  font-weight: 700 !important;
+  color: #222 !important;
+}
+
+.project-card .description em {
+  font-style: italic !important;
+  color: #555 !important;
+}
+
+.project-card .description ul,
+.project-card .description ol {
+  margin: 0.6em 0 !important;
+  padding-left: 1.5em !important;
+}
+
+.project-card .description li {
+  margin-bottom: 0.3em !important;
+  line-height: 1.5 !important;
+}
+
+.project-card .description p {
+  margin-bottom: 0.6em !important;
+}
+
+.project-card .description a {
+  color: #007bff !important;
+  text-decoration: underline !important;
+}
+
+.project-card .description a:hover {
+  color: #0056b3 !important;
+}
+
+/* Tech Stack Section - Square Card Optimized */
+.tech-stack-section {
+  margin-bottom: 16px !important;
+  border: none !important;
+  padding: 0 !important;
+  flex-shrink: 0;
+}
+
+.project-card .tech-stack-section strong,
+body.dark-theme .project-card .tech-stack-section strong,
+body:not(.dark-theme) .project-card .tech-stack-section strong {
+  display: block;
+  font-size: 1rem !important;
+  font-weight: 700 !important;
+  color: #2c2c2c !important;
+  text-shadow: none !important;
+  border: none !important;
+  margin-bottom: 10px !important;
+}
+
+.tech-stack {
+  font-size: 1rem !important;
+  color: #666666 !important;
+  font-style: italic;
+  padding: 10px 16px !important;
+  background: linear-gradient(135deg, rgba(0, 123, 255, 0.05), rgba(0, 123, 255, 0.08)) !important;
+  border-radius: 12px !important;
+  border-left: 4px solid #007bff !important;
+  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.1);
+}
+
+/* Project Links Section - Perfect for Square Cards */
+.project-links {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-top: auto;
+  padding: 18px 0 0;
+  border-top: 2px solid #f0f0f0 !important;
+  flex-shrink: 0;
+}
+
+body.dark-theme .project-links {
+  border-top-color: #f0f0f0 !important;
+}
+
+.project-link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 20px !important;
+  border-radius: 30px !important;
+  font-size: 0.9rem !important;
+  font-weight: 600 !important;
+  text-decoration: none !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  border: none !important;
+  cursor: pointer;
+  min-width: 130px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+}
+
+.github-link {
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.08), rgba(0, 0, 0, 0.12)) !important;
+  color: #333333 !important;
+  box-shadow: 
+    0 3px 10px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+}
+
+.github-link:hover {
+  transform: translateY(-3px) scale(1.08) !important;
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.12), rgba(0, 0, 0, 0.18)) !important;
+  box-shadow: 
+    0 6px 20px rgba(0, 0, 0, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
+}
+
+.demo-link {
+  background: linear-gradient(135deg, rgba(40, 167, 69, 0.08), rgba(40, 167, 69, 0.12)) !important;
+  color: #28a745 !important;
+  box-shadow: 
+    0 3px 10px rgba(40, 167, 69, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+}
+
+.demo-link:hover {
+  transform: translateY(-3px) scale(1.08) !important;
+  background: linear-gradient(135deg, rgba(40, 167, 69, 0.12), rgba(40, 167, 69, 0.18)) !important;
+  box-shadow: 
+    0 6px 20px rgba(40, 167, 69, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
+}
+
+.project-link i {
+  font-size: 0.85rem !important;
+}
+
+/* Carousel Indicators - Enhanced for Full Screen */
+.carousel-indicators {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  margin-top: 3rem;
+  padding: 1.5rem 0;
+}
+
+.carousel-indicator {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.4);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+body.dark-theme .carousel-indicator {
+  background: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+body:not(.dark-theme) .carousel-indicator {
+  background: rgba(255, 255, 255, 0.4);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.carousel-indicator.active {
+  background: #007bff;
+  transform: scale(1.4);
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.4);
+}
+
+body.dark-theme .carousel-indicator.active {
+  background: #64b5f6;
+  box-shadow: 0 4px 12px rgba(100, 181, 246, 0.4);
+}
+
+body:not(.dark-theme) .carousel-indicator.active {
+  background: #667eea;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.carousel-indicator:hover:not(.active) {
+  background: rgba(255, 255, 255, 0.6);
+  transform: scale(1.2);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Modal Styles - Keep Original Light Theme Modal */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -146,14 +835,13 @@ body:not(.dark-theme) .spinner {
   box-shadow: 0 20px 60px rgba(0,0,0,0.3);
   position: relative;
   animation: slideIn 0.3s ease-out;
-  color: #333 !important; /* Force dark text */
+  color: #333 !important;
 }
 
-/* Override dark theme for modal - ALWAYS LIGHT */
 body.dark-theme .project-form-container {
   background: white !important;
   box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-  color: #333 !important; /* Force dark text even in dark theme */
+  color: #333 !important;
 }
 
 @keyframes slideIn {
@@ -176,7 +864,6 @@ body.dark-theme .project-form-container {
   padding-bottom: 15px;
 }
 
-/* Force light theme for form header even in dark theme */
 body.dark-theme .form-header {
   border-bottom-color: #f0f0f0 !important;
 }
@@ -188,7 +875,6 @@ body.dark-theme .form-header {
   margin: 0;
 }
 
-/* Force light theme text even in dark theme */
 body.dark-theme .form-header h3 {
   color: #333 !important;
 }
@@ -237,7 +923,6 @@ body.dark-theme .form-header h3 {
   color: #333 !important;
 }
 
-/* Force light theme labels even in dark theme */
 body.dark-theme .form-group label {
   color: #333 !important;
 }
@@ -254,7 +939,6 @@ body.dark-theme .form-group label {
   color: #333 !important;
 }
 
-/* Force light theme inputs even in dark theme */
 body.dark-theme .form-group input[type="text"],
 body.dark-theme .form-group input[type="url"],
 body.dark-theme .form-group textarea {
@@ -269,7 +953,6 @@ body.dark-theme .form-group textarea {
   border-color: #007bff !important;
 }
 
-/* Force light theme focus states even in dark theme */
 body.dark-theme .form-group input:focus,
 body.dark-theme .form-group textarea:focus {
   border-color: #007bff !important;
@@ -297,7 +980,6 @@ body.dark-theme .form-group textarea:focus {
   transition: border-color 0.3s ease;
 }
 
-/* Force white background regardless of theme */
 body.dark-theme .quill-editor-container {
   background: white !important;
   border-color: #ddd !important;
@@ -308,13 +990,11 @@ body.dark-theme .quill-editor-container {
   box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
 }
 
-/* Force focus styles regardless of theme */
 body.dark-theme .quill-editor-container:focus-within {
   border-color: #007bff !important;
   box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
 }
 
-/* Quill toolbar styling - ALWAYS LIGHT */
 .quill-editor .ql-toolbar,
 body.dark-theme .quill-editor .ql-toolbar {
   border-bottom: 1px solid #ddd !important;
@@ -350,7 +1030,6 @@ body.dark-theme .quill-editor .ql-toolbar button.ql-active {
   color: white !important;
 }
 
-/* Quill container - ALWAYS WHITE */
 .quill-editor .ql-container,
 body.dark-theme .quill-editor .ql-container {
   font-size: 1rem !important;
@@ -360,7 +1039,6 @@ body.dark-theme .quill-editor .ql-container {
   background: white !important;
 }
 
-/* Quill editor content area - ALWAYS WHITE BACKGROUND WITH BLACK TEXT */
 .quill-editor .ql-editor,
 body.dark-theme .quill-editor .ql-editor {
   padding: 15px !important;
@@ -371,61 +1049,12 @@ body.dark-theme .quill-editor .ql-editor {
   border: none !important;
 }
 
-/* Force ALL text elements to be black regardless of theme */
-.ql-editor,
-.ql-editor p,
-.ql-editor div,
-.ql-editor span,
-.ql-editor strong,
-.ql-editor em,
-.ql-editor u,
-.ql-editor s,
-.ql-editor h1,
-.ql-editor h2,
-.ql-editor h3,
-.ql-editor h4,
-.ql-editor h5,
-.ql-editor h6,
-.ql-editor li,
-.ql-editor ol,
-.ql-editor ul,
-.ql-editor blockquote,
-.ql-editor pre,
-.ql-editor code,
-.ql-editor a,
-body.dark-theme .ql-editor,
-body.dark-theme .ql-editor p,
-body.dark-theme .ql-editor div,
-body.dark-theme .ql-editor span,
-body.dark-theme .ql-editor strong,
-body.dark-theme .ql-editor em,
-body.dark-theme .ql-editor u,
-body.dark-theme .ql-editor s,
-body.dark-theme .ql-editor h1,
-body.dark-theme .ql-editor h2,
-body.dark-theme .ql-editor h3,
-body.dark-theme .ql-editor h4,
-body.dark-theme .ql-editor h5,
-body.dark-theme .ql-editor h6,
-body.dark-theme .ql-editor li,
-body.dark-theme .ql-editor ol,
-body.dark-theme .ql-editor ul,
-body.dark-theme .ql-editor blockquote,
-body.dark-theme .ql-editor pre,
-body.dark-theme .ql-editor code,
-body.dark-theme .ql-editor a {
-  color: #333333 !important;
-  background: transparent !important;
-}
-
-/* Override any inline styles that Quill might apply */
 .ql-editor *,
 body.dark-theme .ql-editor * {
   color: #333333 !important;
   background: transparent !important;
 }
 
-/* Placeholder styling - ALWAYS GRAY */
 .ql-editor.ql-blank::before,
 body.dark-theme .ql-editor.ql-blank::before {
   color: #6c757d !important;
@@ -437,7 +1066,6 @@ body.dark-theme .ql-editor.ql-blank::before {
   right: 15px !important;
 }
 
-/* Editor help text - ALWAYS LIGHT THEME */
 .editor-help-text {
   font-size: 0.8rem;
   color: #6c757d !important;
@@ -445,12 +1073,10 @@ body.dark-theme .ql-editor.ql-blank::before {
   font-style: italic;
 }
 
-/* Force light theme help text even in dark theme */
 body.dark-theme .editor-help-text {
   color: #6c757d !important;
 }
 
-/* GitHub URL Help Text */
 .github-help-text {
   font-size: 0.8rem;
   color: #6c757d !important;
@@ -462,7 +1088,6 @@ body.dark-theme .github-help-text {
   color: #6c757d !important;
 }
 
-/* Form Actions - ALWAYS LIGHT THEME */
 .form-actions {
   display: flex;
   gap: 15px;
@@ -472,7 +1097,6 @@ body.dark-theme .github-help-text {
   border-top: 1px solid #f0f0f0 !important;
 }
 
-/* Force light theme form actions even in dark theme */
 body.dark-theme .form-actions {
   border-top-color: #f0f0f0 !important;
 }
@@ -488,7 +1112,6 @@ body.dark-theme .form-actions {
   transition: all 0.3s ease;
 }
 
-/* Force light theme cancel button even in dark theme */
 body.dark-theme .btn-cancel {
   background: white !important;
   color: #6c757d !important;
@@ -518,490 +1141,6 @@ body.dark-theme .btn-cancel {
 .btn-submit:disabled {
   background: #ccc;
   cursor: not-allowed;
-}
-
-/* Projects Grid - Fixed Height Cards */
-.projects-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
-  gap: 2rem;
-  margin-top: 2rem;
-}
-
-.no-projects {
-  text-align: center;
-  padding: 40px 20px;
-  color: rgba(255, 255, 255, 0.7);
-  font-size: 1.1rem;
-  grid-column: 1 / -1;
-}
-
-body:not(.dark-theme) .no-projects {
-  color: rgba(255, 255, 255, 0.8);
-}
-
-/* Enhanced Project Card Design - Fixed Height */
-.project-card {
-  background: #ffffff !important;
-  border: none !important;
-  border-radius: 16px !important;
-  padding: 24px !important;
-  position: relative;
-  color: #333333 !important;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  height: 450px; /* Updated to 450px for desktop */
-  
-  box-shadow: 
-    0 2px 8px rgba(0, 0, 0, 0.05),
-    0 4px 16px rgba(0, 0, 0, 0.08),
-    0 0 0 1px rgba(0, 0, 0, 0.04);
-}
-
-body.dark-theme .project-card {
-  background: #ffffff !important;
-  color: #333333 !important;
-  box-shadow: 
-    0 4px 12px rgba(0, 0, 0, 0.15),
-    0 8px 24px rgba(0, 0, 0, 0.12),
-    0 0 0 1px rgba(0, 0, 0, 0.08);
-}
-
-body:not(.dark-theme) .project-card {
-  background: #ffffff !important;
-  color: #333333 !important;
-  box-shadow: 
-    0 2px 8px rgba(0, 0, 0, 0.06),
-    0 4px 16px rgba(0, 0, 0, 0.08),
-    0 0 0 1px rgba(0, 0, 0, 0.04);
-}
-
-.project-card:hover {
-  transform: translateY(-6px) scale(1.02);
-  box-shadow: 
-    0 8px 24px rgba(0, 0, 0, 0.12),
-    0 16px 40px rgba(0, 0, 0, 0.08),
-    0 0 0 1px rgba(0, 0, 0, 0.06);
-  border: none !important;
-}
-
-body.dark-theme .project-card:hover {
-  box-shadow: 
-    0 12px 32px rgba(0, 0, 0, 0.25),
-    0 20px 48px rgba(0, 0, 0, 0.15),
-    0 0 0 1px rgba(0, 0, 0, 0.1);
-}
-
-body:not(.dark-theme) .project-card:hover {
-  box-shadow: 
-    0 8px 24px rgba(0, 0, 0, 0.12),
-    0 16px 40px rgba(0, 0, 0, 0.08),
-    0 0 0 1px rgba(0, 0, 0, 0.06);
-}
-
-.project-card *,
-body.dark-theme .project-card *,
-body:not(.dark-theme) .project-card * {
-  color: inherit !important;
-  text-shadow: none !important;
-  border: none !important;
-}
-
-.project-card::before,
-.project-card::after,
-.project-card *::before,
-.project-card *::after {
-  display: none !important;
-}
-
-.card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 20px;
-  position: relative;
-  z-index: 2;
-  border: none !important;
-  flex-shrink: 0; /* Prevent header from shrinking */
-}
-
-.project-info {
-  flex: 1;
-}
-
-.project-title {
-  font-size: 1.4rem !important;
-  font-weight: 700 !important;
-  margin-bottom: 12px !important;
-  color: #1a1a1a !important;
-  line-height: 1.3;
-  border: none !important;
-  max-height: 2.6em; /* Limit to 2 lines */
-  overflow: hidden;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-}
-
-.admin-actions-card {
-  display: flex;
-  gap: 8px;
-}
-
-.action-btn {
-  width: 32px;
-  height: 32px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 14px;
-  position: relative;
-  font-family: Arial, sans-serif;
-  font-weight: normal;
-}
-
-.edit-btn {
-  background: #17a2b8;
-  color: white;
-}
-
-.edit-btn:hover {
-  background: #138496;
-  transform: scale(1.1);
-}
-
-.delete-btn {
-  background: #dc3545;
-  color: white;
-}
-
-.delete-btn:hover {
-  background: #c82333;
-  transform: scale(1.1);
-}
-
-.action-btn i {
-  display: none;
-}
-
-.card-body {
-  border: none !important;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden; /* Hide overflow */
-}
-
-.project-card .card-body .description,
-body.dark-theme .project-card .card-body .description,
-body:not(.dark-theme) .project-card .card-body .description {
-  font-size: 1.05rem !important;
-  line-height: 1.7 !important;
-  margin-bottom: 16px !important;
-  font-weight: 400 !important;
-  color: #4a4a4a !important;
-  position: relative;
-  z-index: 2;
-  text-shadow: none !important;
-  border: none !important;
-  text-align: justify;
-  flex: 1;
-  overflow: hidden;
-  transition: all 0.3s ease;
-}
-
-/* Collapsed state - show only first 3 lines for better fit */
-.description.collapsed {
-  max-height: 5.1em; /* 3 lines × 1.7 line-height */
-  overflow: hidden;
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  position: relative;
-}
-
-.description.collapsed::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  right: 0;
-  width: 100%;
-  height: 1.7em;
-  background: linear-gradient(transparent, white 70%);
-  pointer-events: none;
-}
-
-.description.expanded {
-  max-height: 160px !important; /* Reduced max height to fit in 450px card */
-  overflow-y: scroll !important; /* Force scrollbar to always show */
-  -webkit-line-clamp: none;
-  -webkit-box-orient: initial;
-  display: block !important; /* Override flexbox properties */
-  border: 1px solid #f0f0f0;
-  border-radius: 8px;
-  padding: 12px;
-  margin-bottom: 8px;
-  
-  /* Custom scrollbar styling - force visibility */
-  scrollbar-width: auto; /* Show scrollbar on Firefox */
-  scrollbar-color: #007bff #f1f5f9;
-}
-
-.description.expanded::-webkit-scrollbar {
-  width: 8px !important; /* Slightly wider for better visibility */
-  display: block !important;
-}
-
-.description.expanded::-webkit-scrollbar-track {
-  background: #f1f5f9 !important;
-  border-radius: 4px;
-  box-shadow: inset 0 0 2px rgba(0,0,0,0.1);
-}
-
-.description.expanded::-webkit-scrollbar-thumb {
-  background: #007bff !important;
-  border-radius: 4px;
-  transition: background 0.3s ease;
-  min-height: 20px; /* Ensure thumb is visible */
-}
-
-.description.expanded::-webkit-scrollbar-thumb:hover {
-  background: #0056b3 !important;
-}
-
-/* Dark theme scrollbar adjustments */
-body.dark-theme .description.expanded {
-  border-color: #e2e8f0;
-  scrollbar-color: #64b5f6 #f8fafc;
-}
-
-body.dark-theme .description.expanded::-webkit-scrollbar-track {
-  background: #f8fafc !important;
-}
-
-body.dark-theme .description.expanded::-webkit-scrollbar-thumb {
-  background: #64b5f6 !important;
-}
-
-body.dark-theme .description.expanded::-webkit-scrollbar-thumb:hover {
-  background: #42a5f5 !important;
-}
-
-/* Light theme scrollbar adjustments */
-body:not(.dark-theme) .description.expanded::-webkit-scrollbar-thumb {
-  background: #667eea !important;
-}
-
-body:not(.dark-theme) .description.expanded::-webkit-scrollbar-thumb:hover {
-  background: #5a67d8 !important;
-}
-
-.description.expanded::after {
-  display: none;
-}
-
-/* Enhanced Read More/Less Button */
-.read-more-btn {
-  background: linear-gradient(135deg, #007bff, #0056b3);
-  border: none;
-  color: white !important;
-  cursor: pointer;
-  font-size: 0.85rem;
-  font-weight: 600;
-  padding: 6px 12px;
-  margin: 8px 0;
-  text-align: center;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  flex-shrink: 0;
-  border-radius: 15px;
-  box-shadow: 0 2px 4px rgba(0, 123, 255, 0.2);
-  position: relative;
-  overflow: hidden;
-  min-width: 100px;
-}
-
-.read-more-btn:hover {
-  background: linear-gradient(135deg, #0056b3, #004494);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);
-  text-decoration: none;
-}
-
-.read-more-btn:active {
-  transform: translateY(0);
-  box-shadow: 0 2px 4px rgba(0, 123, 255, 0.2);
-}
-
-/* Dark theme button adjustments */
-body.dark-theme .read-more-btn {
-  background: linear-gradient(135deg, #64b5f6, #42a5f5);
-  box-shadow: 0 2px 4px rgba(100, 181, 246, 0.2);
-}
-
-body.dark-theme .read-more-btn:hover {
-  background: linear-gradient(135deg, #42a5f5, #2196f3);
-  box-shadow: 0 4px 8px rgba(100, 181, 246, 0.3);
-}
-
-/* Light theme button adjustments */
-body:not(.dark-theme) .read-more-btn {
-  background: linear-gradient(135deg, #667eea, #764ba2);
-  box-shadow: 0 2px 4px rgba(102, 126, 234, 0.2);
-}
-
-body:not(.dark-theme) .read-more-btn:hover {
-  background: linear-gradient(135deg, #5a67d8, #6b46c1);
-  box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
-}
-
-.project-card .description h1,
-.project-card .description h2,
-.project-card .description h3 {
-  color: #2c2c2c !important;
-  margin: 0.5em 0 !important;
-  font-weight: 600 !important;
-}
-
-.project-card .description h1 { font-size: 1.4em !important; }
-.project-card .description h2 { font-size: 1.25em !important; }
-.project-card .description h3 { font-size: 1.1em !important; }
-
-.project-card .description strong {
-  font-weight: 700 !important;
-  color: #333 !important;
-}
-
-.project-card .description em {
-  font-style: italic !important;
-  color: #555 !important;
-}
-
-.project-card .description ul,
-.project-card .description ol {
-  margin: 0.5em 0 !important;
-  padding-left: 1.5em !important;
-}
-
-.project-card .description li {
-  margin-bottom: 0.25em !important;
-  line-height: 1.6 !important;
-}
-
-.project-card .description p {
-  margin-bottom: 0.5em !important;
-}
-
-.project-card .description a {
-  color: #007bff !important;
-  text-decoration: underline !important;
-}
-
-.project-card .description a:hover {
-  color: #0056b3 !important;
-}
-
-/* Tech Stack Section - Optimized spacing */
-.tech-stack-section {
-  margin-bottom: 12px !important; /* Reduced margin for better fit */
-  border: none !important;
-  padding: 0 !important;
-  flex-shrink: 0;
-}
-
-.project-card .tech-stack-section strong,
-body.dark-theme .project-card .tech-stack-section strong,
-body:not(.dark-theme) .project-card .tech-stack-section strong {
-  display: block;
-  font-size: 0.95rem !important;
-  font-weight: 700 !important;
-  color: #2c2c2c !important;
-  text-shadow: none !important;
-  border: none !important;
-  margin-bottom: 8px !important;
-}
-
-.tech-stack {
-  font-size: 0.95rem !important;
-  color: #666666 !important;
-  font-style: italic;
-  padding: 8px 12px !important;
-  background: rgba(0, 123, 255, 0.05) !important;
-  border-radius: 8px !important;
-  border-left: 3px solid #007bff !important;
-}
-
-/* Project Links Section - Optimized for 450px height */
-.project-links {
-  display: flex;
-  justify-content: center;
-  gap: 14px; /* Slightly reduced gap */
-  margin-top: auto;
-  padding: 14px 0 0; /* Reduced padding */
-  border-top: 1px solid #f0f0f0 !important;
-  flex-shrink: 0;
-}
-
-body.dark-theme .project-links {
-  border-top-color: #f0f0f0 !important;
-}
-
-.project-link {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 10px 18px !important;
-  border-radius: 25px !important;
-  font-size: 0.85rem !important;
-  font-weight: 600 !important;
-  text-decoration: none !important;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-  border: none !important;
-  cursor: pointer;
-  min-width: 120px;
-}
-
-.github-link {
-  background: linear-gradient(135deg, rgba(0, 0, 0, 0.08), rgba(0, 0, 0, 0.12)) !important;
-  color: #333333 !important;
-  box-shadow: 
-    0 2px 6px rgba(0, 0, 0, 0.08),
-    inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
-}
-
-.github-link:hover {
-  transform: translateY(-2px) scale(1.05) !important;
-  background: linear-gradient(135deg, rgba(0, 0, 0, 0.12), rgba(0, 0, 0, 0.18)) !important;
-  box-shadow: 
-    0 4px 12px rgba(0, 0, 0, 0.15),
-    inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
-}
-
-.demo-link {
-  background: linear-gradient(135deg, rgba(40, 167, 69, 0.08), rgba(40, 167, 69, 0.12)) !important;
-  color: #28a745 !important;
-  box-shadow: 
-    0 2px 6px rgba(40, 167, 69, 0.08),
-    inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
-}
-
-.demo-link:hover {
-  transform: translateY(-2px) scale(1.05) !important;
-  background: linear-gradient(135deg, rgba(40, 167, 69, 0.12), rgba(40, 167, 69, 0.18)) !important;
-  box-shadow: 
-    0 4px 12px rgba(40, 167, 69, 0.15),
-    inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
-}
-
-.project-link i {
-  font-size: 0.8rem !important;
 }
 
 /* Multiple GitHub Repos Modal */
@@ -1119,14 +1258,46 @@ body.dark-theme .repos-header h3 {
   transform: scale(1.05);
 }
 
-/* Responsive Design */
+/* RESPONSIVE DESIGN for Square Cards and Full Screen */
+@media (max-width: 1400px) {
+  .project-card {
+    width: min(calc((100vw - 10rem) / 3), 450px);
+    height: min(calc((100vw - 10rem) / 3), 450px);
+    min-width: 350px;
+    min-height: 350px;
+  }
+  
+  .section-title {
+    font-size: 2.5rem;
+  }
+}
+
+@media (max-width: 1200px) {
+  .container {
+    padding: 0 1.5rem;
+  }
+  
+  .project-card {
+    width: min(calc((100vw - 8rem) / 2), 400px);
+    height: min(calc((100vw - 8rem) / 2), 400px);
+    min-width: 350px;
+    min-height: 350px;
+  }
+  
+  .carousel-nav {
+    width: 60px;
+    height: 60px;
+    font-size: 1.4rem;
+  }
+}
+
 @media (max-width: 768px) {
   .projects-section {
     padding: 1.5rem 0;
   }
 
   .container {
-    padding: 0 15px;
+    padding: 0 1rem;
   }
 
   .section-title {
@@ -1136,6 +1307,11 @@ body.dark-theme .repos-header h3 {
   .admin-controls {
     position: static;
     margin-top: 20px;
+    text-align: center;
+  }
+
+  .admin-controls {
+    right: 1rem;
   }
 
   .project-form-container {
@@ -1157,15 +1333,19 @@ body.dark-theme .repos-header h3 {
     flex-direction: column;
   }
 
-  .projects-grid {
-    grid-template-columns: 1fr;
-    gap: 1.5rem;
+  /* Single square card on mobile */
+  .project-card {
+    width: min(calc(100vw - 6rem), 380px);
+    height: min(calc(100vw - 6rem), 380px);
+    min-width: 320px;
+    min-height: 320px;
+    padding: 24px !important;
   }
 
-  .project-card {
-    padding: 20px !important; /* Reduced padding on mobile */
-    height: auto; /* Allow auto height on mobile */
-    min-height: 380px; /* Reduced minimum height */
+  .carousel-nav {
+    width: 50px;
+    height: 50px;
+    font-size: 1.2rem;
   }
 
   .card-header {
@@ -1181,23 +1361,22 @@ body.dark-theme .repos-header h3 {
   }
 
   .project-title {
-    font-size: 1.25rem !important;
-    max-height: none; /* Allow full title on mobile */
+    font-size: 1.3rem !important;
+    max-height: none;
     -webkit-line-clamp: none;
   }
 
   .project-links {
     flex-direction: column;
-    gap: 8px;
+    gap: 10px;
     align-items: center;
   }
 
   .project-link {
     width: 100%;
-    max-width: 200px;
+    max-width: 220px;
   }
 
-  /* Mobile GitHub repos modal */
   .github-repos-container {
     max-width: 350px;
     padding: 20px;
@@ -1207,13 +1386,14 @@ body.dark-theme .repos-header h3 {
     font-size: 1.2rem;
   }
 
-  /* Quill editor mobile adjustments */
-  .quill-editor .ql-toolbar {
-    font-size: 14px;
+  .carousel-indicators {
+    margin-top: 2rem;
+    padding: 1rem 0;
   }
 
-  .quill-editor .ql-container {
-    font-size: 0.9rem;
+  .carousel-indicator {
+    width: 10px;
+    height: 10px;
   }
 }
 
@@ -1227,51 +1407,58 @@ body.dark-theme .repos-header h3 {
     width: 98%;
   }
 
+  .carousel-wrapper {
+    gap: 1rem;
+  }
+
+  .carousel-nav {
+    width: 45px;
+    height: 45px;
+    font-size: 1.1rem;
+  }
+
   .project-card {
+    width: min(calc(100vw - 4rem), 340px);
+    height: min(calc(100vw - 4rem), 340px);
+    min-width: 300px;
+    min-height: 300px;
     padding: 20px !important;
-    min-height: 400px;
   }
 
   .project-title {
     font-size: 1.2rem !important;
   }
 
-  .projects-grid {
-    gap: 1rem;
-  }
-
   .description.collapsed {
-    max-height: 4.8em; /* 3 lines on small screens with reduced line-height */
+    max-height: 4.8em;
     -webkit-line-clamp: 3;
   }
 
   .description.expanded {
-    max-height: 120px !important; /* Smaller max height on mobile */
-    padding: 10px;
-    overflow-y: scroll !important; /* Ensure scrollbar on mobile */
+    max-height: 150px !important;
+    padding: 12px;
   }
   
   .description.expanded::-webkit-scrollbar {
-    width: 6px !important; /* Slightly smaller on mobile */
+    width: 6px !important;
   }
 
   .read-more-btn {
-    font-size: 0.8rem;
-    padding: 5px 10px;
-    min-width: 90px;
-  }
-
-  .project-links {
-    gap: 6px;
-  }
-
-  .project-link {
-    padding: 8px 14px !important;
-    font-size: 0.8rem !important;
+    font-size: 0.85rem;
+    padding: 6px 12px;
     min-width: 100px;
   }
 
-  /* Small screen GitHub repos modal */
+  .project-links {
+    gap: 8px;
+  }
+
+  .project-link {
+    padding: 10px 16px !important;
+    font-size: 0.85rem !important;
+    min-width: 110px;
+  }
+
   .github-repos-container {
     max-width: 320px;
     padding: 18px;
@@ -1285,12 +1472,12 @@ body.dark-theme .repos-header h3 {
     font-size: 0.9rem;
   }
 
-  /* Mobile Quill toolbar adjustments */
-  .quill-editor .ql-toolbar .ql-formats {
-    margin-right: 8px;
+  .carousel-indicator {
+    width: 8px;
+    height: 8px;
   }
 
-  .quill-editor .ql-toolbar button {
-    padding: 3px;
+  .carousel-indicators {
+    gap: 10px;
   }
 }

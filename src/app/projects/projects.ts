@@ -1,4 +1,4 @@
-// Enhanced Square Projects Component with Full-Screen Layout
+// Enhanced Square Projects Component with Optimized Animations (Blur-Free)
 import { Component, OnInit, inject, signal, PLATFORM_ID, Inject, ViewChild, ElementRef, AfterViewInit, HostListener } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -44,13 +44,14 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
   currentIndicatorIndex = signal(0);
   cardsPerView = signal(3); // Default to 3 for desktop
   maxTranslateX = signal(0);
-  cardWidth = signal(400); // Default card width
+  cardWidth = signal(450); // Default card width - increased for consistency
   
   private isBrowser: boolean;
   private quillEditor: any = null;
   private quillLoaded = false;
   private resizeTimeout: any;
   private intersectionObserver?: IntersectionObserver;
+  private animationFrameId?: number;
 
   projectForm: FormGroup;
 
@@ -78,6 +79,7 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
       this.loadQuillEditor();
       this.calculateCardsPerView();
       this.setupIntersectionObserver();
+      this.optimizeForAnimations();
     }
   }
 
@@ -92,6 +94,7 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
       setTimeout(() => {
         this.calculateCardsPerView();
         this.updateCarouselConstraints();
+        this.applyOptimizedStyles();
       }, 500);
     }
   }
@@ -106,8 +109,65 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
         this.updateCarouselConstraints();
         // Reset position if needed
         this.adjustCarouselPosition();
+        this.applyOptimizedStyles();
       }, 150);
     }
+  }
+
+  // NEW: Optimize animations and prevent blur
+  private optimizeForAnimations() {
+    if (!this.isBrowser) return;
+
+    // Force hardware acceleration on key elements
+    const style = document.createElement('style');
+    style.textContent = `
+      .project-card {
+        -webkit-transform: translateZ(0) !important;
+        transform: translateZ(0) !important;
+        -webkit-font-smoothing: antialiased !important;
+        -moz-osx-font-smoothing: grayscale !important;
+        text-rendering: optimizeLegibility !important;
+        backface-visibility: hidden !important;
+        perspective: 1000px !important;
+      }
+      
+      .project-card:hover {
+        -webkit-font-smoothing: antialiased !important;
+        -moz-osx-font-smoothing: grayscale !important;
+        text-rendering: optimizeLegibility !important;
+      }
+      
+      .project-card * {
+        -webkit-font-smoothing: inherit !important;
+        -moz-osx-font-smoothing: inherit !important;
+        text-rendering: inherit !important;
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  private applyOptimizedStyles() {
+    if (!this.isBrowser) return;
+    
+    // Apply optimization to all project cards
+    const cards = document.querySelectorAll('.project-card') as NodeListOf<HTMLElement>;
+    cards.forEach(card => {
+      // Force hardware acceleration and crisp text
+      card.style.setProperty('-webkit-transform', 'translateZ(0)', 'important');
+      card.style.setProperty('transform', 'translateZ(0)', 'important');
+      card.style.setProperty('-webkit-font-smoothing', 'antialiased', 'important');
+      card.style.setProperty('-moz-osx-font-smoothing', 'grayscale', 'important');
+      card.style.setProperty('text-rendering', 'optimizeLegibility', 'important');
+      card.style.setProperty('backface-visibility', 'hidden', 'important');
+      
+      // Apply to all child elements
+      const allChildren = card.querySelectorAll('*') as NodeListOf<HTMLElement>;
+      allChildren.forEach(child => {
+        child.style.setProperty('-webkit-font-smoothing', 'inherit', 'important');
+        child.style.setProperty('-moz-osx-font-smoothing', 'inherit', 'important');
+        child.style.setProperty('text-rendering', 'inherit', 'important');
+      });
+    });
   }
 
   // Enhanced Performance Optimization with Intersection Observer
@@ -121,6 +181,8 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
         const card = entry.target as HTMLElement;
         if (entry.isIntersecting) {
           card.style.willChange = 'transform';
+          // Apply optimization when card becomes visible
+          this.optimizeCardForAnimation(card);
         } else {
           card.style.willChange = 'auto';
         }
@@ -132,12 +194,25 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
     });
   }
 
+  private optimizeCardForAnimation(card: HTMLElement) {
+    // Apply optimizations to prevent blur during animations
+    card.style.setProperty('-webkit-transform', 'translateZ(0)', 'important');
+    card.style.setProperty('transform', 'translateZ(0)', 'important');
+    card.style.setProperty('-webkit-font-smoothing', 'antialiased', 'important');
+    card.style.setProperty('-moz-osx-font-smoothing', 'grayscale', 'important');
+    card.style.setProperty('text-rendering', 'optimizeLegibility', 'important');
+    card.style.setProperty('backface-visibility', 'hidden', 'important');
+    card.style.setProperty('perspective', '1000px', 'important');
+  }
+
   private observeProjectCards() {
     if (!this.intersectionObserver || !this.isBrowser) return;
     
     const cards = document.querySelectorAll('.project-card');
     cards.forEach(card => {
       this.intersectionObserver!.observe(card);
+      // Immediately optimize visible cards
+      this.optimizeCardForAnimation(card as HTMLElement);
     });
   }
 
@@ -147,22 +222,22 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
 
     const windowWidth = window.innerWidth;
     
-    // Calculate optimal card size and count for full-screen square layout
+    // Calculate optimal card count based on consistent card sizes
     if (windowWidth <= 480) {
       this.cardsPerView.set(1);
-      this.cardWidth.set(Math.min(windowWidth - 120, 340)); // Account for navigation arrows
+      this.cardWidth.set(320); // Fixed size for mobile
     } else if (windowWidth <= 768) {
       this.cardsPerView.set(1);
-      this.cardWidth.set(Math.min(windowWidth - 140, 380));
+      this.cardWidth.set(350); // Fixed size for tablet
     } else if (windowWidth <= 1200) {
       this.cardsPerView.set(2);
-      this.cardWidth.set(Math.min((windowWidth - 200) / 2, 400)); // Two square cards
-    } else if (windowWidth <= 1600) {
+      this.cardWidth.set(380); // Fixed size for small desktop
+    } else if (windowWidth <= 1400) {
       this.cardsPerView.set(3);
-      this.cardWidth.set(Math.min((windowWidth - 240) / 3, 450)); // Three square cards
+      this.cardWidth.set(400); // Fixed size for medium desktop
     } else {
       this.cardsPerView.set(3);
-      this.cardWidth.set(Math.min((windowWidth - 280) / 3, 500)); // Larger square cards on large screens
+      this.cardWidth.set(450); // Fixed size for large desktop
     }
     
     console.log(`Cards per view: ${this.cardsPerView()} for window width: ${windowWidth}px, card width: ${this.cardWidth()}px`);
@@ -177,11 +252,16 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
     const cardSize = this.cardWidth();
     
     cards.forEach(card => {
-      // Ensure perfect square aspect ratio
-      card.style.width = `${cardSize}px`;
-      card.style.height = `${cardSize}px`;
-      card.style.minWidth = `${Math.max(cardSize, 300)}px`;
-      card.style.minHeight = `${Math.max(cardSize, 300)}px`;
+      // Force consistent square dimensions
+      card.style.setProperty('width', `${cardSize}px`, 'important');
+      card.style.setProperty('height', `${cardSize}px`, 'important');
+      card.style.setProperty('min-width', `${cardSize}px`, 'important');
+      card.style.setProperty('min-height', `${cardSize}px`, 'important');
+      card.style.setProperty('max-width', `${cardSize}px`, 'important');
+      card.style.setProperty('max-height', `${cardSize}px`, 'important');
+      
+      // Apply animation optimizations
+      this.optimizeCardForAnimation(card);
     });
   }
 
@@ -250,14 +330,20 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
       console.log(`Scrolling right: ${currentTranslate}px -> ${newTranslate}px`);
     }
 
-    // Smooth animation with enhanced easing
+    // Smooth animation with enhanced easing and optimization
     this.animateCarousel(newTranslate);
   }
 
+  // OPTIMIZED: Enhanced animation with blur prevention
   private animateCarousel(targetTranslate: number) {
     const startTranslate = this.currentTranslateX();
     const duration = 600; // Slightly longer for smoother animation
     const startTime = performance.now();
+
+    // Cancel any existing animation
+    if (this.animationFrameId) {
+      cancelAnimationFrame(this.animationFrameId);
+    }
 
     const animate = (currentTime: number) => {
       const elapsed = currentTime - startTime;
@@ -269,15 +355,29 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
       const currentTranslate = startTranslate + (targetTranslate - startTranslate) * easeOutCubic;
       this.currentTranslateX.set(currentTranslate);
 
+      // Force repaint optimization
+      const grid = document.querySelector('.projects-grid') as HTMLElement;
+      if (grid) {
+        // Use transform3d for hardware acceleration and blur prevention
+        grid.style.transform = `translate3d(${currentTranslate}px, 0, 0)`;
+        grid.style.webkitTransform = `translate3d(${currentTranslate}px, 0, 0)`;
+      }
+
       if (progress < 1) {
-        requestAnimationFrame(animate);
+        this.animationFrameId = requestAnimationFrame(animate);
       } else {
         this.currentTranslateX.set(targetTranslate);
         this.updateIndicatorIndex();
+        this.animationFrameId = undefined;
+        
+        // Final optimization application
+        setTimeout(() => {
+          this.applyOptimizedStyles();
+        }, 50);
       }
     };
 
-    requestAnimationFrame(animate);
+    this.animationFrameId = requestAnimationFrame(animate);
   }
 
   private updateIndicatorIndex() {
@@ -337,11 +437,13 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
     }
     this.expandedDescriptions.set(expanded);
 
-    // Trigger reflow for better animation
+    // Trigger reflow for better animation with optimization
     setTimeout(() => {
-      const card = document.querySelector(`[data-project-id="${projectId}"]`);
+      const card = document.querySelector(`[data-project-id="${projectId}"]`) as HTMLElement;
       if (card) {
         card.classList.add('description-transitioning');
+        // Apply optimization during transition
+        this.optimizeCardForAnimation(card);
         setTimeout(() => {
           card.classList.remove('description-transitioning');
         }, 300);
@@ -367,8 +469,8 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
     const height = tempDiv.offsetHeight;
     document.body.removeChild(tempDiv);
     
-    // Check if content would be more than 4 lines (4 * 1.6 * 1.1rem ≈ 105.6px)
-    return height > 106;
+    // Check if content would be more than 5 lines (5 * 1.6 * 1.1rem ≈ 132px)
+    return height > 132;
   }
 
   // GitHub repositories functionality
@@ -765,6 +867,7 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
           this.calculateCardsPerView();
           this.updateCarouselConstraints();
           this.observeProjectCards();
+          this.applyOptimizedStyles(); // Apply optimizations after load
         }, 300);
       }
     } catch (error) {
@@ -943,6 +1046,11 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
 
   // Cleanup method for better memory management
   ngOnDestroy() {
+    // Cancel any pending animations
+    if (this.animationFrameId) {
+      cancelAnimationFrame(this.animationFrameId);
+    }
+    
     if (this.intersectionObserver) {
       this.intersectionObserver.disconnect();
     }

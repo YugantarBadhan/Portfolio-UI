@@ -26,17 +26,37 @@
   color: inherit;
 }
 
-.admin-controls {
+/* .admin-controls {
   position: absolute;
   top: 0;
   right: 0;
 }
 
 .admin-toggle-btn {
-  background: rgba(0, 123, 255, 0.2); /* 20% visibility */
+  background: rgba(0, 123, 255, 0.2); 
   border: none;
   color: white;
   padding: 10px 20px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+} */
+
+.admin-controls {
+  position: absolute;
+  top: 50%;
+  right: 2rem;
+  transform: translateY(-35%);
+}
+
+.admin-toggle-btn {
+  background: rgba(0, 123, 255, 0.2); /* 20% visibility */
+  border: none;
+  color: white;
+  padding: 12px 24px;
   border-radius: 20px;
   cursor: pointer;
   font-size: 0.9rem;

@@ -1,3 +1,4 @@
+// Updated src/app/experience/experience.ts - Fixed admin integration and method visibility
 import { Component, OnInit, inject, signal, PLATFORM_ID, Inject, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
@@ -48,18 +49,98 @@ export class ExperienceComponent implements OnInit, AfterViewInit {
     });
 
     this.setupFormValidation();
-    this.checkAdminStatus();
   }
 
   ngOnInit() {
     this.loadExperiences();
     this.loadQuillEditor();
+    this.checkAdminStatus();
   }
 
   ngAfterViewInit() {
     // Initialize Quill when the form opens
     if (this.showForm() && this.quillLoaded) {
       setTimeout(() => this.initializeQuillEditor(), 100);
+    }
+  }
+
+  // Public methods to be called from parent component
+  enableAdminMode() {
+    console.log('Enabling admin mode in experience component');
+    this.checkAdminStatus();
+    this.isAdmin.set(true);
+  }
+
+  disableAdminMode() {
+    console.log('Disabling admin mode in experience component');
+    this.isAdmin.set(false);
+    this.closeForm();
+  }
+
+  // Public method to open form - can be called from parent
+  openForm(experience?: Experience) {
+    console.log('Opening form with experience:', experience);
+    this.resetForm();
+    
+    if (this.isBrowser) {
+      document.body.style.overflow = 'hidden';
+    }
+    
+    if (experience) {
+      this.editingId.set(experience.id);
+      
+      const startDate = this.convertToDateInputFormat(experience.startDate);
+      const endDate = experience.endDate ? this.convertToDateInputFormat(experience.endDate) : '';
+      
+      this.experienceForm.patchValue({
+        companyName: experience.companyName,
+        role: experience.role,
+        startDate: startDate,
+        endDate: endDate,
+        current: experience.current,
+        description: experience.description
+      });
+      
+      this.skillsArray.clear();
+      if (experience.skills && experience.skills.length > 0) {
+        experience.skills.forEach(skill => {
+          this.skillsArray.push(this.fb.control(skill, [Validators.required, Validators.minLength(1)]));
+        });
+      } else {
+        this.skillsArray.push(this.createSkillControl());
+      }
+    } else {
+      this.editingId.set(null);
+    }
+    
+    this.showForm.set(true);
+    
+    // Initialize Quill editor after form is shown
+    if (this.quillLoaded) {
+      setTimeout(() => this.initializeQuillEditor(), 200);
+    }
+  }
+
+  // Public method to refresh experiences - can be called from parent
+  async refreshExperiences() {
+    console.log('Refreshing experiences from parent call');
+    await this.loadExperiences();
+  }
+
+  // Public method to load experiences - can be called from parent
+  async loadExperiences() {
+    this.isLoading.set(true);
+    try {
+      console.log('Loading experiences in experience component...');
+      const experiences = await this.experienceService.getAllExperiences();
+      experiences.sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime());
+      this.experiences.set(experiences);
+      console.log('Loaded experiences in experience component:', experiences.length);
+    } catch (error) {
+      console.error('Error loading experiences in experience component:', error);
+      this.experiences.set([]);
+    } finally {
+      this.isLoading.set(false);
     }
   }
 
@@ -81,10 +162,14 @@ export class ExperienceComponent implements OnInit, AfterViewInit {
       
       return new Promise<void>((resolve, reject) => {
         quillJS.onload = () => {
+          console.log('Quill editor loaded successfully');
           this.quillLoaded = true;
           resolve();
         };
-        quillJS.onerror = reject;
+        quillJS.onerror = (error) => {
+          console.error('Failed to load Quill editor:', error);
+          reject(error);
+        };
         document.head.appendChild(quillJS);
       });
     } catch (error) {
@@ -94,10 +179,17 @@ export class ExperienceComponent implements OnInit, AfterViewInit {
 
   private initializeQuillEditor() {
     if (!this.quillLoaded || !this.quillEditorRef?.nativeElement || this.quillEditor) {
+      console.log('Quill editor initialization skipped:', {
+        quillLoaded: this.quillLoaded,
+        editorRef: !!this.quillEditorRef?.nativeElement,
+        existingEditor: !!this.quillEditor
+      });
       return;
     }
 
     try {
+      console.log('Initializing Quill editor...');
+      
       // Quill configuration with rich formatting options
       const toolbarOptions = [
         [{ 'header': [1, 2, 3, false] }],
@@ -122,6 +214,8 @@ export class ExperienceComponent implements OnInit, AfterViewInit {
           'align', 'link'
         ]
       });
+
+      console.log('Quill editor initialized successfully');
 
       // Force white background and black text consistently
       setTimeout(() => {
@@ -203,6 +297,7 @@ export class ExperienceComponent implements OnInit, AfterViewInit {
   }
 
   private showQuillFallback() {
+    console.log('Showing Quill fallback textarea');
     // Hide Quill container and show fallback textarea
     if (this.quillEditorRef?.nativeElement) {
       this.quillEditorRef.nativeElement.style.display = 'none';
@@ -216,6 +311,7 @@ export class ExperienceComponent implements OnInit, AfterViewInit {
   private destroyQuillEditor() {
     if (this.quillEditor) {
       try {
+        console.log('Destroying Quill editor');
         // Get content before destroying
         const content = this.quillEditor.root.innerHTML;
         this.experienceForm.get('description')?.setValue(content);
@@ -251,41 +347,9 @@ export class ExperienceComponent implements OnInit, AfterViewInit {
     }
     
     const adminToken = localStorage.getItem('adminToken');
-    this.isAdmin.set(adminToken === this.configService.adminToken);
-  }
-
-  toggleAdminMode() {
-    if (!this.isBrowser) {
-      return;
-    }
-    
-    const currentToken = localStorage.getItem('adminToken');
-    if (currentToken === this.configService.adminToken) {
-      localStorage.removeItem('adminToken');
-      this.isAdmin.set(false);
-    } else {
-      const token = prompt('Enter admin token:');
-      if (token === this.configService.adminToken) {
-        localStorage.setItem('adminToken', token);
-        this.isAdmin.set(true);
-      } else {
-        alert('Invalid admin token');
-      }
-    }
-  }
-
-  async loadExperiences() {
-    this.isLoading.set(true);
-    try {
-      const experiences = await this.experienceService.getAllExperiences();
-      experiences.sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime());
-      this.experiences.set(experiences);
-    } catch (error) {
-      console.error('Error loading experiences:', error);
-      this.experiences.set([]);
-    } finally {
-      this.isLoading.set(false);
-    }
+    const isAuthenticated = adminToken === this.configService.adminToken;
+    this.isAdmin.set(isAuthenticated);
+    console.log('Admin status checked:', isAuthenticated);
   }
 
   get skillsArray(): FormArray {
@@ -327,49 +391,8 @@ export class ExperienceComponent implements OnInit, AfterViewInit {
     this.experienceForm.updateValueAndValidity();
   }
 
-  openForm(experience?: Experience) {
-    this.resetForm();
-    
-    if (this.isBrowser) {
-      document.body.style.overflow = 'hidden';
-    }
-    
-    if (experience) {
-      this.editingId.set(experience.id);
-      
-      const startDate = this.convertToDateInputFormat(experience.startDate);
-      const endDate = experience.endDate ? this.convertToDateInputFormat(experience.endDate) : '';
-      
-      this.experienceForm.patchValue({
-        companyName: experience.companyName,
-        role: experience.role,
-        startDate: startDate,
-        endDate: endDate,
-        current: experience.current,
-        description: experience.description
-      });
-      
-      this.skillsArray.clear();
-      if (experience.skills && experience.skills.length > 0) {
-        experience.skills.forEach(skill => {
-          this.skillsArray.push(this.fb.control(skill, [Validators.required, Validators.minLength(1)]));
-        });
-      } else {
-        this.skillsArray.push(this.createSkillControl());
-      }
-    } else {
-      this.editingId.set(null);
-    }
-    
-    this.showForm.set(true);
-    
-    // Initialize Quill editor after form is shown
-    if (this.quillLoaded) {
-      setTimeout(() => this.initializeQuillEditor(), 200);
-    }
-  }
-
   closeForm() {
+    console.log('Closing experience form');
     this.destroyQuillEditor();
     this.showForm.set(false);
     this.resetForm();
@@ -394,6 +417,8 @@ export class ExperienceComponent implements OnInit, AfterViewInit {
   }
 
   async onSubmit() {
+    console.log('Submitting experience form');
+    
     // Ensure Quill content is saved to form before validation
     if (this.quillEditor) {
       const html = this.quillEditor.root.innerHTML;
@@ -435,8 +460,10 @@ export class ExperienceComponent implements OnInit, AfterViewInit {
       };
 
       if (this.editingId()) {
+        console.log('Updating experience:', this.editingId());
         await this.experienceService.updateExperience(this.editingId()!, experienceData);
       } else {
+        console.log('Creating new experience');
         await this.experienceService.createExperience(experienceData);
       }
       
@@ -465,6 +492,8 @@ export class ExperienceComponent implements OnInit, AfterViewInit {
   }
 
   async deleteExperience(id: number, companyName: string) {
+    console.log(`Deleting experience: ${id} - ${companyName}`);
+    
     if (confirm(`Are you sure you want to delete the experience at ${companyName}?`)) {
       this.isLoading.set(true);
       try {
@@ -472,6 +501,7 @@ export class ExperienceComponent implements OnInit, AfterViewInit {
         await this.loadExperiences();
         alert('Experience deleted successfully!');
       } catch (error: any) {
+        console.error('Delete error:', error);
         alert(error.message || 'Failed to delete experience');
       } finally {
         this.isLoading.set(false);

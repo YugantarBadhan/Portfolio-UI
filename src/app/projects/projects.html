@@ -1,20 +1,9 @@
-<!-- Enhanced Square Project Cards HTML Template with Full-Screen Layout -->
+<!-- Enhanced Square Project Cards HTML Template with Integrated Admin System -->
 <section id="projects" class="projects-section">
   <div class="container">
-    <!-- Section Header -->
+    <!-- Section Header - REMOVED Admin Toggle Button -->
     <div class="section-header">
       <h2 class="section-title">Projects</h2>
-      
-      <!-- Admin Toggle Button -->
-      <div class="admin-controls">
-        <button 
-          class="admin-toggle-btn"
-          (click)="toggleAdminMode()"
-          [class.active]="isAdmin()"
-          [attr.aria-label]="isAdmin() ? 'Exit Admin Mode' : 'Enter Admin Mode'">
-          {{ isAdmin() ? 'Exit Admin' : 'Admin' }}
-        </button>
-      </div>
     </div>
 
     <!-- Loading State -->
@@ -23,15 +12,7 @@
       <p>Loading projects...</p>
     </div>
 
-    <!-- Admin Add Button -->
-    <div *ngIf="isAdmin() && !showForm() && !isLoading()" class="admin-actions">
-      <button 
-        class="btn-add" 
-        (click)="openForm()"
-        aria-label="Add New Project">
-        + Add New Project
-      </button>
-    </div>
+    <!-- REMOVED: Admin Add Button - Now handled through centralized admin system -->
 
     <!-- Project Form Modal -->
     <div *ngIf="showForm() && isAdmin()" 
@@ -219,7 +200,7 @@
       
       <!-- No Projects Message -->
       <div *ngIf="projects().length === 0" class="no-projects" role="status">
-        <p>No projects found. {{ isAdmin() ? 'Click "Add New Project" to create your first project.' : '' }}</p>
+        <p>No projects found.</p>
       </div>
 
       <!-- Carousel with Navigation -->
@@ -255,23 +236,7 @@
                   <h3 class="project-title" [id]="'project-title-' + project.id">{{ project.title }}</h3>
                 </div>
                 
-                <!-- Admin Actions -->
-                <div *ngIf="isAdmin()" class="admin-actions-card" role="group" aria-label="Project actions">
-                  <button 
-                    class="action-btn edit-btn" 
-                    (click)="openForm(project)" 
-                    [attr.aria-label]="'Edit project: ' + project.title"
-                    type="button">
-                    ✏️
-                  </button>
-                  <button 
-                    class="action-btn delete-btn" 
-                    (click)="deleteProject(project.id, project.title)" 
-                    [attr.aria-label]="'Delete project: ' + project.title"
-                    type="button">
-                    🗑️
-                  </button>
-                </div>
+                <!-- REMOVED: Admin Actions from Cards - Now handled through centralized admin system -->
               </div>
 
               <div class="card-body">
@@ -398,8 +363,7 @@
   .carousel-nav:focus,
   .carousel-indicator:focus,
   .read-more-btn:focus,
-  .project-link:focus,
-  .action-btn:focus {
+  .project-link:focus {
     outline: 2px solid #007bff;
     outline-offset: 2px;
   }

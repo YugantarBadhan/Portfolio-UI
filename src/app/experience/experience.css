@@ -1,3 +1,5 @@
+/* Updated src/app/experience/experience.css - Remove admin controls from section header */
+
 /* Experience Section - Optimized spacing */
 .experience-section {
   padding: 2rem 0; /* Reduced top padding to minimize gap from hero section */
@@ -12,7 +14,7 @@
   padding: 0 20px;
 }
 
-/* Section Header */
+/* Section Header - Simplified without admin controls */
 .section-header {
   text-align: center;
   margin-bottom: 2rem;
@@ -24,58 +26,6 @@
   font-weight: 700;
   margin-bottom: 1rem;
   color: inherit;
-}
-
-/* .admin-controls {
-  position: absolute;
-  top: 0;
-  right: 0;
-}
-
-.admin-toggle-btn {
-  background: rgba(0, 123, 255, 0.2); 
-  border: none;
-  color: white;
-  padding: 10px 20px;
-  border-radius: 20px;
-  cursor: pointer;
-  font-size: 0.9rem;
-  font-weight: 600;
-  transition: all 0.3s ease;
-  backdrop-filter: blur(10px);
-} */
-
-.admin-controls {
-  position: absolute;
-  top: 50%;
-  right: 2rem;
-  transform: translateY(-35%);
-}
-
-.admin-toggle-btn {
-  background: rgba(0, 123, 255, 0.2); /* 20% visibility */
-  border: none;
-  color: white;
-  padding: 12px 24px;
-  border-radius: 20px;
-  cursor: pointer;
-  font-size: 0.9rem;
-  font-weight: 600;
-  transition: all 0.3s ease;
-  backdrop-filter: blur(10px);
-}
-
-.admin-toggle-btn:hover {
-  background: rgba(0, 86, 179, 0.4); /* Slightly more visible on hover */
-  transform: translateY(-1px);
-}
-
-.admin-toggle-btn.active {
-  background: rgba(40, 167, 69, 0.2); /* 20% visibility for active state */
-}
-
-.admin-toggle-btn.active:hover {
-  background: rgba(33, 136, 56, 0.4);
 }
 
 /* Loading Spinner */
@@ -108,7 +58,7 @@ body:not(.dark-theme) .spinner {
   to { transform: rotate(360deg); }
 }
 
-/* Admin Actions */
+/* Admin Actions - Only visible when admin mode is enabled */
 .admin-actions {
   text-align: center;
   margin-bottom: 2rem;
@@ -1027,11 +977,6 @@ body:not(.dark-theme) .experience-card .skill-tag:hover {
 
   .section-title {
     font-size: 2rem;
-  }
-
-  .admin-controls {
-    position: static;
-    margin-top: 20px;
   }
 
   .experience-form-container {

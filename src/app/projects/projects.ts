@@ -1,4 +1,4 @@
-// Enhanced Square Projects Component with Optimized Animations (Blur-Free)
+// Enhanced Square Projects Component with Integrated Admin System
 import { Component, OnInit, inject, signal, PLATFORM_ID, Inject, ViewChild, ElementRef, AfterViewInit, HostListener } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -65,11 +65,6 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
       githubLink: ['', [this.multiUrlValidator]], 
       liveDemoLink: ['', [this.urlValidator]]
     });
-
-    // Only check admin status in browser
-    if (this.isBrowser) {
-      this.checkAdminStatus();
-    }
   }
 
   ngOnInit() {
@@ -112,6 +107,66 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
         this.applyOptimizedStyles();
       }, 150);
     }
+  }
+
+  // Admin Mode Control Methods - NEW
+  enableAdminMode() {
+    console.log('Enabling admin mode for projects');
+    this.isAdmin.set(true);
+    this.checkAdminStatus();
+  }
+
+  disableAdminMode() {
+    console.log('Disabling admin mode for projects');
+    this.isAdmin.set(false);
+    this.closeForm();
+  }
+
+  // NEW: Admin operation methods to be called from parent component
+  async handleCreateOperation() {
+    console.log('Projects: Handling create operation');
+    this.openForm();
+  }
+
+  async handleUpdateOperation() {
+    console.log('Projects: Handling update operation');
+    if (this.projects().length === 0) {
+      alert('No projects available to update');
+      return false;
+    }
+    return true; // Indicates that project selection should be shown
+  }
+
+  async handleDeleteOperation() {
+    console.log('Projects: Handling delete operation');
+    if (this.projects().length === 0) {
+      alert('No projects available to delete');
+      return false;
+    }
+    return true; // Indicates that project selection should be shown
+  }
+
+  // NEW: Handle project selection for update/delete operations
+  async handleProjectSelection(projectId: number, operation: 'update' | 'delete') {
+    console.log(`Projects: Handling ${operation} for project ${projectId}`);
+    
+    const project = this.projects().find(p => p.id === projectId);
+    if (!project) {
+      alert('Project not found');
+      return;
+    }
+
+    if (operation === 'update') {
+      this.openForm(project);
+    } else if (operation === 'delete') {
+      await this.deleteProject(projectId, project.title);
+    }
+  }
+
+  // NEW: Refresh projects method for parent component
+  async refreshProjects() {
+    console.log('Projects: Refreshing projects list');
+    await this.loadProjects();
   }
 
   // NEW: Optimize animations and prevent blur
@@ -820,30 +875,6 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
     } catch (error) {
       console.error('Error checking admin status:', error);
       this.isAdmin.set(false);
-    }
-  }
-
-  toggleAdminMode() {
-    if (!this.isBrowser) {
-      return;
-    }
-    
-    try {
-      const currentToken = localStorage.getItem('adminToken');
-      if (currentToken === this.configService.adminToken) {
-        localStorage.removeItem('adminToken');
-        this.isAdmin.set(false);
-      } else {
-        const token = prompt('Enter admin token:');
-        if (token === this.configService.adminToken) {
-          localStorage.setItem('adminToken', token);
-          this.isAdmin.set(true);
-        } else if (token !== null) { // User didn't cancel
-          alert('Invalid admin token');
-        }
-      }
-    } catch (error) {
-      console.error('Error toggling admin mode:', error);
     }
   }
 

@@ -1,4 +1,4 @@
-<!-- Updated src/app/app.html -->
+<!-- Updated src/app/app.html with enhanced admin functionality including Projects -->
 <!-- Navigation Bar -->
 <nav
   class="navbar"
@@ -44,6 +44,7 @@
     <i class="fas fa-bars" *ngIf="!isMobileMenuOpen"></i>
     <i class="fas fa-times" *ngIf="isMobileMenuOpen"></i>
   </button>
+  
   <div class="nav-actions">
     <div class="social-buttons">
       <a
@@ -79,6 +80,59 @@
         <i class="fab fa-whatsapp"></i>
       </a>
     </div>
+    
+    <!-- Admin Dropdown -->
+    <div class="admin-dropdown-container">
+      <button
+        class="admin-toggle"
+        (click)="toggleAdminDropdown($event)"
+        [class.active]="showAdminDropdown()"
+        title="Admin Panel"
+      >
+        <img src="assets/images/admin.png" alt="Admin" class="admin-icon" />
+      </button>
+      
+      <div 
+        class="admin-dropdown" 
+        [class.show]="showAdminDropdown()"
+        [class.dark-theme]="isDarkTheme"
+      >
+        <div class="admin-dropdown-header">
+          <span class="admin-status" *ngIf="isAdminAuthenticated()">
+            <i class="fas fa-check-circle"></i> Authenticated
+          </span>
+          <span class="admin-status not-authenticated" *ngIf="!isAdminAuthenticated()">
+            <i class="fas fa-lock"></i> Not Authenticated
+          </span>
+        </div>
+        
+        <div class="admin-dropdown-content">
+          <button 
+            *ngFor="let section of adminSections" 
+            class="admin-section-btn"
+            [class.disabled]="!section.enabled"
+            (click)="section.enabled ? selectAdminSection(section.id, $event) : null"
+            [title]="section.enabled ? 'Manage ' + section.label : 'Coming Soon'"
+          >
+            <i class="fas" 
+               [class.fa-briefcase]="section.id === 'experience'"
+               [class.fa-code]="section.id === 'projects'"
+               [class.fa-certificate]="section.id === 'certifications'"
+               [class.fa-graduation-cap]="section.id === 'educations'"
+               [class.fa-trophy]="section.id === 'awards'"></i>
+            {{ section.label }}
+            <span *ngIf="!section.enabled" class="coming-soon">Soon</span>
+          </button>
+        </div>
+        
+        <div class="admin-dropdown-footer" *ngIf="isAdminAuthenticated()">
+          <button class="admin-logout-btn" (click)="logoutAdmin()">
+            <i class="fas fa-sign-out-alt"></i> Logout
+          </button>
+        </div>
+      </div>
+    </div>
+    
     <button
       class="theme-toggle"
       (click)="toggleTheme()"
@@ -92,6 +146,138 @@
     </button>
   </div>
 </nav>
+
+<!-- Admin Token Modal -->
+<div *ngIf="showAdminTokenModal()" class="admin-modal-overlay" (click)="closeAdminTokenModal()">
+  <div class="admin-modal-container" (click)="$event.stopPropagation()">
+    <div class="admin-modal-header">
+      <h3>Admin Authentication</h3>
+      <button class="close-btn" (click)="closeAdminTokenModal()">×</button>
+    </div>
+    
+    <div class="admin-modal-content">
+      <p>Enter admin token to manage <strong>{{ selectedAdminSection() }}</strong>:</p>
+      <input 
+        type="password" 
+        class="admin-token-input"
+        [(ngModel)]="adminToken"
+        placeholder="Enter admin token"
+        (keyup.enter)="submitAdminToken()"
+        #tokenInput
+      />
+    </div>
+    
+    <div class="admin-modal-actions">
+      <button class="btn-cancel" (click)="closeAdminTokenModal()">Cancel</button>
+      <button 
+        class="btn-submit" 
+        (click)="submitAdminToken()"
+        [disabled]="!adminToken.trim()"
+      >
+        Authenticate
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Admin Operations Modal -->
+<div *ngIf="showAdminOperationsModal()" class="admin-modal-overlay" (click)="closeAdminOperationsModal()">
+  <div class="admin-modal-container" (click)="$event.stopPropagation()">
+    <div class="admin-modal-header">
+      <h3>{{ selectedAdminSection() | titlecase }} Management</h3>
+      <button class="close-btn" (click)="closeAdminOperationsModal()">×</button>
+    </div>
+    
+    <div class="admin-modal-content">
+      <p>Choose an operation:</p>
+      <div class="admin-operations-grid">
+        <button 
+          *ngFor="let operation of adminOperations"
+          class="admin-operation-btn"
+          [class]="'operation-' + operation.id"
+          (click)="selectOperation(operation.id)"
+        >
+          <i class="fas {{ operation.icon }}"></i>
+          <span>{{ operation.label }}</span>
+        </button>
+      </div>
+    </div>
+    
+    <div class="admin-modal-actions">
+      <button class="btn-cancel" (click)="closeAdminOperationsModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Experience Selection Modal -->
+<div *ngIf="showExperienceSelectionModal()" class="admin-modal-overlay" (click)="closeExperienceSelectionModal()">
+  <div class="admin-modal-container" (click)="$event.stopPropagation()">
+    <div class="admin-modal-header">
+      <h3>Select Experience to {{ selectedOperation() | titlecase }}</h3>
+      <button class="close-btn" (click)="closeExperienceSelectionModal()">×</button>
+    </div>
+    
+    <div class="admin-modal-content">
+      <p *ngIf="experiences().length === 0">No experiences found.</p>
+      <div *ngIf="experiences().length > 0" class="experience-selection-list">
+        <button 
+          *ngFor="let exp of experiences()" 
+          class="experience-selection-item"
+          [class.delete-mode]="selectedOperation() === 'delete'"
+          (click)="selectExperience(exp.id)"
+        >
+          <div class="experience-info">
+            <h4>{{ exp.companyName }}</h4>
+            <p>{{ exp.role }}</p>
+            <small>{{ exp.startDate | date:'MMM yyyy' }} - {{ exp.current ? 'Present' : (exp.endDate | date:'MMM yyyy') }}</small>
+          </div>
+          <i class="fas" 
+             [class.fa-edit]="selectedOperation() === 'update'"
+             [class.fa-trash-alt]="selectedOperation() === 'delete'"></i>
+        </button>
+      </div>
+    </div>
+    
+    <div class="admin-modal-actions">
+      <button class="btn-cancel" (click)="closeExperienceSelectionModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Project Selection Modal -->
+<div *ngIf="showProjectSelectionModal()" class="admin-modal-overlay" (click)="closeProjectSelectionModal()">
+  <div class="admin-modal-container" (click)="$event.stopPropagation()">
+    <div class="admin-modal-header">
+      <h3>Select Project to {{ selectedOperation() | titlecase }}</h3>
+      <button class="close-btn" (click)="closeProjectSelectionModal()">×</button>
+    </div>
+    
+    <div class="admin-modal-content">
+      <p *ngIf="projects().length === 0">No projects found.</p>
+      <div *ngIf="projects().length > 0" class="experience-selection-list">
+        <button 
+          *ngFor="let project of projects()" 
+          class="experience-selection-item"
+          [class.delete-mode]="selectedOperation() === 'delete'"
+          (click)="selectProject(project.id)"
+        >
+          <div class="experience-info">
+            <h4>{{ project.title }}</h4>
+            <p>{{ project.techStack || 'No tech stack specified' }}</p>
+            <small>Project ID: {{ project.id }}</small>
+          </div>
+          <i class="fas" 
+             [class.fa-edit]="selectedOperation() === 'update'"
+             [class.fa-trash-alt]="selectedOperation() === 'delete'"></i>
+        </button>
+      </div>
+    </div>
+    
+    <div class="admin-modal-actions">
+      <button class="btn-cancel" (click)="closeProjectSelectionModal()">Cancel</button>
+    </div>
+  </div>
+</div>
 
 <!-- Mobile Navigation Menu -->
 <div class="mobile-menu" [class.open]="isMobileMenuOpen" [class.dark-theme]="isDarkTheme">
@@ -148,7 +334,7 @@
 <!-- Experience Section -->
 <app-experience></app-experience>
 
-<!-- Projects Section - FIXED: Using the component instead of static content -->
+<!-- Projects Section -->
 <app-projects></app-projects>
 
 <!-- Certifications Section - Placeholder -->

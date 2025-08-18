@@ -1,18 +1,9 @@
+<!-- Updated src/app/experience/experience.html - Remove admin controls from section header -->
 <section id="experience" class="experience-section">
   <div class="container">
-    <!-- Section Header -->
+    <!-- Section Header - Admin controls removed -->
     <div class="section-header">
       <h2 class="section-title">Experience</h2>
-      
-      <!-- Admin Toggle Button -->
-      <div class="admin-controls">
-        <button 
-          class="admin-toggle-btn"
-          (click)="toggleAdminMode()"
-          [class.active]="isAdmin()">
-          {{ isAdmin() ? 'Exit Admin' : 'Admin' }}
-        </button>
-      </div>
     </div>
 
     <!-- Loading State -->
@@ -21,12 +12,12 @@
       <p>Loading experiences...</p>
     </div>
 
-    <!-- Admin Add Button -->
-    <div *ngIf="isAdmin() && !showForm()" class="admin-actions">
+    <!-- Admin Add Button - Only show when admin mode is enabled -->
+    <!-- <div *ngIf="isAdmin() && !showForm()" class="admin-actions">
       <button class="btn-add" (click)="openForm()">
         + Add New Experience
       </button>
-    </div>
+    </div> -->
 
     <!-- Experience Form Modal -->
     <div *ngIf="showForm() && isAdmin()" class="modal-overlay" (click)="closeFormOnBackdrop($event)">
@@ -182,7 +173,7 @@
               </div>
             </div>
             
-            <!-- Admin Actions -->
+            <!-- Admin Actions - Only show when admin mode is enabled -->
             <div *ngIf="isAdmin()" class="admin-actions-card">
               <button class="action-btn edit-btn" (click)="openForm(exp)" title="Edit Experience">
                 ✏️

@@ -1,3 +1,4 @@
+/* Updated app.css - Enhanced admin interface styles with fixed modal text colors */
 * {
   margin: 0;
   padding: 0;
@@ -251,6 +252,622 @@ body:not(.dark-theme) {
 
 .social-btn.whatsapp:hover {
   background: #25d366;
+}
+
+/* Admin Dropdown Container */
+.admin-dropdown-container {
+  position: relative;
+  display: inline-block;
+}
+
+/* Admin Toggle Button - FIXED - Remove background box */
+.admin-toggle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.8) !important;
+  background: transparent !important;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  margin-right: 0.5rem;
+  padding: 6px;
+  position: relative;
+  z-index: 10;
+  /* Remove any default button styling */
+  outline: none !important;
+  -webkit-tap-highlight-color: transparent !important;
+  -webkit-touch-callout: none !important;
+  -webkit-user-select: none !important;
+  -khtml-user-select: none !important;
+  -moz-user-select: none !important;
+  -ms-user-select: none !important;
+  user-select: none !important;
+}
+
+.admin-toggle:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.admin-toggle:hover {
+  background: rgba(255, 255, 255, 0.15) !important;
+  border-color: rgba(255, 255, 255, 1) !important;
+  transform: scale(1.05);
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+}
+
+.admin-toggle.active {
+  background: rgba(255, 255, 255, 0.2) !important;
+  border-color: rgba(255, 255, 255, 1) !important;
+  transform: scale(1.02);
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.3);
+}
+
+.admin-icon {
+  width: 24px !important;
+  height: 24px !important;
+  object-fit: contain;
+  filter: brightness(0) invert(1) !important; /* Always white */
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: none; /* Prevent icon from interfering with button clicks */
+}
+
+.admin-toggle .admin-icon,
+.admin-toggle:hover .admin-icon,
+.admin-toggle.active .admin-icon,
+.admin-toggle:focus .admin-icon {
+  filter: brightness(0) invert(1) !important; /* Always white */
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* Remove any button focus outlines that might cause boxes */
+.admin-toggle::-moz-focus-inner {
+  border: 0;
+  padding: 0;
+}
+
+/* Additional fixes for button appearance */
+.admin-toggle:active {
+  background: rgba(255, 255, 255, 0.25) !important;
+  transform: scale(0.98);
+}
+
+/* Ensure no unwanted backgrounds on click */
+.admin-toggle::before,
+.admin-toggle::after {
+  display: none !important;
+}
+/* Admin Dropdown */
+.admin-dropdown {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  min-width: 220px;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px) scale(0.95);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 1000;
+  backdrop-filter: blur(10px);
+}
+
+.admin-dropdown.dark-theme {
+  background: #2c3e50;
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.admin-dropdown.show {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0) scale(1);
+}
+
+.admin-dropdown::before {
+  content: '';
+  position: absolute;
+  top: -6px;
+  right: 18px;
+  width: 12px;
+  height: 12px;
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-bottom: none;
+  border-right: none;
+  transform: rotate(45deg);
+}
+
+.admin-dropdown.dark-theme::before {
+  background: #2c3e50;
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Admin Dropdown Header */
+.admin-dropdown-header {
+  padding: 16px 20px 12px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.admin-dropdown.dark-theme .admin-dropdown-header {
+  border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Admin Status Text - FIXED for Dark Theme Visibility */
+.admin-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #28a745 !important; /* Force green for authenticated state */
+}
+
+.admin-status.not-authenticated {
+  color: #dc3545 !important; /* Force red for not authenticated state */
+}
+
+/* Dark theme specific fixes for admin status */
+.admin-dropdown.dark-theme .admin-status {
+  color: #4caf50 !important; /* Bright green for dark theme authenticated */
+}
+
+.admin-dropdown.dark-theme .admin-status.not-authenticated {
+  color: #f44336 !important; /* Bright red for dark theme not authenticated */
+}
+
+/* Ensure the icon in status also has proper color */
+.admin-status i {
+  color: inherit !important;
+}
+
+/* Admin Dropdown Content */
+.admin-dropdown-content {
+  padding: 8px 0;
+}
+
+.admin-section-btn {
+  width: 100%;
+  padding: 12px 20px;
+  border: none;
+  background: transparent;
+  color: #333;
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  position: relative;
+}
+
+.admin-dropdown.dark-theme .admin-section-btn {
+  color: #ffffff;
+}
+
+.admin-section-btn:hover:not(.disabled) {
+  background: rgba(0, 123, 255, 0.06);
+  color: #007bff;
+}
+
+.admin-dropdown.dark-theme .admin-section-btn:hover:not(.disabled) {
+  background: rgba(100, 181, 246, 0.1);
+  color: #64b5f6;
+}
+
+.admin-section-btn.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.admin-section-btn i {
+  width: 16px;
+  text-align: center;
+  font-size: 14px;
+}
+
+.coming-soon {
+  margin-left: auto;
+  font-size: 0.75rem;
+  background: #ffc107;
+  color: #000;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-weight: 600;
+}
+
+/* Admin Dropdown Footer */
+.admin-dropdown-footer {
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+  padding: 8px 0;
+}
+
+.admin-dropdown.dark-theme .admin-dropdown-footer {
+  border-top-color: rgba(255, 255, 255, 0.1);
+}
+
+.admin-logout-btn {
+  width: 100%;
+  padding: 12px 20px;
+  border: none;
+  background: transparent;
+  color: #dc3545;
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.admin-logout-btn:hover {
+  background: rgba(220, 53, 69, 0.06);
+  color: #c82333;
+}
+
+.admin-logout-btn i {
+  width: 16px;
+  text-align: center;
+  font-size: 14px;
+}
+
+/* Enhanced Admin Modal Styles - FIXED TEXT COLORS */
+.admin-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(5px);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.admin-modal-container {
+  background: white;
+  border-radius: 15px;
+  padding: 30px;
+  max-width: 500px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  position: relative;
+  animation: slideIn 0.3s ease-out;
+  /* FORCE BLACK TEXT ON WHITE BACKGROUND */
+  color: #333333 !important;
+}
+
+body.dark-theme .admin-modal-container {
+  background: #2c3e50;
+  color: #ffffff !important;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+.admin-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+  border-bottom: 2px solid #f0f0f0;
+  padding-bottom: 15px;
+}
+
+body.dark-theme .admin-modal-header {
+  border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+
+.admin-modal-header h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #333333 !important; /* FORCE BLACK TEXT */
+  margin: 0;
+}
+
+body.dark-theme .admin-modal-header h3 {
+  color: #ffffff !important;
+}
+
+.close-btn {
+  background: #dc3545;
+  border: none;
+  color: white;
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 1.2rem;
+  transition: all 0.3s ease;
+}
+
+.close-btn:hover {
+  background: #c82333;
+  transform: scale(1.1);
+}
+
+.admin-modal-content {
+  margin-bottom: 25px;
+}
+
+.admin-modal-content p {
+  margin-bottom: 20px;
+  color: #333333 !important; /* FORCE BLACK TEXT */
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+body.dark-theme .admin-modal-content p {
+  color: rgba(255, 255, 255, 0.8) !important;
+}
+
+.admin-token-input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
+  background: white;
+  color: #333333 !important; /* FORCE BLACK TEXT */
+}
+
+body.dark-theme .admin-token-input {
+  background: #34495e;
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #ffffff !important;
+}
+
+.admin-token-input:focus {
+  outline: none;
+  border-color: #007bff;
+}
+
+body.dark-theme .admin-token-input:focus {
+  border-color: #64b5f6;
+}
+
+.admin-token-input::placeholder {
+  color: #666666 !important; /* FORCE GRAY PLACEHOLDER */
+}
+
+body.dark-theme .admin-token-input::placeholder {
+  color: rgba(255, 255, 255, 0.6) !important;
+}
+
+/* Admin Operations Grid */
+.admin-operations-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.admin-operation-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 20px 15px;
+  border: 2px solid #e9ecef;
+  border-radius: 12px;
+  background: #f8f9fa;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-align: center;
+  color: #333333 !important; /* FORCE BLACK TEXT */
+}
+
+body.dark-theme .admin-operation-btn {
+  background: #34495e;
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #ffffff !important;
+}
+
+.admin-operation-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.admin-operation-btn.operation-create {
+  border-color: #28a745;
+  color: #28a745 !important;
+}
+
+.admin-operation-btn.operation-create:hover {
+  background: #28a745;
+  color: white !important;
+}
+
+.admin-operation-btn.operation-update {
+  border-color: #007bff;
+  color: #007bff !important;
+}
+
+.admin-operation-btn.operation-update:hover {
+  background: #007bff;
+  color: white !important;
+}
+
+.admin-operation-btn.operation-delete {
+  border-color: #dc3545;
+  color: #dc3545 !important;
+}
+
+.admin-operation-btn.operation-delete:hover {
+  background: #dc3545;
+  color: white !important;
+}
+
+.admin-operation-btn i {
+  font-size: 1.5rem;
+}
+
+/* Experience Selection List */
+.experience-selection-list {
+  max-height: 400px;
+  overflow-y: auto;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  background: #f8f9fa;
+}
+
+body.dark-theme .experience-selection-list {
+  background: #34495e;
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.experience-selection-item {
+  width: 100%;
+  padding: 15px 20px;
+  border: none;
+  border-bottom: 1px solid #e9ecef;
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  text-align: left;
+  color: #333333 !important; /* FORCE BLACK TEXT */
+}
+
+body.dark-theme .experience-selection-item {
+  border-bottom-color: rgba(255, 255, 255, 0.1);
+  color: #ffffff !important;
+}
+
+.experience-selection-item:last-child {
+  border-bottom: none;
+}
+
+.experience-selection-item:hover {
+  background: rgba(0, 123, 255, 0.05);
+}
+
+.experience-selection-item.delete-mode:hover {
+  background: rgba(220, 53, 69, 0.05);
+  color: #dc3545 !important;
+}
+
+body.dark-theme .experience-selection-item:hover {
+  background: rgba(100, 181, 246, 0.1);
+}
+
+body.dark-theme .experience-selection-item.delete-mode:hover {
+  background: rgba(244, 67, 54, 0.1);
+  color: #f44336 !important;
+}
+
+.experience-info {
+  flex: 1;
+}
+
+.experience-info h4 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 5px;
+  color: inherit;
+}
+
+.experience-info p {
+  font-size: 0.95rem;
+  color: #666666 !important; /* FORCE GRAY TEXT */
+  margin-bottom: 5px;
+}
+
+body.dark-theme .experience-info p {
+  color: rgba(255, 255, 255, 0.7) !important;
+}
+
+.experience-info small {
+  font-size: 0.8rem;
+  color: #888888 !important; /* FORCE GRAY TEXT */
+}
+
+body.dark-theme .experience-info small {
+  color: rgba(255, 255, 255, 0.6) !important;
+}
+
+.experience-selection-item i {
+  font-size: 1.2rem;
+  color: #666666 !important; /* FORCE GRAY ICON */
+}
+
+body.dark-theme .experience-selection-item i {
+  color: rgba(255, 255, 255, 0.7) !important;
+}
+
+.admin-modal-actions {
+  display: flex;
+  gap: 15px;
+  justify-content: flex-end;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #f0f0f0;
+}
+
+body.dark-theme .admin-modal-actions {
+  border-top-color: rgba(255, 255, 255, 0.1);
+}
+
+.admin-modal-actions .btn-cancel {
+  padding: 10px 20px;
+  border: 1px solid #6c757d;
+  background: white;
+  color: #6c757d !important; /* FORCE GRAY TEXT */
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+body.dark-theme .admin-modal-actions .btn-cancel {
+  background: #34495e;
+  color: #ffffff !important;
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.admin-modal-actions .btn-cancel:hover {
+  background: #6c757d;
+  color: white !important;
+}
+
+.admin-modal-actions .btn-submit {
+  padding: 10px 20px;
+  border: none;
+  background: #007bff;
+  color: white !important;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.admin-modal-actions .btn-submit:hover:not(:disabled) {
+  background: #0056b3;
+}
+
+.admin-modal-actions .btn-submit:disabled {
+  background: #ccc;
+  cursor: not-allowed;
 }
 
 .theme-toggle {
@@ -595,6 +1212,22 @@ body:not(.dark-theme) .profile-image-placeholder {
   }
 }
 
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideIn {
+  from { 
+    opacity: 0;
+    transform: scale(0.9) translateY(-20px);
+  }
+  to { 
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .navbar {
@@ -617,6 +1250,83 @@ body:not(.dark-theme) .profile-image-placeholder {
     width: 35px;
     height: 35px;
     font-size: 1rem;
+  }
+
+.admin-toggle {
+  width: 35px;
+  height: 35px;
+  margin-right: 0.3rem;
+  -webkit-tap-highlight-color: transparent !important;
+}
+
+  .admin-icon {
+    width: 20px;
+    height: 20px;
+  }
+
+  .admin-dropdown {
+    right: -10px;
+    min-width: 200px;
+  }
+  
+  .admin-dropdown::before {
+    right: 25px;
+  }
+  
+  .admin-modal-container {
+    padding: 20px;
+    width: 95%;
+    max-width: 450px;
+  }
+  
+  .admin-modal-actions {
+    flex-direction: column;
+  }
+  
+  .admin-modal-actions .btn-cancel,
+  .admin-modal-actions .btn-submit {
+    width: 100%;
+  }
+
+  .admin-operations-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .admin-operation-btn {
+    flex-direction: row;
+    justify-content: flex-start;
+    padding: 15px;
+  }
+
+  .admin-operation-btn i {
+    font-size: 1.2rem;
+  }
+
+  .experience-selection-list {
+    max-height: 300px;
+  }
+
+  .experience-selection-item {
+    padding: 12px 15px;
+  }
+
+  .experience-info h4 {
+    font-size: 1rem;
+  }
+
+  .experience-info p {
+    font-size: 0.9rem;
+  }
+
+  .experience-info small {
+    font-size: 0.75rem;
+  }
+
+  .theme-toggle {
+    width: 35px;
+    height: 35px;
+    font-size: 0.9rem;
   }
 
   .hero {
@@ -662,6 +1372,88 @@ body:not(.dark-theme) .profile-image-placeholder {
 }
 
 @media (max-width: 480px) {
+  .navbar {
+    padding: 0.8rem;
+  }
+
+  .logo {
+    font-size: 1.3rem;
+  }
+
+  .social-buttons {
+    gap: 0.2rem;
+  }
+
+  .social-btn {
+    width: 30px;
+    height: 30px;
+    font-size: 0.9rem;
+  }
+
+  .admin-toggle {
+    width: 30px;
+    height: 30px;
+    margin-right: 0.2rem;
+  }
+
+  .admin-icon {
+    width: 18px;
+    height: 18px;
+  }
+
+  .admin-dropdown {
+    right: -20px;
+    min-width: 180px;
+  }
+  
+  .admin-section-btn,
+  .admin-logout-btn {
+    padding: 10px 15px;
+    font-size: 0.85rem;
+  }
+
+  .admin-modal-container {
+    padding: 15px;
+    width: 98%;
+    max-width: 380px;
+  }
+
+  .admin-modal-header h3 {
+    font-size: 1.3rem;
+  }
+
+  .admin-token-input {
+    padding: 10px 12px;
+    font-size: 0.9rem;
+  }
+
+  .admin-operations-grid {
+    gap: 8px;
+  }
+
+  .admin-operation-btn {
+    padding: 12px;
+    font-size: 0.8rem;
+  }
+
+  .admin-operation-btn i {
+    font-size: 1rem;
+  }
+
+  .experience-selection-list {
+    max-height: 250px;
+  }
+
+  .experience-selection-item {
+    padding: 10px 12px;
+  }
+
+  .theme-toggle {
+    width: 30px;
+    height: 30px;
+    font-size: 0.8rem;
+  }
+
   .hero-text h1 {
     font-size: 2rem;
   }
@@ -688,4 +1480,176 @@ body:not(.dark-theme) .profile-image-placeholder {
   .section {
     padding: 1.5rem 1rem; /* Further reduced for small screens */
   }
+}
+
+/* Additional mobile-specific adjustments */
+@media (max-width: 360px) {
+  .navbar {
+    padding: 0.5rem;
+  }
+
+  .logo {
+    font-size: 1.2rem;
+  }
+
+  .nav-actions {
+    gap: 0.3rem;
+  }
+
+  .social-btn {
+    width: 28px;
+    height: 28px;
+    font-size: 0.8rem;
+  }
+
+  .admin-toggle {
+    width: 28px;
+    height: 28px;
+  }
+
+  .admin-icon {
+    width: 16px;
+    height: 16px;
+  }
+
+  .theme-toggle {
+    width: 28px;
+    height: 28px;
+    font-size: 0.7rem;
+  }
+
+  .admin-modal-container {
+    padding: 12px;
+    width: 100%;
+    max-width: 340px;
+  }
+
+  .hero-text h1 {
+    font-size: 1.8rem;
+  }
+
+  .hero-text .title {
+    font-size: 1.6rem;
+  }
+
+  .profile-card {
+    width: 260px;
+    height: 300px;
+  }
+
+  .profile-image,
+  .profile-image-placeholder {
+    height: 200px;
+  }
+}
+
+/* High-resolution display adjustments */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .admin-icon {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+  }
+}
+
+/* Dark mode specific admin dropdown adjustments */
+@media (prefers-color-scheme: dark) {
+  body:not(.light-theme) .admin-dropdown {
+    background: #2c3e50;
+    border-color: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  }
+
+  body:not(.light-theme) .admin-dropdown::before {
+    background: #2c3e50;
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+}
+
+/* Print styles - Hide admin controls when printing */
+@media print {
+  .admin-dropdown-container,
+  .admin-modal-overlay,
+  .theme-toggle {
+    display: none !important;
+  }
+
+  .navbar {
+    position: relative;
+    background: transparent !important;
+    box-shadow: none !important;
+    padding: 1rem 0;
+  }
+
+  .nav-actions {
+    display: none;
+  }
+}
+
+/* Focus styles for accessibility */
+.admin-toggle:focus,
+.theme-toggle:focus,
+.admin-section-btn:focus,
+.admin-logout-btn:focus,
+.admin-operation-btn:focus,
+.experience-selection-item:focus {
+  outline: 2px solid #007bff;
+  outline-offset: 2px;
+}
+
+.admin-token-input:focus {
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+}
+
+/* Reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .admin-dropdown,
+  .admin-toggle,
+  .theme-toggle,
+  .admin-modal-container,
+  .admin-operation-btn,
+  .experience-selection-item {
+    transition: none;
+  }
+
+  .admin-section-btn,
+  .admin-logout-btn {
+    transition: none;
+  }
+
+  .hero-text,
+  .hero-image {
+    animation: none;
+  }
+
+  .admin-modal-overlay,
+  .admin-modal-container {
+    animation: none;
+  }
+}
+
+/* Scrollbar styling for experience selection list */
+.experience-selection-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.experience-selection-list::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 3px;
+}
+
+.experience-selection-list::-webkit-scrollbar-thumb {
+  background: rgba(0, 123, 255, 0.3);
+  border-radius: 3px;
+}
+
+.experience-selection-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 123, 255, 0.5);
+}
+
+body.dark-theme .experience-selection-list::-webkit-scrollbar-thumb {
+  background: rgba(100, 181, 246, 0.3);
+}
+
+body.dark-theme .experience-selection-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(100, 181, 246, 0.5);
 }

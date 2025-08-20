@@ -15,8 +15,9 @@ export class SafeHtmlPipe implements PipeTransform {
     this.isBrowser = isPlatformBrowser(platformId);
   }
 
-  transform(html: string): SafeHtml {
-    if (!html) return '';
+  transform(html: string | null | undefined): SafeHtml {
+    // Handle null/undefined input
+    if (!html) return this.sanitizer.bypassSecurityTrustHtml('');
     
     try {
       // During SSR, skip complex sanitization and use a simple approach
@@ -30,8 +31,8 @@ export class SafeHtmlPipe implements PipeTransform {
       return this.sanitizer.bypassSecurityTrustHtml(cleanHtml);
     } catch (error) {
       console.error('Error in SafeHtml pipe:', error);
-      // Fallback: return the original HTML and let Angular's sanitizer handle it
-      return html;
+      // Fallback: sanitize and return as SafeHtml
+      return this.sanitizer.bypassSecurityTrustHtml(this.simpleHtmlClean(html));
     }
   }
 

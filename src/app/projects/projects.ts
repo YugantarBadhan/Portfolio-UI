@@ -1,4 +1,4 @@
-// Enhanced Square Projects Component with Integrated Admin System
+// Enhanced Square Projects Component with Know More Modal - Cleaned console logs
 import { Component, OnInit, inject, signal, PLATFORM_ID, Inject, ViewChild, ElementRef, AfterViewInit, HostListener } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -37,7 +37,10 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
   isAdmin = signal(false);
   showGithubRepos = signal(false);
   currentGithubRepos = signal<GitHubRepo[]>([]);
-  expandedDescriptions = signal<Set<number>>(new Set());
+  
+  // NEW: Project Details Modal State
+  showProjectDetails = signal(false);
+  selectedProject = signal<Project | null>(null);
   
   // Enhanced carousel state for perfect square cards and full-screen layout
   currentTranslateX = signal(0);
@@ -109,27 +112,48 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
     }
   }
 
-  // Admin Mode Control Methods - NEW
+  @HostListener('window:keydown', ['$event'])
+  onKeyDown(event: KeyboardEvent) {
+    // Enhanced keyboard navigation for modals
+    if (this.showProjectDetails()) {
+      if (event.key === 'Escape') {
+        this.closeProjectDetails();
+        event.preventDefault();
+      }
+    }
+    
+    if (this.showGithubRepos()) {
+      if (event.key === 'Escape') {
+        this.closeGithubRepos();
+        event.preventDefault();
+      }
+    }
+    
+    if (this.showForm()) {
+      if (event.key === 'Escape') {
+        this.closeForm();
+        event.preventDefault();
+      }
+    }
+  }
+
+  // Admin Mode Control Methods - EXISTING
   enableAdminMode() {
-    console.log('Enabling admin mode for projects');
     this.isAdmin.set(true);
     this.checkAdminStatus();
   }
 
   disableAdminMode() {
-    console.log('Disabling admin mode for projects');
     this.isAdmin.set(false);
     this.closeForm();
   }
 
-  // NEW: Admin operation methods to be called from parent component
+  // Admin operation methods to be called from parent component - EXISTING
   async handleCreateOperation() {
-    console.log('Projects: Handling create operation');
     this.openForm();
   }
 
   async handleUpdateOperation() {
-    console.log('Projects: Handling update operation');
     if (this.projects().length === 0) {
       alert('No projects available to update');
       return false;
@@ -138,7 +162,6 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
   }
 
   async handleDeleteOperation() {
-    console.log('Projects: Handling delete operation');
     if (this.projects().length === 0) {
       alert('No projects available to delete');
       return false;
@@ -146,10 +169,8 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
     return true; // Indicates that project selection should be shown
   }
 
-  // NEW: Handle project selection for update/delete operations
+  // Handle project selection for update/delete operations - EXISTING
   async handleProjectSelection(projectId: number, operation: 'update' | 'delete') {
-    console.log(`Projects: Handling ${operation} for project ${projectId}`);
-    
     const project = this.projects().find(p => p.id === projectId);
     if (!project) {
       alert('Project not found');
@@ -163,13 +184,145 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
     }
   }
 
-  // NEW: Refresh projects method for parent component
+  // Refresh projects method for parent component - EXISTING
   async refreshProjects() {
-    console.log('Projects: Refreshing projects list');
     await this.loadProjects();
   }
 
-  // NEW: Optimize animations and prevent blur
+  // ================================
+  // NEW: PROJECT DETAILS MODAL METHODS
+  // ================================
+
+  /**
+   * Opens the project details modal with full description and enhanced UI
+   * @param project - The project to display details for
+   */
+  openProjectDetails(project: Project): void {
+    this.selectedProject.set(project);
+    this.showProjectDetails.set(true);
+    
+    // Prevent body scroll when modal is open
+    if (this.isBrowser) {
+      document.body.style.overflow = 'hidden';
+      
+      // Focus management for accessibility
+      setTimeout(() => {
+        const closeButton = document.querySelector('.modal-close-btn') as HTMLElement;
+        if (closeButton) {
+          closeButton.focus();
+        }
+      }, 100);
+    }
+  }
+
+  /**
+   * Closes the project details modal
+   */
+  closeProjectDetails(): void {
+    this.showProjectDetails.set(false);
+    this.selectedProject.set(null);
+    
+    // Restore body scroll
+    if (this.isBrowser) {
+      document.body.style.overflow = 'auto';
+      
+      // Return focus to the "Know More" button that opened the modal
+      setTimeout(() => {
+        const activeProject = this.selectedProject();
+        if (activeProject) {
+          const knowMoreBtn = document.querySelector(
+            `[data-project-id="${activeProject.id}"] .know-more-btn`
+          ) as HTMLElement;
+          if (knowMoreBtn) {
+            knowMoreBtn.focus();
+          }
+        }
+      }, 100);
+    }
+  }
+
+/**
+ * Generates a clean preview of the project description
+ * Removes HTML tags and limits to approximately 4 lines
+ * SSR-safe implementation
+ * @param description - Full HTML description (can be null/undefined)
+ * @returns Clean preview text
+ */
+getDescriptionPreview(description: string | null | undefined): string {
+  if (!description) return '';
+  
+  let plainText = '';
+  
+  if (this.isBrowser && typeof document !== 'undefined') {
+    // Browser environment: Use DOM manipulation for accurate HTML stripping
+    try {
+      const tempDiv = document.createElement('div');
+      tempDiv.innerHTML = description;
+      plainText = tempDiv.textContent || tempDiv.innerText || '';
+    } catch (error) {
+      console.warn('Error parsing HTML in browser, falling back to regex:', error);
+      plainText = this.stripHtmlWithRegex(description);
+    }
+  } else {
+    // SSR environment: Use regex-based HTML stripping
+    plainText = this.stripHtmlWithRegex(description);
+  }
+  
+  // Calculate approximate character limit for 4 lines
+  // Assuming average of 80-90 characters per line at 1.1rem font size
+  const maxChars = 320;
+  
+  if (plainText.length <= maxChars) {
+    return plainText;
+  }
+  
+  // Find the last complete sentence within the limit
+  const truncated = plainText.substring(0, maxChars);
+  const lastSentenceEnd = Math.max(
+    truncated.lastIndexOf('.'),
+    truncated.lastIndexOf('!'),
+    truncated.lastIndexOf('?')
+  );
+  
+  if (lastSentenceEnd > maxChars * 0.7) { // If sentence end is reasonably close
+    return plainText.substring(0, lastSentenceEnd + 1);
+  } else {
+    // Fall back to word boundary
+    const lastSpace = truncated.lastIndexOf(' ');
+    return lastSpace > 0 ? plainText.substring(0, lastSpace) + '...' : truncated + '...';
+  }
+}
+
+/**
+ * Regex-based HTML stripping for SSR environment
+ * @param html - HTML string to strip
+ * @returns Plain text content
+ */
+private stripHtmlWithRegex(html: string): string {
+  if (!html || typeof html !== 'string') return '';
+  
+  // Remove HTML tags using regex
+  let text = html.replace(/<[^>]*>/g, '');
+  
+  // Decode common HTML entities
+  text = text.replace(/&nbsp;/g, ' ')
+             .replace(/&amp;/g, '&')
+             .replace(/&lt;/g, '<')
+             .replace(/&gt;/g, '>')
+             .replace(/&quot;/g, '"')
+             .replace(/&#39;/g, "'")
+             .replace(/&hellip;/g, '...');
+  
+  // Clean up extra whitespace
+  text = text.replace(/\s+/g, ' ').trim();
+  
+  return text;
+}
+
+  // ================================
+  // ENHANCED ANIMATION AND OPTIMIZATION METHODS
+  // ================================
+
   private optimizeForAnimations() {
     if (!this.isBrowser) return;
 
@@ -196,6 +349,13 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
         -webkit-font-smoothing: inherit !important;
         -moz-osx-font-smoothing: inherit !important;
         text-rendering: inherit !important;
+      }
+      
+      .project-details-modal {
+        -webkit-transform: translateZ(0) !important;
+        transform: translateZ(0) !important;
+        -webkit-font-smoothing: antialiased !important;
+        -moz-osx-font-smoothing: grayscale !important;
       }
     `;
     document.head.appendChild(style);
@@ -295,7 +455,6 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
       this.cardWidth.set(450); // Fixed size for large desktop
     }
     
-    console.log(`Cards per view: ${this.cardsPerView()} for window width: ${windowWidth}px, card width: ${this.cardWidth()}px`);
     this.updateCarouselConstraints();
     this.updateCardStyles();
   }
@@ -337,8 +496,6 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
     const scrollDistance = cardWidth + gap;
     const maxScroll = (totalProjects - cardsPerView) * scrollDistance;
     this.maxTranslateX.set(-maxScroll);
-    
-    console.log(`Total projects: ${totalProjects}, Cards per view: ${cardsPerView}, Card width: ${cardWidth}, Max scroll: -${maxScroll}px`);
   }
 
   private adjustCarouselPosition() {
@@ -379,10 +536,8 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
     
     if (direction === 'left' && this.canScrollLeft()) {
       newTranslate = Math.min(0, currentTranslate + scrollAmount);
-      console.log(`Scrolling left: ${currentTranslate}px -> ${newTranslate}px`);
     } else if (direction === 'right' && this.canScrollRight()) {
       newTranslate = Math.max(this.maxTranslateX(), currentTranslate - scrollAmount);
-      console.log(`Scrolling right: ${currentTranslate}px -> ${newTranslate}px`);
     }
 
     // Smooth animation with enhanced easing and optimization
@@ -469,63 +624,12 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
     const newTranslate = -indicatorIndex * scrollDistance;
     const clampedTranslate = Math.max(this.maxTranslateX(), Math.min(0, newTranslate));
     
-    console.log(`Jumping to indicator ${indicatorIndex}: ${clampedTranslate}px`);
     this.animateCarousel(clampedTranslate);
   }
 
   // TrackBy function for better performance
   trackByProjectId(index: number, project: Project): number {
     return project.id;
-  }
-
-  // Description expansion functionality - Enhanced for square cards
-  isDescriptionExpanded(projectId: number): boolean {
-    return this.expandedDescriptions().has(projectId);
-  }
-
-  toggleDescription(projectId: number): void {
-    const expanded = new Set(this.expandedDescriptions());
-    if (expanded.has(projectId)) {
-      expanded.delete(projectId);
-    } else {
-      expanded.add(projectId);
-    }
-    this.expandedDescriptions.set(expanded);
-
-    // Trigger reflow for better animation with optimization
-    setTimeout(() => {
-      const card = document.querySelector(`[data-project-id="${projectId}"]`) as HTMLElement;
-      if (card) {
-        card.classList.add('description-transitioning');
-        // Apply optimization during transition
-        this.optimizeCardForAnimation(card);
-        setTimeout(() => {
-          card.classList.remove('description-transitioning');
-        }, 300);
-      }
-    }, 10);
-  }
-
-  shouldShowReadMore(description: string): boolean {
-    if (!this.isBrowser || !description) return false;
-    
-    // Create a temporary div to measure content for square card layout
-    const tempDiv = document.createElement('div');
-    tempDiv.innerHTML = description;
-    tempDiv.style.cssText = `
-      position: absolute; 
-      visibility: hidden; 
-      font-size: 1.1rem; 
-      line-height: 1.6; 
-      width: ${Math.max(this.cardWidth() - 64, 250)}px;
-    `;
-    document.body.appendChild(tempDiv);
-    
-    const height = tempDiv.offsetHeight;
-    document.body.removeChild(tempDiv);
-    
-    // Check if content would be more than 5 lines (5 * 1.6 * 1.1rem ≈ 132px)
-    return height > 132;
   }
 
   // GitHub repositories functionality
@@ -885,9 +989,6 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
       // Sort projects by ID in descending order (newest first)
       projects.sort((a, b) => b.id - a.id);
       this.projects.set(projects);
-      
-      // Reset expanded descriptions when projects are loaded
-      this.expandedDescriptions.set(new Set());
       
       // Reset carousel position and recalculate constraints
       this.currentTranslateX.set(0);

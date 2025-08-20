@@ -720,6 +720,8 @@ body.dark-theme .admin-operation-btn {
   font-size: 1.5rem;
 }
 
+/* Replace the existing experience selection styles in app.css with this fixed version */
+
 /* Experience Selection List */
 .experience-selection-list {
   max-height: 400px;
@@ -727,6 +729,9 @@ body.dark-theme .admin-operation-btn {
   border: 1px solid #e9ecef;
   border-radius: 8px;
   background: #f8f9fa;
+  list-style: none;
+  padding: 0;
+  margin: 0;
 }
 
 body.dark-theme .experience-selection-list {
@@ -734,23 +739,28 @@ body.dark-theme .experience-selection-list {
   border-color: rgba(255, 255, 255, 0.2);
 }
 
+/* FIXED: Professional hover effect for selection items */
 .experience-selection-item {
   width: 100%;
-  padding: 15px 20px;
+  padding: 18px 24px;
   border: none;
-  border-bottom: 1px solid #e9ecef;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
   background: transparent;
   cursor: pointer;
-  transition: all 0.2s ease;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  display: block;
   text-align: left;
-  color: #333333 !important; /* FORCE BLACK TEXT */
+  color: #333333 !important;
+  position: relative;
+  box-sizing: border-box;
+  min-height: auto;
+  line-height: 1.4;
+  word-wrap: break-word;
+  overflow: hidden;
 }
 
 body.dark-theme .experience-selection-item {
-  border-bottom-color: rgba(255, 255, 255, 0.1);
+  border-bottom-color: rgba(255, 255, 255, 0.06);
   color: #ffffff !important;
 }
 
@@ -758,61 +768,193 @@ body.dark-theme .experience-selection-item {
   border-bottom: none;
 }
 
+/* Professional hover effect - applies to entire item block */
 .experience-selection-item:hover {
-  background: rgba(0, 123, 255, 0.05);
+  background: rgba(0, 123, 255, 0.08) !important;
+  border-bottom-color: rgba(0, 123, 255, 0.2);
+  transform: translateX(4px);
+  box-shadow: 
+    inset 4px 0 0 #007bff,
+    0 2px 8px rgba(0, 123, 255, 0.12);
 }
 
 .experience-selection-item.delete-mode:hover {
-  background: rgba(220, 53, 69, 0.05);
+  background: rgba(220, 53, 69, 0.08) !important;
   color: #dc3545 !important;
+  border-bottom-color: rgba(220, 53, 69, 0.2);
+  box-shadow: 
+    inset 4px 0 0 #dc3545,
+    0 2px 8px rgba(220, 53, 69, 0.12);
 }
 
 body.dark-theme .experience-selection-item:hover {
-  background: rgba(100, 181, 246, 0.1);
+  background: rgba(100, 181, 246, 0.12) !important;
+  border-bottom-color: rgba(100, 181, 246, 0.25);
+  box-shadow: 
+    inset 4px 0 0 #64b5f6,
+    0 2px 8px rgba(100, 181, 246, 0.15);
 }
 
 body.dark-theme .experience-selection-item.delete-mode:hover {
-  background: rgba(244, 67, 54, 0.1);
+  background: rgba(244, 67, 54, 0.12) !important;
   color: #f44336 !important;
+  border-bottom-color: rgba(244, 67, 54, 0.25);
+  box-shadow: 
+    inset 4px 0 0 #f44336,
+    0 2px 8px rgba(244, 67, 54, 0.15);
 }
 
+/* Enhanced experience info container */
 .experience-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
   flex: 1;
+  pointer-events: none;
+  position: relative;
+  z-index: 1;
+  padding-right: 50px;
+}
+
+.experience-info * {
+  pointer-events: auto;
+  user-select: text;
+  cursor: inherit;
+  margin: 0;
+  padding: 0;
+  display: block;
+  width: 100%;
 }
 
 .experience-info h4 {
-  font-size: 1.1rem;
-  font-weight: 600;
-  margin-bottom: 5px;
-  color: inherit;
+  font-size: 1.15rem !important;
+  font-weight: 700 !important;
+  margin-bottom: 4px !important;
+  color: inherit !important;
+  line-height: 1.3 !important;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
 }
 
 .experience-info p {
-  font-size: 0.95rem;
-  color: #666666 !important; /* FORCE GRAY TEXT */
-  margin-bottom: 5px;
+  font-size: 1rem !important;
+  color: #666666 !important;
+  margin-bottom: 4px !important;
+  font-weight: 500 !important;
+  line-height: 1.2 !important;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
 }
 
 body.dark-theme .experience-info p {
-  color: rgba(255, 255, 255, 0.7) !important;
+  color: rgba(255, 255, 255, 0.75) !important;
 }
 
 .experience-info small {
-  font-size: 0.8rem;
-  color: #888888 !important; /* FORCE GRAY TEXT */
+  font-size: 0.85rem !important;
+  color: #888888 !important;
+  font-weight: 400 !important;
+  line-height: 1.2 !important;
+  opacity: 0.9;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
 }
 
 body.dark-theme .experience-info small {
   color: rgba(255, 255, 255, 0.6) !important;
 }
 
+/* Icon styling - positioned to avoid layout interference */
 .experience-selection-item i {
-  font-size: 1.2rem;
-  color: #666666 !important; /* FORCE GRAY ICON */
+  position: absolute;
+  right: 24px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.1rem !important;
+  color: #999999 !important;
+  transition: all 0.25s ease;
+  pointer-events: none;
+  z-index: 2;
 }
 
 body.dark-theme .experience-selection-item i {
-  color: rgba(255, 255, 255, 0.7) !important;
+  color: rgba(255, 255, 255, 0.6) !important;
+}
+
+.experience-selection-item:hover i {
+  color: #007bff !important;
+  transform: translateY(-50%) scale(1.1);
+}
+
+.experience-selection-item.delete-mode:hover i {
+  color: #dc3545 !important;
+}
+
+body.dark-theme .experience-selection-item:hover i {
+  color: #64b5f6 !important;
+}
+
+body.dark-theme .experience-selection-item.delete-mode:hover i {
+  color: #f44336 !important;
+}
+
+/* Focus states for accessibility */
+.experience-selection-item:focus {
+  outline: 2px solid #007bff;
+  outline-offset: -2px;
+  background: rgba(0, 123, 255, 0.1) !important;
+}
+
+.experience-selection-item:focus:not(:hover) {
+  transform: none;
+  box-shadow: inset 4px 0 0 #007bff;
+}
+
+.experience-selection-item:active {
+  transform: translateX(2px);
+  background: rgba(0, 123, 255, 0.12) !important;
+}
+
+.experience-selection-item.delete-mode:active {
+  background: rgba(220, 53, 69, 0.12) !important;
+}
+
+/* Scrollbar styling for better UX */
+.experience-selection-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.experience-selection-list::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 4px;
+}
+
+.experience-selection-list::-webkit-scrollbar-thumb {
+  background: rgba(0, 123, 255, 0.3);
+  border-radius: 4px;
+  transition: background 0.3s ease;
+}
+
+.experience-selection-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 123, 255, 0.5);
+}
+
+body.dark-theme .experience-selection-list::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+body.dark-theme .experience-selection-list::-webkit-scrollbar-thumb {
+  background: rgba(100, 181, 246, 0.3);
+}
+
+body.dark-theme .experience-selection-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(100, 181, 246, 0.5);
 }
 
 .admin-modal-actions {
@@ -1625,31 +1767,4 @@ body:not(.dark-theme) .profile-image-placeholder {
   .admin-modal-container {
     animation: none;
   }
-}
-
-/* Scrollbar styling for experience selection list */
-.experience-selection-list::-webkit-scrollbar {
-  width: 6px;
-}
-
-.experience-selection-list::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.1);
-  border-radius: 3px;
-}
-
-.experience-selection-list::-webkit-scrollbar-thumb {
-  background: rgba(0, 123, 255, 0.3);
-  border-radius: 3px;
-}
-
-.experience-selection-list::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 123, 255, 0.5);
-}
-
-body.dark-theme .experience-selection-list::-webkit-scrollbar-thumb {
-  background: rgba(100, 181, 246, 0.3);
-}
-
-body.dark-theme .experience-selection-list::-webkit-scrollbar-thumb:hover {
-  background: rgba(100, 181, 246, 0.5);
 }

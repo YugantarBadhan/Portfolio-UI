@@ -1,65 +1,94 @@
-<!-- Enhanced Square Project Cards HTML Template with Integrated Admin System -->
+<!-- Enhanced Square Project Cards HTML Template with Know More Modal -->
 <section id="projects" class="projects-section">
   <div class="container">
-    <!-- Section Header - REMOVED Admin Toggle Button -->
+    <!-- Section Header -->
     <div class="section-header">
       <h2 class="section-title">Projects</h2>
     </div>
 
     <!-- Loading State -->
-    <div *ngIf="isLoading()" class="loading-spinner" role="status" aria-label="Loading projects">
+    <div
+      *ngIf="isLoading()"
+      class="loading-spinner"
+      role="status"
+      aria-label="Loading projects"
+    >
       <div class="spinner"></div>
       <p>Loading projects...</p>
     </div>
 
-    <!-- REMOVED: Admin Add Button - Now handled through centralized admin system -->
-
     <!-- Project Form Modal -->
-    <div *ngIf="showForm() && isAdmin()" 
-         class="modal-overlay" 
-         (click)="closeFormOnBackdrop($event)"
-         role="dialog"
-         aria-modal="true"
-         aria-labelledby="form-title">
+    <div
+      *ngIf="showForm() && isAdmin()"
+      class="modal-overlay"
+      (click)="closeFormOnBackdrop($event)"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="form-title"
+    >
       <div class="project-form-container" (click)="$event.stopPropagation()">
         <div class="form-header">
-          <h3 id="form-title">{{ editingId() ? 'Edit Project' : 'Add New Project' }}</h3>
-          <button 
-            class="close-btn" 
+          <h3 id="form-title">
+            {{ editingId() ? "Edit Project" : "Add New Project" }}
+          </h3>
+          <button
+            class="close-btn"
             (click)="closeForm()"
             aria-label="Close form"
-            type="button">×</button>
+            type="button"
+          >
+            ×
+          </button>
         </div>
 
-        <form [formGroup]="projectForm" (ngSubmit)="onSubmit()" class="project-form" novalidate>
+        <form
+          [formGroup]="projectForm"
+          (ngSubmit)="onSubmit()"
+          class="project-form"
+          novalidate
+        >
           <div class="form-row">
             <div class="form-group">
               <label for="title">Project Title *</label>
-              <input 
-                type="text" 
-                id="title" 
+              <input
+                type="text"
+                id="title"
                 formControlName="title"
                 placeholder="Enter project title"
                 maxlength="400"
                 aria-describedby="title-error"
-                [attr.aria-invalid]="projectForm.get('title')?.invalid && projectForm.get('title')?.touched">
-              <div id="title-error" 
-                   *ngIf="projectForm.get('title')?.invalid && projectForm.get('title')?.touched" 
-                   class="error-message" 
-                   role="alert">
-                <span *ngIf="projectForm.get('title')?.errors?.['required']">Project title is required</span>
-                <span *ngIf="projectForm.get('title')?.errors?.['maxlength']">Title cannot exceed 400 characters</span>
+                [attr.aria-invalid]="
+                  projectForm.get('title')?.invalid &&
+                  projectForm.get('title')?.touched
+                "
+              />
+              <div
+                id="title-error"
+                *ngIf="
+                  projectForm.get('title')?.invalid &&
+                  projectForm.get('title')?.touched
+                "
+                class="error-message"
+                role="alert"
+              >
+                <span *ngIf="projectForm.get('title')?.errors?.['required']"
+                  >Project title is required</span
+                >
+                <span *ngIf="projectForm.get('title')?.errors?.['maxlength']"
+                  >Title cannot exceed 400 characters</span
+                >
               </div>
             </div>
 
             <div class="form-group">
               <label for="techStack">Tech Stack</label>
-              <input 
-                type="text" 
-                id="techStack" 
+              <input
+                type="text"
+                id="techStack"
                 formControlName="techStack"
                 placeholder="e.g., Angular, Spring Boot, MySQL"
-                aria-describedby="tech-stack-help">
+                aria-describedby="tech-stack-help"
+              />
               <div id="tech-stack-help" class="github-help-text">
                 List the main technologies used in this project
               </div>
@@ -69,51 +98,77 @@
           <!-- Rich Text Editor for Description -->
           <div class="form-group full-width">
             <label for="description">Description *</label>
-            
+
             <!-- Quill Editor Container -->
-            <div class="quill-editor-container" role="textbox" aria-multiline="true">
-              <div #quillEditor 
-                   class="quill-editor"
-                   aria-label="Project description editor"></div>
+            <div
+              class="quill-editor-container"
+              role="textbox"
+              aria-multiline="true"
+            >
+              <div
+                #quillEditor
+                class="quill-editor"
+                aria-label="Project description editor"
+              ></div>
             </div>
-            
+
             <!-- Fallback textarea (hidden by default) -->
-            <textarea 
-              id="description-fallback" 
+            <textarea
+              id="description-fallback"
               formControlName="description"
               placeholder="Describe your project, its features, and implementation details"
               rows="6"
-              style="display: none;"
+              style="display: none"
               aria-describedby="description-help description-error"
-              [attr.aria-invalid]="projectForm.get('description')?.invalid && projectForm.get('description')?.touched"></textarea>
-              
-            <div id="description-error"
-                 *ngIf="projectForm.get('description')?.invalid && projectForm.get('description')?.touched" 
-                 class="error-message"
-                 role="alert">
+              [attr.aria-invalid]="
+                projectForm.get('description')?.invalid &&
+                projectForm.get('description')?.touched
+              "
+            ></textarea>
+
+            <div
+              id="description-error"
+              *ngIf="
+                projectForm.get('description')?.invalid &&
+                projectForm.get('description')?.touched
+              "
+              class="error-message"
+              role="alert"
+            >
               Description is required
             </div>
-            
+
             <!-- Helper text -->
             <div id="description-help" class="editor-help-text">
-              Use the toolbar above to format your text with bold, italic, lists, and more. Be detailed about your project's features and implementation.
+              Use the toolbar above to format your text with bold, italic,
+              lists, and more. Be detailed about your project's features and
+              implementation.
             </div>
           </div>
 
           <div class="form-row">
             <div class="form-group">
               <label for="githubLink">GitHub Link(s)</label>
-              <input 
-                type="text" 
-                id="githubLink" 
+              <input
+                type="text"
+                id="githubLink"
                 formControlName="githubLink"
                 placeholder="https://github.com/user/repo1, https://github.com/user/repo2"
                 aria-describedby="github-help github-error"
-                [attr.aria-invalid]="projectForm.get('githubLink')?.invalid && projectForm.get('githubLink')?.touched">
-              <div id="github-error"
-                   *ngIf="projectForm.get('githubLink')?.invalid && projectForm.get('githubLink')?.touched" 
-                   class="error-message"
-                   role="alert">
+                [attr.aria-invalid]="
+                  projectForm.get('githubLink')?.invalid &&
+                  projectForm.get('githubLink')?.touched
+                "
+              />
+              <div
+                id="github-error"
+                *ngIf="
+                  projectForm.get('githubLink')?.invalid &&
+                  projectForm.get('githubLink')?.touched
+                "
+                class="error-message"
+                role="alert"
+              >
                 Please enter valid URL(s)
               </div>
               <div id="github-help" class="github-help-text">
@@ -123,17 +178,26 @@
 
             <div class="form-group">
               <label for="liveDemoLink">Live Demo Link</label>
-              <input 
-                type="url" 
-                id="liveDemoLink" 
+              <input
+                type="url"
+                id="liveDemoLink"
                 formControlName="liveDemoLink"
                 placeholder="https://yourproject.com"
                 aria-describedby="demo-help demo-error"
-                [attr.aria-invalid]="projectForm.get('liveDemoLink')?.invalid && projectForm.get('liveDemoLink')?.touched">
-              <div id="demo-error"
-                   *ngIf="projectForm.get('liveDemoLink')?.invalid && projectForm.get('liveDemoLink')?.touched" 
-                   class="error-message"
-                   role="alert">
+                [attr.aria-invalid]="
+                  projectForm.get('liveDemoLink')?.invalid &&
+                  projectForm.get('liveDemoLink')?.touched
+                "
+              />
+              <div
+                id="demo-error"
+                *ngIf="
+                  projectForm.get('liveDemoLink')?.invalid &&
+                  projectForm.get('liveDemoLink')?.touched
+                "
+                class="error-message"
+                role="alert"
+              >
                 Please enter a valid URL
               </div>
               <div id="demo-help" class="github-help-text">
@@ -143,17 +207,33 @@
           </div>
 
           <div class="form-actions">
-            <button 
-              type="button" 
-              class="btn-cancel" 
+            <button
+              type="button"
+              class="btn-cancel"
               (click)="closeForm()"
-              aria-label="Cancel form">Cancel</button>
-            <button 
-              type="submit" 
-              class="btn-submit" 
+              aria-label="Cancel form"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              class="btn-submit"
               [disabled]="!isFormValid || isLoading()"
-              [attr.aria-label]="isLoading() ? 'Saving project...' : (editingId() ? 'Update Project' : 'Create Project')">
-              {{ isLoading() ? 'Saving...' : (editingId() ? 'Update Project' : 'Create Project') }}
+              [attr.aria-label]="
+                isLoading()
+                  ? 'Saving project...'
+                  : editingId()
+                  ? 'Update Project'
+                  : 'Create Project'
+              "
+            >
+              {{
+                isLoading()
+                  ? "Saving..."
+                  : editingId()
+                  ? "Update Project"
+                  : "Create Project"
+              }}
             </button>
           </div>
         </form>
@@ -161,147 +241,336 @@
     </div>
 
     <!-- GitHub Repositories Modal -->
-    <div *ngIf="showGithubRepos()" 
-         class="github-repos-modal" 
-         (click)="closeGithubRepos()"
-         role="dialog"
-         aria-modal="true"
-         aria-labelledby="repos-title">
+    <div
+      *ngIf="showGithubRepos()"
+      class="github-repos-modal"
+      (click)="closeGithubRepos()"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="repos-title"
+    >
       <div class="github-repos-container" (click)="$event.stopPropagation()">
         <div class="repos-header">
           <h3 id="repos-title">Choose Repository</h3>
         </div>
-        
+
         <div class="repos-list" role="list">
-          <a *ngFor="let repo of currentGithubRepos(); let i = index" 
-             [href]="repo.url" 
-             target="_blank" 
-             rel="noopener noreferrer"
-             class="repo-item"
-             role="listitem"
-             [attr.aria-label]="'Open repository: ' + repo.name"
-             (click)="closeGithubRepos()">
+          <a
+            *ngFor="let repo of currentGithubRepos(); let i = index"
+            [href]="repo.url"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="repo-item"
+            role="listitem"
+            [attr.aria-label]="'Open repository: ' + repo.name"
+            (click)="closeGithubRepos()"
+          >
             <i class="fab fa-github" aria-hidden="true"></i>
-            <span>{{ repo.name || 'Repository ' + (i + 1) }}</span>
+            <span>{{ repo.name || "Repository " + (i + 1) }}</span>
           </a>
         </div>
-        
+
         <div class="repos-close">
-          <button 
-            class="repos-close-btn" 
+          <button
+            class="repos-close-btn"
             (click)="closeGithubRepos()"
-            aria-label="Close repository list">Close</button>
+            aria-label="Close repository list"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- NEW: Project Details Modal -->
+    <div
+      *ngIf="showProjectDetails()"
+      class="project-details-modal"
+      (click)="closeProjectDetails()"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="project-details-title"
+    >
+      <div class="project-details-container" (click)="$event.stopPropagation()">
+        <!-- Creative Modal Header -->
+        <div class="modal-header">
+          <div class="modal-header-content">
+            <h2 id="project-details-title" class="modal-title">
+              {{ selectedProject()?.title }}
+            </h2>
+            <button
+              class="modal-close-btn"
+              (click)="closeProjectDetails()"
+              aria-label="Close project details"
+              type="button"
+            >
+              <i class="fas fa-times" aria-hidden="true"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Scrollable Modal Content -->
+        <div class="modal-body">
+          <div class="modal-content-scroll">
+            <!-- Project Description Section -->
+            <div class="modal-section">
+              <h3 class="modal-section-title">
+                <i class="fas fa-info-circle" aria-hidden="true"></i>
+                Project Details
+              </h3>
+              <div
+                class="project-full-description"
+                [innerHTML]="selectedProject()?.description | safeHtml"
+                role="article"
+                [attr.aria-label]="
+                  'Full description of ' + selectedProject()?.title
+                "
+              ></div>
+            </div>
+
+            <!-- Tech Stack Section -->
+            <div class="modal-section" *ngIf="selectedProject()?.techStack">
+              <h3 class="modal-section-title">
+                <i class="fas fa-tools" aria-hidden="true"></i>
+                Technology Stack
+              </h3>
+              <div class="modal-tech-stack">
+                <p
+                  class="modal-tech-stack-content"
+                  [attr.aria-label]="
+                    'Technologies used: ' + selectedProject()?.techStack
+                  "
+                >
+                  {{ selectedProject()?.techStack }}
+                </p>
+              </div>
+            </div>
+
+            <!-- Project Links Section -->
+            <div
+              class="modal-section"
+              *ngIf="
+                selectedProject()?.githubLink || selectedProject()?.liveDemoLink
+              "
+            >
+              <h3 class="modal-section-title">
+                <i class="fas fa-external-link-alt" aria-hidden="true"></i>
+                Project Links
+              </h3>
+              <div class="modal-project-links">
+                <!-- GitHub Links -->
+                <ng-container *ngIf="selectedProject()?.githubLink">
+                  <!-- Single GitHub repo -->
+                  <a
+                    *ngIf="
+                      !hasMultipleGithubRepos(selectedProject()?.githubLink!)
+                    "
+                    [href]="selectedProject()?.githubLink"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="modal-project-link modal-github-link"
+                    [attr.aria-label]="
+                      'View source code for ' +
+                      selectedProject()?.title +
+                      ' on GitHub'
+                    "
+                  >
+                    <i class="fab fa-github" aria-hidden="true"></i>
+                    <span>View on GitHub</span>
+                  </a>
+
+                  <!-- Multiple GitHub repos -->
+                  <button
+                    *ngIf="
+                      hasMultipleGithubRepos(selectedProject()?.githubLink!)
+                    "
+                    class="modal-project-link modal-github-link"
+                    (click)="openGithubRepos(selectedProject()?.githubLink!)"
+                    type="button"
+                    [attr.aria-label]="
+                      'View ' +
+                      getGithubRepoCount(selectedProject()?.githubLink!) +
+                      ' repositories for ' +
+                      selectedProject()?.title
+                    "
+                  >
+                    <i class="fab fa-github" aria-hidden="true"></i>
+                    <span
+                      >GitHub Repos ({{
+                        getGithubRepoCount(selectedProject()?.githubLink!)
+                      }})</span
+                    >
+                  </button>
+                </ng-container>
+
+                <!-- Live Demo Link -->
+                <a
+                  *ngIf="selectedProject()?.liveDemoLink"
+                  [href]="selectedProject()?.liveDemoLink"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="modal-project-link modal-demo-link"
+                  [attr.aria-label]="
+                    'View live demo of ' + selectedProject()?.title
+                  "
+                >
+                  <i class="fas fa-external-link-alt" aria-hidden="true"></i>
+                  <span>Live Demo</span>
+                </a>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
 
     <!-- Full-Screen Square Projects Carousel -->
     <div *ngIf="!isLoading()" class="projects-carousel-container">
-      
       <!-- No Projects Message -->
       <div *ngIf="projects().length === 0" class="no-projects" role="status">
         <p>No projects found.</p>
       </div>
 
       <!-- Carousel with Navigation -->
-      <div *ngIf="projects().length > 0" class="carousel-wrapper" role="region" aria-label="Projects carousel">
-        
+      <div
+        *ngIf="projects().length > 0"
+        class="carousel-wrapper"
+        role="region"
+        aria-label="Projects carousel"
+      >
         <!-- Left Navigation Arrow -->
-        <button 
+        <button
           class="carousel-nav carousel-nav-left"
           (click)="scrollCarousel('left')"
           [class.disabled]="!canScrollLeft()"
           [disabled]="!canScrollLeft()"
-          [attr.aria-label]="canScrollLeft() ? 'Previous projects' : 'No previous projects'"
-          type="button">
+          [attr.aria-label]="
+            canScrollLeft() ? 'Previous projects' : 'No previous projects'
+          "
+          type="button"
+        >
           <i class="fas fa-chevron-left" aria-hidden="true"></i>
         </button>
 
         <!-- Projects Scroll Container -->
         <div class="projects-scroll-container" role="main">
-          <div class="projects-grid" 
-               #projectsGrid
-               [style.transform]="'translateX(' + currentTranslateX() + 'px)'"
-               role="list"
-               aria-label="Project cards">
-            
-            <div *ngFor="let project of projects(); trackBy: trackByProjectId" 
-                 class="project-card"
-                 role="listitem"
-                 [attr.data-project-id]="project.id"
-                 [attr.aria-label]="'Project: ' + project.title">
-              
+          <div
+            class="projects-grid"
+            #projectsGrid
+            [style.transform]="'translateX(' + currentTranslateX() + 'px)'"
+            role="list"
+            aria-label="Project cards"
+          >
+            <div
+              *ngFor="let project of projects(); trackBy: trackByProjectId"
+              class="project-card"
+              role="listitem"
+              [attr.data-project-id]="project.id"
+              [attr.aria-label]="'Project: ' + project.title"
+            >
               <div class="card-header">
                 <div class="project-info">
-                  <h3 class="project-title" [id]="'project-title-' + project.id">{{ project.title }}</h3>
+                  <h3
+                    class="project-title"
+                    [id]="'project-title-' + project.id"
+                  >
+                    {{ project.title }}
+                  </h3>
                 </div>
-                
-                <!-- REMOVED: Admin Actions from Cards - Now handled through centralized admin system -->
               </div>
 
               <div class="card-body">
-                <!-- Project Description with Read More/Less functionality -->
-                <div class="description" 
-                     [class.collapsed]="!isDescriptionExpanded(project.id)"
-                     [class.expanded]="isDescriptionExpanded(project.id)"
-                     [innerHTML]="project.description | safeHtml"
-                     [attr.aria-expanded]="isDescriptionExpanded(project.id)"
-                     [attr.aria-labelledby]="'project-title-' + project.id"
-                     role="region"></div>
-                
-                <!-- Read More/Less Button -->
-                <button *ngIf="shouldShowReadMore(project.description)" 
-                        class="read-more-btn" 
-                        (click)="toggleDescription(project.id)"
-                        type="button"
-                        [attr.aria-label]="isDescriptionExpanded(project.id) ? 'Show less description for ' + project.title : 'Show more description for ' + project.title"
-                        [attr.aria-expanded]="isDescriptionExpanded(project.id)">
-                  {{ isDescriptionExpanded(project.id) ? 'Read Less' : 'Read More...' }}
+                <!-- Project Description Preview - NO SCROLLING -->
+                <div
+                  class="description-preview"
+                  [innerHTML]="
+                    getDescriptionPreview(project.description) | safeHtml
+                  "
+                  [attr.aria-labelledby]="'project-title-' + project.id"
+                  role="region"
+                ></div>
+
+                <!-- Know More Button -->
+                <button
+                  class="know-more-btn"
+                  (click)="openProjectDetails(project)"
+                  type="button"
+                  [attr.aria-label]="'Learn more about ' + project.title"
+                >
+                  <i class="fas fa-arrow-right" aria-hidden="true"></i>
+                  <span>Know More</span>
                 </button>
-                
+
                 <!-- Tech Stack -->
-                <div class="tech-stack-section" *ngIf="project.techStack" role="complementary">
+                <div
+                  class="tech-stack-section"
+                  *ngIf="project.techStack"
+                  role="complementary"
+                >
                   <strong>Tech Stack:</strong>
-                  <div class="tech-stack" [attr.aria-label]="'Technologies used: ' + project.techStack">
+                  <div
+                    class="tech-stack"
+                    [attr.aria-label]="
+                      'Technologies used: ' + project.techStack
+                    "
+                  >
                     {{ project.techStack }}
                   </div>
                 </div>
-                
+
                 <!-- Project Links -->
-                <div class="project-links" 
-                     *ngIf="project.githubLink || project.liveDemoLink"
-                     role="navigation"
-                     aria-label="Project links">
-                  
+                <div
+                  class="project-links"
+                  *ngIf="project.githubLink || project.liveDemoLink"
+                  role="navigation"
+                  aria-label="Project links"
+                >
                   <ng-container *ngIf="project.githubLink">
                     <!-- Single GitHub repo -->
-                    <a *ngIf="!hasMultipleGithubRepos(project.githubLink)" 
-                       [href]="project.githubLink" 
-                       target="_blank" 
-                       rel="noopener noreferrer" 
-                       class="project-link github-link"
-                       [attr.aria-label]="'View source code for ' + project.title + ' on GitHub'">
+                    <a
+                      *ngIf="!hasMultipleGithubRepos(project.githubLink)"
+                      [href]="project.githubLink"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="project-link github-link"
+                      [attr.aria-label]="
+                        'View source code for ' + project.title + ' on GitHub'
+                      "
+                    >
                       <i class="fab fa-github" aria-hidden="true"></i>
                       <span>GitHub</span>
                     </a>
-                    
+
                     <!-- Multiple GitHub repos -->
-                    <button *ngIf="hasMultipleGithubRepos(project.githubLink)" 
-                            class="project-link github-link"
-                            (click)="openGithubRepos(project.githubLink)"
-                            type="button"
-                            [attr.aria-label]="'View ' + getGithubRepoCount(project.githubLink) + ' repositories for ' + project.title">
+                    <button
+                      *ngIf="hasMultipleGithubRepos(project.githubLink)"
+                      class="project-link github-link"
+                      (click)="openGithubRepos(project.githubLink)"
+                      type="button"
+                      [attr.aria-label]="
+                        'View ' +
+                        getGithubRepoCount(project.githubLink) +
+                        ' repositories for ' +
+                        project.title
+                      "
+                    >
                       <i class="fab fa-github" aria-hidden="true"></i>
-                      <span>GitHub ({{ getGithubRepoCount(project.githubLink) }})</span>
+                      <span
+                        >GitHub ({{
+                          getGithubRepoCount(project.githubLink)
+                        }})</span
+                      >
                     </button>
                   </ng-container>
-                  
-                  <a *ngIf="project.liveDemoLink" 
-                     [href]="project.liveDemoLink" 
-                     target="_blank" 
-                     rel="noopener noreferrer" 
-                     class="project-link demo-link"
-                     [attr.aria-label]="'View live demo of ' + project.title">
+
+                  <a
+                    *ngIf="project.liveDemoLink"
+                    [href]="project.liveDemoLink"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="project-link demo-link"
+                    [attr.aria-label]="'View live demo of ' + project.title"
+                  >
                     <i class="fas fa-external-link-alt" aria-hidden="true"></i>
                     <span>Live Demo</span>
                   </a>
@@ -312,23 +581,28 @@
         </div>
 
         <!-- Right Navigation Arrow -->
-        <button 
+        <button
           class="carousel-nav carousel-nav-right"
           (click)="scrollCarousel('right')"
           [class.disabled]="!canScrollRight()"
           [disabled]="!canScrollRight()"
-          [attr.aria-label]="canScrollRight() ? 'Next projects' : 'No more projects'"
-          type="button">
+          [attr.aria-label]="
+            canScrollRight() ? 'Next projects' : 'No more projects'
+          "
+          type="button"
+        >
           <i class="fas fa-chevron-right" aria-hidden="true"></i>
         </button>
       </div>
 
       <!-- Enhanced Carousel Indicators -->
-      <div *ngIf="projects().length > 0 && shouldShowIndicators()" 
-           class="carousel-indicators"
-           role="tablist"
-           aria-label="Carousel navigation">
-        <button 
+      <div
+        *ngIf="projects().length > 0 && shouldShowIndicators()"
+        class="carousel-indicators"
+        role="tablist"
+        aria-label="Carousel navigation"
+      >
+        <button
           *ngFor="let indicator of getCarouselIndicators(); let i = index"
           class="carousel-indicator"
           [class.active]="i === currentIndicatorIndex()"
@@ -336,8 +610,8 @@
           [attr.aria-label]="'Go to page ' + (i + 1)"
           [attr.aria-selected]="i === currentIndicatorIndex()"
           role="tab"
-          type="button">
-        </button>
+          type="button"
+        ></button>
       </div>
     </div>
   </div>
@@ -346,9 +620,16 @@
 <!-- Additional accessibility improvements -->
 <div class="sr-only" aria-live="polite" aria-atomic="true">
   <span *ngIf="isLoading()">Loading projects, please wait...</span>
-  <span *ngIf="!isLoading() && projects().length === 0">No projects available to display.</span>
+  <span *ngIf="!isLoading() && projects().length === 0"
+    >No projects available to display.</span
+  >
   <span *ngIf="!isLoading() && projects().length > 0">
-    {{ projects().length }} project{{ projects().length === 1 ? '' : 's' }} loaded successfully.
+    {{ projects().length }} project{{ projects().length === 1 ? "" : "s" }}
+    loaded successfully.
+  </span>
+  <span *ngIf="showProjectDetails() && selectedProject()">
+    Project details for {{ selectedProject()?.title }} are now displayed in a
+    modal.
   </span>
 </div>
 
@@ -362,8 +643,10 @@
 
   .carousel-nav:focus,
   .carousel-indicator:focus,
-  .read-more-btn:focus,
-  .project-link:focus {
+  .know-more-btn:focus,
+  .project-link:focus,
+  .modal-close-btn:focus,
+  .modal-project-link:focus {
     outline: 2px solid #007bff;
     outline-offset: 2px;
   }
@@ -387,7 +670,10 @@
     .project-card,
     .carousel-nav,
     .carousel-indicator,
-    .read-more-btn {
+    .know-more-btn,
+    .project-details-modal,
+    .project-details-container,
+    .modal-header::before {
       transition: none !important;
       animation: none !important;
     }
@@ -395,18 +681,20 @@
 
   /* High contrast mode support */
   @media (prefers-contrast: high) {
-    .project-card {
+    .project-card,
+    .project-details-container {
       border: 2px solid currentColor !important;
     }
-    
+
     .carousel-nav,
     .carousel-indicator {
       border: 2px solid currentColor !important;
       background: ButtonFace !important;
       color: ButtonText !important;
     }
-    
-    .project-link {
+
+    .project-link,
+    .know-more-btn {
       border: 1px solid currentColor !important;
     }
   }

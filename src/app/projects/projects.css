@@ -1,4 +1,4 @@
-/* Enhanced Square Project Cards with Full Screen Layout - Fixed GitHub Button */
+/* Enhanced Square Project Cards with Enterprise Know More Modal - Enterprise Theme Compatible */
 
 /* Projects Section - Full Screen Optimized */
 .projects-section {
@@ -38,45 +38,6 @@
   flex: 1;
 }
 
-/* .admin-controls {
-  position: absolute;
-  top: 50%;
-  right: 2rem;
-  transform: translateY(-50%);
-} 
-
-.admin-toggle-btn {
-  background: rgba(0, 123, 255, 0.2);
-  border: none;
-  color: white;
-  padding: 12px 24px;
-  border-radius: 25px;
-  cursor: pointer;
-  font-size: 1rem;
-  font-weight: 600;
-  transition: all 0.3s ease;
-  backdrop-filter: blur(10px);
-} */
-
-/* .admin-controls {
-  position: absolute;
-  top: 0;
-  right: 0;
-}
-
-.admin-toggle-btn {
-  background: rgba(0, 123, 255, 0.2);
-  border: none;
-  color: white;
-  padding: 10px 20px;
-  border-radius: 20px;
-  cursor: pointer;
-  font-size: 0.9rem;
-  font-weight: 600;
-  transition: all 0.3s ease;
-  backdrop-filter: blur(10px);
-} */
-
 .admin-controls {
   position: absolute;
   top: 50%;
@@ -85,7 +46,7 @@
 }
 
 .admin-toggle-btn {
-  background: rgba(0, 123, 255, 0.2); /* 20% visibility */
+  background: rgba(0, 123, 255, 0.2);
   border: none;
   color: white;
   padding: 12px 24px;
@@ -292,7 +253,7 @@ body:not(.dark-theme) .carousel-nav:hover:not(.disabled) {
   display: flex;
   flex-direction: row;
   gap: 2rem;
-  transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  transition: transform 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   will-change: transform;
   align-items: stretch;
   height: 100%;
@@ -323,7 +284,7 @@ body:not(.dark-theme) .no-projects {
   border-color: rgba(255, 255, 255, 0.35);
 }
 
-/* PERFECT SQUARE PROJECT CARDS - FIXED BLUR ISSUE */
+/* PERFECT SQUARE PROJECT CARDS - ENHANCED FOR KNOW MORE */
 .project-card {
   background: #ffffff !important;
   border: none !important;
@@ -331,9 +292,7 @@ body:not(.dark-theme) .no-projects {
   padding: 32px !important;
   position: relative;
   color: #333333 !important;
-  /* FIXED: Use optimized transitions and force hardware acceleration without blur */
-  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), 
-              box-shadow 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -347,56 +306,46 @@ body:not(.dark-theme) .no-projects {
   max-height: 450px !important;
   flex-shrink: 0;
   
-  box-shadow: 
-    0 8px 25px rgba(0, 0, 0, 0.08),
-    0 15px 35px rgba(0, 0, 0, 0.05),
-    0 0 0 1px rgba(0, 0, 0, 0.04);
-  
-  /* CRITICAL: Force hardware acceleration and prevent blur */
   -webkit-transform: translateZ(0);
   transform: translateZ(0);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   backface-visibility: hidden;
   perspective: 1000px;
-  /* Force crisp text rendering */
   text-rendering: optimizeLegibility;
   -webkit-text-stroke: 0.01px transparent;
 }
 
-/* Force square aspect ratio with CSS */
 .project-card::before {
   content: '';
   display: block;
   width: 100%;
-  padding-top: 100%; /* This creates a 1:1 aspect ratio */
+  padding-top: 100%;
   position: absolute;
   top: 0;
   left: 0;
   z-index: -1;
 }
 
-body.dark-theme .project-card {
+/* body.dark-theme .project-card {
   background: #ffffff !important;
   color: #333333 !important;
   box-shadow: 
     0 12px 35px rgba(0, 0, 0, 0.15),
     0 20px 45px rgba(0, 0, 0, 0.08),
     0 0 0 1px rgba(0, 0, 0, 0.06);
-}
+} */
 
-body:not(.dark-theme) .project-card {
+/* body:not(.dark-theme) .project-card {
   background: #ffffff !important;
   color: #333333 !important;
   box-shadow: 
     0 8px 25px rgba(0, 0, 0, 0.1),
     0 15px 35px rgba(0, 0, 0, 0.06),
     0 0 0 1px rgba(0, 0, 0, 0.04);
-}
+} */
 
-/* FIXED: Optimized hover state to prevent blur */
-.project-card:hover {
-  /* Use only translateY to prevent blur, removed scale */
+/* .project-card:hover {
   transform: translateY(-12px) translateZ(0);
   box-shadow: 
     0 20px 50px rgba(0, 0, 0, 0.15),
@@ -404,34 +353,31 @@ body:not(.dark-theme) .project-card {
     0 0 0 1px rgba(0, 0, 0, 0.06);
   border: none !important;
   
-  /* Ensure text stays crisp during hover */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
-}
+} */
 
-body.dark-theme .project-card:hover {
+/* body.dark-theme .project-card:hover {
   box-shadow: 
     0 25px 60px rgba(0, 0, 0, 0.25),
     0 35px 70px rgba(0, 0, 0, 0.15),
     0 0 0 1px rgba(0, 0, 0, 0.08);
-}
+} */
 
-body:not(.dark-theme) .project-card:hover {
+/* body:not(.dark-theme) .project-card:hover {
   box-shadow: 
     0 20px 50px rgba(0, 0, 0, 0.15),
     0 30px 60px rgba(0, 0, 0, 0.1),
     0 0 0 1px rgba(0, 0, 0, 0.06);
-}
+} */
 
-/* Remove all inherited styling issues */
 .project-card *,
 body.dark-theme .project-card *,
 body:not(.dark-theme) .project-card * {
   color: inherit !important;
   text-shadow: none !important;
   border: none !important;
-  /* Ensure all child elements are also crisp */
   -webkit-font-smoothing: inherit;
   -moz-osx-font-smoothing: inherit;
   text-rendering: inherit;
@@ -474,7 +420,6 @@ body:not(.dark-theme) .project-card * {
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
-  /* Ensure title stays crisp */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
@@ -501,7 +446,6 @@ body:not(.dark-theme) .project-card * {
   position: relative;
   font-family: Arial, sans-serif;
   font-weight: normal;
-  /* Prevent blur on action buttons */
   -webkit-transform: translateZ(0);
   transform: translateZ(0);
   backface-visibility: hidden;
@@ -545,10 +489,10 @@ body:not(.dark-theme) .project-card * {
   overflow: hidden;
 }
 
-/* Description - Optimized for Square Cards with Crisp Text */
-.project-card .card-body .description,
-body.dark-theme .project-card .card-body .description,
-body:not(.dark-theme) .project-card .card-body .description {
+/* ENHANCED DESCRIPTION PREVIEW - NO SCROLLING */
+.project-card .card-body .description-preview,
+body.dark-theme .project-card .card-body .description-preview,
+body:not(.dark-theme) .project-card .card-body .description-preview {
   font-size: 1.1rem !important;
   line-height: 1.6 !important;
   margin-bottom: 20px !important;
@@ -561,26 +505,18 @@ body:not(.dark-theme) .project-card .card-body .description {
   text-align: justify;
   flex: 1;
   overflow: hidden;
-  transition: all 0.3s ease;
-  max-height: 8em; /* Show more content by default */
-  /* Ensure description text is always crisp */
+  max-height: 6.4em !important; /* Fixed height to show ~4 lines */
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
   -webkit-text-stroke: 0.01px transparent;
 }
 
-/* Description States for Square Layout */
-.description.collapsed {
-  max-height: 8em !important; /* Increased from 6.4em to show more content */
-  overflow: hidden;
-  display: -webkit-box;
-  -webkit-line-clamp: 5; /* Increased from 4 to 5 lines */
-  -webkit-box-orient: vertical;
-  position: relative;
-}
-
-.description.collapsed::after {
+/* Fade effect for description preview */
+.description-preview::after {
   content: '';
   position: absolute;
   bottom: 0;
@@ -591,68 +527,29 @@ body:not(.dark-theme) .project-card .card-body .description {
   pointer-events: none;
 }
 
-.description.expanded {
-  max-height: 200px !important;
-  overflow-y: auto !important;
-  -webkit-line-clamp: none;
-  -webkit-box-orient: initial;
-  display: block !important;
-  border: 2px solid #f0f0f0;
-  border-radius: 12px;
-  padding: 16px;
-  margin-bottom: 12px;
-  background: rgba(248, 249, 250, 0.5);
-  
-  /* Enhanced scrollbar for square cards */
-  scrollbar-width: thin;
-  scrollbar-color: #007bff #f8fafc;
-}
-
-.description.expanded::-webkit-scrollbar {
-  width: 8px;
-}
-
-.description.expanded::-webkit-scrollbar-track {
-  background: #f8fafc;
-  border-radius: 4px;
-  box-shadow: inset 0 0 3px rgba(0,0,0,0.1);
-}
-
-.description.expanded::-webkit-scrollbar-thumb {
-  background: linear-gradient(45deg, #007bff, #0056b3);
-  border-radius: 4px;
-  transition: background 0.3s ease;
-  min-height: 25px;
-}
-
-.description.expanded::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(45deg, #0056b3, #004494);
-}
-
-.description.expanded::after {
-  display: none;
-}
-
-/* Enhanced Read More/Less Button for Square Cards */
-.read-more-btn {
-  background: linear-gradient(135deg, #007bff, #0056b3);
-  border: none;
+/* ENTERPRISE PROFESSIONAL KNOW MORE BUTTON */
+.know-more-btn {
+  background: linear-gradient(135deg, #495057, #6c757d);
+  border: 2px solid #6c757d;
   color: white !important;
   cursor: pointer;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   font-weight: 600;
-  padding: 8px 16px;
+  padding: 12px 20px;
   margin: 12px 0;
   text-align: center;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   flex-shrink: 0;
-  border-radius: 18px;
-  box-shadow: 0 3px 8px rgba(0, 123, 255, 0.25);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(73, 80, 87, 0.2);
   position: relative;
   overflow: hidden;
-  min-width: 120px;
+  min-width: 140px;
   align-self: center;
-  /* Prevent blur on read more button */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   -webkit-transform: translateZ(0);
   transform: translateZ(0);
   backface-visibility: hidden;
@@ -660,87 +557,55 @@ body:not(.dark-theme) .project-card .card-body .description {
   -moz-osx-font-smoothing: grayscale;
 }
 
-.read-more-btn:hover {
-  background: linear-gradient(135deg, #0056b3, #004494);
-  transform: translateY(-2px) translateZ(0);
-  box-shadow: 0 6px 15px rgba(0, 123, 255, 0.35);
+.know-more-btn:hover {
+  background: linear-gradient(135deg, #343a40, #495057);
+  border-color: #495057;
+  transform: translateY(-2px) scale(1.02) translateZ(0);
+  box-shadow: 0 4px 15px rgba(73, 80, 87, 0.3);
   text-decoration: none;
 }
 
-.read-more-btn:active {
-  transform: translateY(0) translateZ(0);
-  box-shadow: 0 3px 8px rgba(0, 123, 255, 0.25);
+.know-more-btn:active {
+  transform: translateY(-1px) scale(1.01) translateZ(0);
+  box-shadow: 0 2px 8px rgba(73, 80, 87, 0.25);
 }
 
-/* Theme adjustments for read more button */
-body.dark-theme .read-more-btn {
-  background: linear-gradient(135deg, #64b5f6, #42a5f5);
-  box-shadow: 0 3px 8px rgba(100, 181, 246, 0.25);
+.know-more-btn i {
+  font-size: 0.9rem;
+  transition: transform 0.3s ease;
 }
 
-body.dark-theme .read-more-btn:hover {
-  background: linear-gradient(135deg, #42a5f5, #2196f3);
-  box-shadow: 0 6px 15px rgba(100, 181, 246, 0.35);
+.know-more-btn:hover i {
+  transform: translateX(3px);
 }
 
-body:not(.dark-theme) .read-more-btn {
-  background: linear-gradient(135deg, #667eea, #764ba2);
-  box-shadow: 0 3px 8px rgba(102, 126, 234, 0.25);
+/* Theme adjustments for know more button */
+body.dark-theme .know-more-btn {
+  background: linear-gradient(135deg, #6c757d, #adb5bd);
+  border-color: #6c757d;
+  color: #212529 !important;
+  box-shadow: 0 2px 8px rgba(108, 117, 125, 0.2);
 }
 
-body:not(.dark-theme) .read-more-btn:hover {
-  background: linear-gradient(135deg, #5a67d8, #6b46c1);
-  box-shadow: 0 6px 15px rgba(102, 126, 234, 0.35);
+body.dark-theme .know-more-btn:hover {
+  background: linear-gradient(135deg, #495057, #6c757d);
+  border-color: #495057;
+  color: white !important;
+  box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
 }
 
-/* Rich Text Elements in Description - All Crisp */
-.project-card .description h1,
-.project-card .description h2,
-.project-card .description h3 {
-  color: #2c2c2c !important;
-  margin: 0.6em 0 !important;
-  font-weight: 700 !important;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeLegibility;
+body:not(.dark-theme) .know-more-btn {
+  background: linear-gradient(135deg, #495057, #6c757d);
+  border-color: #6c757d;
+  color: white !important;
+  box-shadow: 0 2px 8px rgba(73, 80, 87, 0.2);
 }
 
-.project-card .description h1 { font-size: 1.5em !important; }
-.project-card .description h2 { font-size: 1.3em !important; }
-.project-card .description h3 { font-size: 1.15em !important; }
-
-.project-card .description strong {
-  font-weight: 700 !important;
-  color: #222 !important;
-}
-
-.project-card .description em {
-  font-style: italic !important;
-  color: #555 !important;
-}
-
-.project-card .description ul,
-.project-card .description ol {
-  margin: 0.6em 0 !important;
-  padding-left: 1.5em !important;
-}
-
-.project-card .description li {
-  margin-bottom: 0.3em !important;
-  line-height: 1.5 !important;
-}
-
-.project-card .description p {
-  margin-bottom: 0.6em !important;
-}
-
-.project-card .description a {
-  color: #007bff !important;
-  text-decoration: underline !important;
-}
-
-.project-card .description a:hover {
-  color: #0056b3 !important;
+body:not(.dark-theme) .know-more-btn:hover {
+  background: linear-gradient(135deg, #343a40, #495057);
+  border-color: #495057;
+  color: white !important;
+  box-shadow: 0 4px 15px rgba(73, 80, 87, 0.3);
 }
 
 /* Tech Stack Section - Square Card Optimized */
@@ -770,17 +635,406 @@ body:not(.dark-theme) .project-card .tech-stack-section strong {
   color: #666666 !important;
   font-style: italic;
   padding: 10px 16px !important;
-  background: linear-gradient(135deg, rgba(0, 123, 255, 0.05), rgba(0, 123, 255, 0.08)) !important;
+  background: linear-gradient(135deg, rgba(73, 80, 87, 0.05), rgba(73, 80, 87, 0.08)) !important;
   border-radius: 12px !important;
-  border-left: 4px solid #007bff !important;
-  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.1);
+  border-left: 4px solid #6c757d !important;
+  box-shadow: 0 2px 8px rgba(73, 80, 87, 0.1);
 }
 
 /* ================================ */
-/* PROFESSIONAL GITHUB & LIVE DEMO BUTTONS - FIXED */
+/* PROJECT DETAILS MODAL - ENTERPRISE PROFESSIONAL THEME */
 /* ================================ */
 
-/* Project Links Section - Enhanced Professional Layout */
+.project-details-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(12px);
+  z-index: 15000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: modalFadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  padding: 20px;
+}
+
+@keyframes modalFadeIn {
+  from { 
+    opacity: 0; 
+    backdrop-filter: blur(0px);
+  }
+  to { 
+    opacity: 1; 
+    backdrop-filter: blur(12px);
+  }
+}
+
+.project-details-container {
+  background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
+  border-radius: 16px;
+  padding: 0;
+  max-width: 900px;
+  width: 100%;
+  max-height: 90vh;
+  position: relative;
+  animation: modalSlideIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 
+    0 20px 40px rgba(0, 0, 0, 0.15),
+    0 10px 20px rgba(0, 0, 0, 0.1),
+    0 0 0 1px rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+body.dark-theme .project-details-container {
+  background: linear-gradient(145deg, #ffffff 0%, #f1f5f9 100%);
+  box-shadow: 
+    0 25px 50px rgba(0, 0, 0, 0.25),
+    0 15px 30px rgba(0, 0, 0, 0.15),
+    0 0 0 1px rgba(0, 0, 0, 0.1);
+  border-color: rgba(0, 0, 0, 0.15);
+}
+
+@keyframes modalSlideIn {
+  from { 
+    opacity: 0;
+    transform: scale(0.9) translateY(-20px);
+  }
+  to { 
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* ENTERPRISE MODAL HEADER - PROFESSIONAL DESIGN */
+.modal-header {
+  padding: 25px 35px 20px;
+  background: linear-gradient(135deg, #495057 0%, #6c757d 100%);
+  color: white;
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 0;
+  border-bottom: 2px solid #dee2e6;
+}
+
+body.dark-theme .modal-header {
+  background: linear-gradient(135deg, #343a40 0%, #495057 100%);
+  border-bottom-color: #6c757d;
+}
+
+.modal-header-content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.modal-title {
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin: 0;
+  line-height: 1.3;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  flex: 1;
+  color: white !important;
+}
+
+.modal-close-btn {
+  background: rgba(255, 255, 255, 0.15);
+  border: 2px solid rgba(255, 255, 255, 0.25);
+  color: white;
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1.2rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(10px);
+  flex-shrink: 0;
+}
+
+.modal-close-btn:hover {
+  background: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.4);
+  transform: scale(1.05);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* Modal Body - Scrollable Content */
+.modal-body {
+  padding: 0;
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-content-scroll {
+  padding: 30px 35px;
+  overflow-y: auto;
+  flex: 1;
+  scroll-behavior: smooth;
+  
+  /* Enhanced Custom Scrollbar */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(108, 117, 125, 0.6) rgba(248, 250, 252, 0.5);
+}
+
+.modal-content-scroll::-webkit-scrollbar {
+  width: 8px;
+}
+
+.modal-content-scroll::-webkit-scrollbar-track {
+  background: #f1f3f4;
+  border-radius: 4px;
+}
+
+.modal-content-scroll::-webkit-scrollbar-thumb {
+  background: linear-gradient(45deg, #6c757d, #adb5bd);
+  border-radius: 4px;
+  transition: all 0.3s ease;
+  box-shadow: 0 1px 3px rgba(108, 117, 125, 0.3);
+}
+
+.modal-content-scroll::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(45deg, #495057, #6c757d);
+  box-shadow: 0 2px 6px rgba(108, 117, 125, 0.4);
+}
+
+/* Modal Content Sections */
+.modal-section {
+  margin-bottom: 30px;
+}
+
+.modal-section-title {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #212529 !important;
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.modal-section-title i {
+  color: #6c757d;
+  font-size: 1.1rem;
+}
+
+.modal-section-title::after {
+  content: '';
+  flex: 1;
+  height: 2px;
+  background: linear-gradient(90deg, #6c757d, transparent);
+  margin-left: 15px;
+}
+
+/* Project Description in Modal */
+.project-full-description {
+  font-size: 1.1rem;
+  line-height: 1.7;
+  color: #495057 !important;
+  background: rgba(248, 249, 250, 0.8);
+  padding: 25px;
+  border-radius: 12px;
+  border-left: 4px solid #6c757d;
+  box-shadow: 0 2px 8px rgba(108, 117, 125, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.project-full-description::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #6c757d, #adb5bd);
+}
+
+/* Rich text elements in modal description */
+.project-full-description h1,
+.project-full-description h2,
+.project-full-description h3 {
+  color: #212529 !important;
+  margin: 1.5em 0 0.8em !important;
+  font-weight: 700 !important;
+  line-height: 1.3;
+}
+
+.project-full-description h1 { font-size: 1.6em !important; }
+.project-full-description h2 { font-size: 1.4em !important; }
+.project-full-description h3 { font-size: 1.2em !important; }
+
+.project-full-description strong {
+  font-weight: 700 !important;
+  color: #212529 !important;
+}
+
+.project-full-description em {
+  font-style: italic !important;
+  color: #6c757d !important;
+}
+
+.project-full-description ul,
+.project-full-description ol {
+  margin: 1em 0 !important;
+  padding-left: 2em !important;
+}
+
+.project-full-description li {
+  margin-bottom: 0.5em !important;
+  line-height: 1.6 !important;
+  color: #495057 !important;
+}
+
+.project-full-description p {
+  margin-bottom: 1em !important;
+  color: #495057 !important;
+}
+
+.project-full-description a {
+  color: #495057 !important;
+  text-decoration: underline !important;
+  transition: color 0.3s ease;
+}
+
+.project-full-description a:hover {
+  color: #343a40 !important;
+  text-decoration: none !important;
+}
+
+/* Tech Stack in Modal */
+.modal-tech-stack {
+  background: linear-gradient(135deg, rgba(108, 117, 125, 0.08), rgba(173, 181, 189, 0.08));
+  padding: 20px;
+  border-radius: 12px;
+  border: 2px solid rgba(108, 117, 125, 0.15);
+  position: relative;
+  overflow: hidden;
+}
+
+.modal-tech-stack::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #6c757d, #adb5bd);
+}
+
+.modal-tech-stack-content {
+  font-size: 1.1rem;
+  color: #6c757d !important;
+  font-weight: 500;
+  line-height: 1.6;
+  margin: 0;
+  position: relative;
+  z-index: 2;
+}
+
+/* Project Links in Modal - Enterprise Style */
+.modal-project-links {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  justify-content: center;
+  padding: 25px;
+  background: linear-gradient(135deg, rgba(248, 249, 250, 0.8), rgba(233, 236, 239, 0.8));
+  border-radius: 12px;
+  border: 1px solid rgba(222, 226, 230, 0.6);
+}
+
+.modal-project-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 14px 24px;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 2px solid transparent;
+  cursor: pointer;
+  min-width: 160px;
+  position: relative;
+  overflow: hidden;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+.modal-github-link {
+  background: linear-gradient(135deg, #495057, #6c757d);
+  color: #ffffff !important;
+  border-color: #6c757d;
+  box-shadow: 
+    0 4px 12px rgba(73, 80, 87, 0.25),
+    0 2px 4px rgba(73, 80, 87, 0.15);
+}
+
+.modal-github-link * {
+  color: #ffffff !important;
+}
+
+.modal-github-link:hover {
+  transform: translateY(-2px) scale(1.02);
+  background: linear-gradient(135deg, #343a40, #495057);
+  border-color: #495057;
+  box-shadow: 
+    0 8px 20px rgba(73, 80, 87, 0.35),
+    0 4px 8px rgba(73, 80, 87, 0.2);
+}
+
+.modal-demo-link {
+  background: linear-gradient(135deg, #495057, #6c757d);
+  color: #ffffff !important;
+  border-color: #6c757d;
+  box-shadow: 
+    0 4px 12px rgba(73, 80, 87, 0.25),
+    0 2px 4px rgba(73, 80, 87, 0.15);
+}
+
+.modal-demo-link * {
+  color: #ffffff !important;
+}
+
+.modal-demo-link:hover {
+  transform: translateY(-2px) scale(1.02);
+  background: linear-gradient(135deg, #343a40, #495057);
+  border-color: #495057;
+  box-shadow: 
+    0 8px 20px rgba(73, 80, 87, 0.35),
+    0 4px 8px rgba(73, 80, 87, 0.2);
+}
+
+.modal-project-link i {
+  font-size: 1.2rem;
+  transition: transform 0.3s ease;
+}
+
+.modal-project-link:hover i {
+  transform: scale(1.1);
+}
+
+/* ================================ */
+/* PROFESSIONAL GITHUB & LIVE DEMO BUTTONS - CARD VERSIONS */
+/* ================================ */
+
 .project-links {
   display: flex;
   justify-content: center;
@@ -795,29 +1049,27 @@ body.dark-theme .project-links {
   border-top-color: #f0f0f0 !important;
 }
 
-/* Professional Button Base Styling */
 .project-link {
   position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 10px;
-  padding: 14px 24px !important;
-  border-radius: 12px !important;
-  font-size: 0.95rem !important;
+  padding: 12px 20px !important;
+  border-radius: 8px !important;
+  font-size: 0.9rem !important;
   font-weight: 600 !important;
   text-decoration: none !important;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
   border: 2px solid transparent !important;
   cursor: pointer;
-  min-width: 140px;
+  min-width: 120px;
   box-shadow: 
-    0 4px 12px rgba(0, 0, 0, 0.15),
-    0 2px 4px rgba(0, 0, 0, 0.1);
+    0 2px 8px rgba(0, 0, 0, 0.1),
+    0 1px 3px rgba(0, 0, 0, 0.08);
   position: relative;
   overflow: hidden;
   
-  /* Prevent blur optimizations */
   -webkit-transform: translateZ(0);
   transform: translateZ(0);
   backface-visibility: hidden;
@@ -825,18 +1077,15 @@ body.dark-theme .project-links {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* FIXED: GitHub Button - Professional Dark Theme with Visible White Text */
 .github-link {
-  background: linear-gradient(135deg, #24292e, #1a1e22) !important;
+  background: linear-gradient(135deg, #495057, #6c757d) !important;
   color: #ffffff !important;
-  border-color: #444d56 !important;
+  border-color: #6c757d !important;
   box-shadow: 
-    0 4px 12px rgba(36, 41, 46, 0.25),
-    0 2px 4px rgba(36, 41, 46, 0.15),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+    0 2px 8px rgba(73, 80, 87, 0.2),
+    0 1px 3px rgba(73, 80, 87, 0.12);
 }
 
-/* CRITICAL FIX: Ensure all GitHub button text is visible */
 .github-link * {
   color: #ffffff !important;
   text-shadow: none !important;
@@ -846,12 +1095,12 @@ body.dark-theme .project-links {
   color: #ffffff !important;
   font-weight: 600 !important;
   letter-spacing: 0.025em !important;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2) !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1) !important;
 }
 
 .github-link i {
   color: #ffffff !important;
-  font-size: 1.1rem !important;
+  font-size: 1rem !important;
   margin-right: 2px !important;
 }
 
@@ -862,18 +1111,17 @@ body.dark-theme .project-links {
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
   transition: left 0.5s;
 }
 
 .github-link:hover {
-  transform: translateY(-3px) scale(1.02) translateZ(0) !important;
-  background: linear-gradient(135deg, #2f363d, #24292e) !important;
-  border-color: #586069 !important;
+  transform: translateY(-2px) scale(1.02) translateZ(0) !important;
+  background: linear-gradient(135deg, #343a40, #495057) !important;
+  border-color: #495057 !important;
   box-shadow: 
-    0 8px 20px rgba(36, 41, 46, 0.35),
-    0 4px 8px rgba(36, 41, 46, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
+    0 4px 15px rgba(73, 80, 87, 0.3),
+    0 2px 6px rgba(73, 80, 87, 0.15);
   color: #ffffff !important;
 }
 
@@ -883,7 +1131,7 @@ body.dark-theme .project-links {
 
 .github-link:hover span {
   color: #ffffff !important;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3) !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2) !important;
 }
 
 .github-link:hover i {
@@ -895,26 +1143,13 @@ body.dark-theme .project-links {
   left: 100%;
 }
 
-.github-link:active {
-  transform: translateY(-1px) scale(1.01) translateZ(0) !important;
-  box-shadow: 
-    0 4px 12px rgba(36, 41, 46, 0.3),
-    0 2px 4px rgba(36, 41, 46, 0.15) !important;
-}
-
-.github-link:active * {
-  color: #ffffff !important;
-}
-
-/* Live Demo Button - Professional Blue Theme */
 .demo-link {
-  background: linear-gradient(135deg, #007bff, #0056b3) !important;
+  background: linear-gradient(135deg, #495057, #6c757d) !important;
   color: #ffffff !important;
-  border-color: #0056b3 !important;
+  border-color: #6c757d !important;
   box-shadow: 
-    0 4px 12px rgba(0, 123, 255, 0.25),
-    0 2px 4px rgba(0, 123, 255, 0.15),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+    0 2px 8px rgba(73, 80, 87, 0.2),
+    0 1px 3px rgba(73, 80, 87, 0.12);
 }
 
 .demo-link * {
@@ -926,12 +1161,12 @@ body.dark-theme .project-links {
   color: #ffffff !important;
   font-weight: 600 !important;
   letter-spacing: 0.025em !important;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2) !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1) !important;
 }
 
 .demo-link i {
   color: #ffffff !important;
-  font-size: 1.1rem !important;
+  font-size: 1rem !important;
   margin-right: 2px !important;
 }
 
@@ -942,18 +1177,17 @@ body.dark-theme .project-links {
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
   transition: left 0.5s;
 }
 
 .demo-link:hover {
-  transform: translateY(-3px) scale(1.02) translateZ(0) !important;
-  background: linear-gradient(135deg, #0056b3, #004494) !important;
-  border-color: #004494 !important;
+  transform: translateY(-2px) scale(1.02) translateZ(0) !important;
+  background: linear-gradient(135deg, #343a40, #495057) !important;
+  border-color: #495057 !important;
   box-shadow: 
-    0 8px 20px rgba(0, 123, 255, 0.35),
-    0 4px 8px rgba(0, 123, 255, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.25) !important;
+    0 4px 15px rgba(73, 80, 87, 0.3),
+    0 2px 6px rgba(73, 80, 87, 0.15);
   color: #ffffff !important;
 }
 
@@ -963,7 +1197,7 @@ body.dark-theme .project-links {
 
 .demo-link:hover span {
   color: #ffffff !important;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3) !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2) !important;
 }
 
 .demo-link:hover i {
@@ -974,156 +1208,6 @@ body.dark-theme .project-links {
 .demo-link:hover::before {
   left: 100%;
 }
-
-.demo-link:active {
-  transform: translateY(-1px) scale(1.01) translateZ(0) !important;
-  box-shadow: 
-    0 4px 12px rgba(0, 123, 255, 0.3),
-    0 2px 4px rgba(0, 123, 255, 0.15) !important;
-}
-
-.demo-link:active * {
-  color: #ffffff !important;
-}
-
-/* Enhanced Button Text Enhancement - Override any inherited styles */
-.project-link span {
-  font-weight: 600 !important;
-  letter-spacing: 0.025em !important;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1) !important;
-  display: flex !important;
-  align-items: center !important;
-  gap: 6px !important;
-  color: inherit !important;
-}
-
-/* Multiple GitHub Repos Button Enhancement */
-.github-link span {
-  display: flex !important;
-  align-items: center !important;
-  gap: 6px !important;
-  color: #ffffff !important;
-}
-
-/* Focus States for Accessibility */
-.project-link:focus {
-  outline: none;
-  box-shadow: 
-    0 4px 12px rgba(0, 0, 0, 0.15),
-    0 2px 4px rgba(0, 0, 0, 0.1),
-    0 0 0 3px rgba(0, 123, 255, 0.5) !important;
-}
-
-.github-link:focus {
-  box-shadow: 
-    0 4px 12px rgba(36, 41, 46, 0.25),
-    0 2px 4px rgba(36, 41, 46, 0.15),
-    0 0 0 3px rgba(36, 41, 46, 0.5) !important;
-}
-
-/* Disabled State (if needed) */
-.project-link:disabled,
-.project-link.disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  transform: none !important;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
-}
-
-.project-link:disabled:hover,
-.project-link.disabled:hover {
-  transform: none !important;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
-}
-
-.project-link:disabled *,
-.project-link.disabled * {
-  color: rgba(255, 255, 255, 0.6) !important;
-}
-
-/* Loading State (if needed) */
-.project-link.loading {
-  position: relative;
-  color: transparent !important;
-}
-
-.project-link.loading * {
-  color: transparent !important;
-}
-
-.project-link.loading::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 20px;
-  height: 20px;
-  margin: -10px 0 0 -10px;
-  border: 2px solid transparent;
-  border-top-color: #ffffff;
-  border-radius: 50%;
-  animation: button-spin 1s linear infinite;
-}
-
-@keyframes button-spin {
-  to { transform: rotate(360deg); }
-}
-
-/* Enhanced Button Styling Override for Card Context */
-.project-card .project-link {
-  /* Override any card-inherited styles */
-  background: none !important;
-  color: initial !important;
-}
-
-.project-card .github-link {
-  background: linear-gradient(135deg, #24292e, #1a1e22) !important;
-  color: #ffffff !important;
-}
-
-.project-card .github-link * {
-  color: #ffffff !important;
-}
-
-.project-card .demo-link {
-  background: linear-gradient(135deg, #007bff, #0056b3) !important;
-  color: #ffffff !important;
-}
-
-.project-card .demo-link * {
-  color: #ffffff !important;
-}
-
-/* Additional specificity for button text visibility */
-body .project-card .project-links .github-link,
-body.dark-theme .project-card .project-links .github-link,
-body:not(.dark-theme) .project-card .project-links .github-link {
-  background: linear-gradient(135deg, #24292e, #1a1e22) !important;
-  color: #ffffff !important;
-}
-
-body .project-card .project-links .github-link *,
-body.dark-theme .project-card .project-links .github-link *,
-body:not(.dark-theme) .project-card .project-links .github-link * {
-  color: #ffffff !important;
-}
-
-body .project-card .project-links .demo-link,
-body.dark-theme .project-card .project-links .demo-link,
-body:not(.dark-theme) .project-card .project-links .demo-link {
-  background: linear-gradient(135deg, #007bff, #0056b3) !important;
-  color: #ffffff !important;
-}
-
-body .project-card .project-links .demo-link *,
-body.dark-theme .project-card .project-links .demo-link *,
-body:not(.dark-theme) .project-card .project-links .demo-link * {
-  color: #ffffff !important;
-}
-
-/* ================================ */
-/* END PROFESSIONAL BUTTONS */
-/* ================================ */
 
 /* Enhanced Carousel Indicators */
 .carousel-indicators {
@@ -1136,50 +1220,49 @@ body:not(.dark-theme) .project-card .project-links .demo-link * {
 }
 
 .carousel-indicator {
-  width: 15px;
-  height: 15px;
+  width: 12px;
+  height: 12px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.4);
+  background: rgba(108, 117, 125, 0.4);
   cursor: pointer;
   transition: all 0.4s ease;
   border: none;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-  /* Prevent blur on indicators */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   -webkit-transform: translateZ(0);
   transform: translateZ(0);
   backface-visibility: hidden;
 }
 
 body.dark-theme .carousel-indicator {
-  background: rgba(255, 255, 255, 0.3);
+  background: rgba(108, 117, 125, 0.3);
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
 }
 
 body:not(.dark-theme) .carousel-indicator {
-  background: rgba(255, 255, 255, 0.4);
+  background: rgba(108, 117, 125, 0.4);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .carousel-indicator.active {
-  background: #007bff;
-  transform: scale(1.5) translateZ(0);
-  box-shadow: 0 6px 15px rgba(0, 123, 255, 0.5);
+  background: #6c757d;
+  transform: scale(1.4) translateZ(0);
+  box-shadow: 0 4px 10px rgba(108, 117, 125, 0.4);
 }
 
 body.dark-theme .carousel-indicator.active {
-  background: #64b5f6;
-  box-shadow: 0 4px 12px rgba(100, 181, 246, 0.4);
+  background: #adb5bd;
+  box-shadow: 0 4px 12px rgba(173, 181, 189, 0.4);
 }
 
 body:not(.dark-theme) .carousel-indicator.active {
-  background: #667eea;
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  background: #6c757d;
+  box-shadow: 0 4px 10px rgba(108, 117, 125, 0.4);
 }
 
 .carousel-indicator:hover:not(.active) {
-  background: rgba(255, 255, 255, 0.7);
-  transform: scale(1.3) translateZ(0);
-  box-shadow: 0 5px 12px rgba(0, 0, 0, 0.2);
+  background: rgba(108, 117, 125, 0.6);
+  transform: scale(1.2) translateZ(0);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
 }
 
 /* Modal Styles - Keep Original Light Theme Modal */
@@ -1330,12 +1413,12 @@ body.dark-theme .form-group textarea {
 .form-group input:focus,
 .form-group textarea:focus {
   outline: none;
-  border-color: #007bff !important;
+  border-color: #6c757d !important;
 }
 
 body.dark-theme .form-group input:focus,
 body.dark-theme .form-group textarea:focus {
-  border-color: #007bff !important;
+  border-color: #6c757d !important;
 }
 
 .form-group textarea {
@@ -1366,13 +1449,13 @@ body.dark-theme .quill-editor-container {
 }
 
 .quill-editor-container:focus-within {
-  border-color: #007bff !important;
-  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+  border-color: #6c757d !important;
+  box-shadow: 0 0 0 2px rgba(108, 117, 125, 0.25);
 }
 
 body.dark-theme .quill-editor-container:focus-within {
-  border-color: #007bff !important;
-  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+  border-color: #6c757d !important;
+  box-shadow: 0 0 0 2px rgba(108, 117, 125, 0.25);
 }
 
 .quill-editor .ql-toolbar,
@@ -1400,13 +1483,13 @@ body.dark-theme .quill-editor .ql-toolbar button {
 
 .quill-editor .ql-toolbar button:hover,
 body.dark-theme .quill-editor .ql-toolbar button:hover {
-  background: rgba(0, 123, 255, 0.1) !important;
-  color: #007bff !important;
+  background: rgba(108, 117, 125, 0.1) !important;
+  color: #6c757d !important;
 }
 
 .quill-editor .ql-toolbar button.ql-active,
 body.dark-theme .quill-editor .ql-toolbar button.ql-active {
-  background: #007bff !important;
+  background: #6c757d !important;
   color: white !important;
 }
 
@@ -1506,7 +1589,7 @@ body.dark-theme .btn-cancel {
 .btn-submit {
   padding: 10px 20px;
   border: none;
-  background: #007bff;
+  background: #6c757d;
   color: white;
   border-radius: 5px;
   cursor: pointer;
@@ -1515,7 +1598,7 @@ body.dark-theme .btn-cancel {
 }
 
 .btn-submit:hover:not(:disabled) {
-  background: #0056b3;
+  background: #495057;
 }
 
 .btn-submit:disabled {
@@ -1532,7 +1615,7 @@ body.dark-theme .btn-cancel {
   height: 100%;
   background: rgba(0, 0, 0, 0.6);
   backdrop-filter: blur(5px);
-  z-index: 11000;
+  z-index: 16000;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1594,9 +1677,9 @@ body.dark-theme .repos-header h3 {
 
 .repo-item:hover {
   background: #e9ecef;
-  border-color: #007bff;
+  border-color: #6c757d;
   transform: translateY(-1px);
-  color: #007bff !important;
+  color: #495057 !important;
 }
 
 .repo-item i {
@@ -1606,7 +1689,7 @@ body.dark-theme .repos-header h3 {
 }
 
 .repo-item:hover i {
-  color: #007bff;
+  color: #495057;
 }
 
 .repo-item span {
@@ -1634,11 +1717,11 @@ body.dark-theme .repos-header h3 {
 }
 
 .repos-close-btn:hover {
-  background: #5a6268;
+  background: #495057;
   transform: scale(1.05);
 }
 
-/* RESPONSIVE DESIGN for Square Cards and Full Screen */
+/* RESPONSIVE DESIGN for Square Cards, Know More Modal and Full Screen */
 @media (max-width: 1400px) {
   .project-card {
     width: 400px !important;
@@ -1657,6 +1740,10 @@ body.dark-theme .repos-header h3 {
     width: 55px;
     height: 55px;
     font-size: 1.3rem;
+  }
+  
+  .project-details-container {
+    max-width: 800px;
   }
 }
 
@@ -1678,6 +1765,14 @@ body.dark-theme .repos-header h3 {
     width: 50px;
     height: 50px;
     font-size: 1.2rem;
+  }
+  
+  .project-details-container {
+    max-width: 700px;
+  }
+  
+  .modal-content-scroll {
+    padding: 25px 35px;
   }
 }
 
@@ -1781,10 +1876,6 @@ body.dark-theme .repos-header h3 {
     padding: 20px;
   }
 
-  .repos-header h3 {
-    font-size: 1.2rem;
-  }
-
   .carousel-indicators {
     margin-top: 2rem;
     padding: 1rem 0;
@@ -1793,6 +1884,61 @@ body.dark-theme .repos-header h3 {
   .carousel-indicator {
     width: 10px;
     height: 10px;
+  }
+
+  /* Mobile Modal Optimizations */
+  .project-details-modal {
+    padding: 15px;
+    align-items: flex-start;
+    padding-top: 30px;
+  }
+
+  .project-details-container {
+    max-width: 100%;
+    width: 100%;
+    max-height: calc(100vh - 60px);
+    border-radius: 16px;
+  }
+
+  .modal-header {
+    padding: 25px 30px 15px;
+  }
+
+  .modal-title {
+    font-size: 1.5rem;
+  }
+
+  .modal-close-btn {
+    width: 40px;
+    height: 40px;
+    font-size: 1.2rem;
+  }
+
+  .modal-content-scroll {
+    padding: 20px 25px;
+  }
+
+  .modal-section-title {
+    font-size: 1.2rem;
+  }
+
+  .project-full-description {
+    font-size: 1rem;
+    padding: 20px;
+  }
+
+  .modal-project-links {
+    flex-direction: column;
+    gap: 15px;
+    padding: 20px;
+  }
+
+  .modal-project-link {
+    width: 100%;
+    max-width: 250px;
+    align-self: center;
+    padding: 14px 24px;
+    font-size: 0.95rem;
   }
 }
 
@@ -1830,24 +1976,15 @@ body.dark-theme .repos-header h3 {
     font-size: 1.2rem !important;
   }
 
-  .description.collapsed {
-    max-height: 6.4em !important;
-    -webkit-line-clamp: 4 !important;
+  .description-preview {
+    max-height: 5.4em !important;
+    -webkit-line-clamp: 3 !important;
   }
 
-  .description.expanded {
-    max-height: 150px !important;
-    padding: 12px;
-  }
-  
-  .description.expanded::-webkit-scrollbar {
-    width: 6px !important;
-  }
-
-  .read-more-btn {
+  .know-more-btn {
     font-size: 0.85rem;
-    padding: 6px 12px;
-    min-width: 100px;
+    padding: 10px 16px;
+    min-width: 120px;
   }
 
   .project-links {
@@ -1887,6 +2024,74 @@ body.dark-theme .repos-header h3 {
   .carousel-indicators {
     gap: 10px;
   }
+
+  /* Ultra Small Mobile Modal Optimizations */
+  .project-details-modal {
+    padding: 10px;
+    padding-top: 20px;
+  }
+
+  .project-details-container {
+    border-radius: 12px;
+    max-height: calc(100vh - 40px);
+  }
+
+  .modal-header {
+    padding: 20px 25px 12px;
+  }
+
+  .modal-title {
+    font-size: 1.3rem;
+    line-height: 1.3;
+  }
+
+  .modal-close-btn {
+    width: 36px;
+    height: 36px;
+    font-size: 1.1rem;
+  }
+
+  .modal-content-scroll {
+    padding: 18px 20px;
+  }
+
+  .modal-section {
+    margin-bottom: 25px;
+  }
+
+  .modal-section-title {
+    font-size: 1.1rem;
+    margin-bottom: 12px;
+  }
+
+  .project-full-description {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    padding: 18px;
+  }
+
+  .modal-tech-stack {
+    padding: 16px;
+  }
+
+  .modal-tech-stack-content {
+    font-size: 1rem;
+  }
+
+  .modal-project-links {
+    padding: 18px;
+    gap: 12px;
+  }
+
+  .modal-project-link {
+    padding: 12px 20px;
+    font-size: 0.9rem;
+    min-width: 140px;
+  }
+
+  .modal-project-link i {
+    font-size: 1.1rem;
+  }
 }
 
 /* Additional fixes for blur prevention */
@@ -1899,9 +2104,11 @@ body.dark-theme .repos-header h3 {
 .project-card,
 .project-link,
 .action-btn,
-.read-more-btn,
+.know-more-btn,
 .carousel-nav,
-.carousel-indicator {
+.carousel-indicator,
+.project-details-modal,
+.project-details-container {
   will-change: transform;
 }
 
@@ -1911,9 +2118,12 @@ body.dark-theme .repos-header h3 {
   .project-card,
   .carousel-nav,
   .carousel-indicator,
-  .read-more-btn,
+  .know-more-btn,
   .project-link,
-  .action-btn {
+  .action-btn,
+  .project-details-modal,
+  .project-details-container,
+  .modal-header::before {
     transition: none !important;
     animation: none !important;
     transform: none !important;
@@ -1923,7 +2133,6 @@ body.dark-theme .repos-header h3 {
     transform: none !important;
   }
 
-  /* Professional buttons reduced motion */
   .project-link,
   .project-link i,
   .project-link::before {
@@ -1938,7 +2147,8 @@ body.dark-theme .repos-header h3 {
 
 /* High contrast mode support */
 @media (prefers-contrast: high) {
-  .project-card {
+  .project-card,
+  .project-details-container {
     border: 2px solid currentColor !important;
   }
   
@@ -1949,13 +2159,15 @@ body.dark-theme .repos-header h3 {
     color: ButtonText !important;
   }
   
-  .project-link {
+  .project-link,
+  .know-more-btn {
     border: 2px solid currentColor !important;
     background: ButtonFace !important;
     color: ButtonText !important;
   }
   
-  .project-link:hover {
+  .project-link:hover,
+  .know-more-btn:hover {
     background: Highlight !important;
     color: HighlightText !important;
   }
@@ -1963,16 +2175,18 @@ body.dark-theme .repos-header h3 {
 
 /* Focus styles for better accessibility */
 .project-card:focus-within {
-  outline: 2px solid #007bff;
+  outline: 2px solid #6c757d;
   outline-offset: 2px;
 }
 
 .carousel-nav:focus,
 .carousel-indicator:focus,
-.read-more-btn:focus,
+.know-more-btn:focus,
 .project-link:focus,
-.action-btn:focus {
-  outline: 2px solid #007bff;
+.action-btn:focus,
+.modal-close-btn:focus,
+.modal-project-link:focus {
+  outline: 2px solid #6c757d;
   outline-offset: 2px;
 }
 
@@ -1991,7 +2205,8 @@ body.dark-theme .repos-header h3 {
 
 /* Print Styles for Professional Buttons */
 @media print {
-  .project-link {
+  .project-link,
+  .modal-project-link {
     background: white !important;
     color: black !important;
     border: 1px solid black !important;
@@ -2000,19 +2215,50 @@ body.dark-theme .repos-header h3 {
   }
   
   .project-link::before,
-  .project-link::after {
+  .project-link::after,
+  .modal-project-link::before,
+  .modal-project-link::after {
     display: none !important;
   }
   
   .github-link,
-  .demo-link {
+  .demo-link,
+  .modal-github-link,
+  .modal-demo-link {
     background: white !important;
     color: black !important;
     border: 1px solid black !important;
   }
 
   .github-link *,
-  .demo-link * {
+  .demo-link *,
+  .modal-github-link *,
+  .modal-demo-link * {
     color: black !important;
+  }
+  
+  .project-details-modal {
+    position: static !important;
+    background: white !important;
+    backdrop-filter: none !important;
+  }
+  
+  .project-details-container {
+    box-shadow: none !important;
+    border: 1px solid black !important;
+    max-height: none !important;
+  }
+  
+  .modal-header {
+    background: white !important;
+    color: black !important;
+  }
+  
+  .modal-header::before {
+    display: none !important;
+  }
+  
+  .modal-close-btn {
+    display: none !important;
   }
 }

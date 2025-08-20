@@ -1,4 +1,4 @@
-// Updated src/app/app.ts - Enhanced admin interface with Projects integration
+// Updated src/app/app.ts - Enhanced admin interface with Projects integration - Cleaned console logs
 import {
   Component,
   OnInit,
@@ -151,7 +151,6 @@ export class AppComponent implements OnInit {
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      console.log('Resume download triggered.');
     }
   }
 
@@ -264,8 +263,6 @@ export class AppComponent implements OnInit {
     this.selectedOperation.set(operationId);
     const sectionId = this.selectedAdminSection();
     
-    console.log(`Selected operation: ${operationId} for section: ${sectionId}`);
-    
     this.closeAdminOperationsModal();
     
     // Handle the operation based on section
@@ -279,12 +276,9 @@ export class AppComponent implements OnInit {
   }
 
   private async handleExperienceOperation(operationId: string) {
-    console.log(`Handling experience operation: ${operationId}`);
-    
     if (operationId === 'create') {
       // Enable admin mode and open form for creating new experience
       if (this.experienceComponent) {
-        console.log('Experience component found, enabling admin mode');
         this.experienceComponent.enableAdminMode();
         
         // Small delay to ensure admin mode is set
@@ -297,8 +291,6 @@ export class AppComponent implements OnInit {
       }
     } else if (operationId === 'update' || operationId === 'delete') {
       // Load experiences and show selection modal
-      console.log('Loading experiences for selection...');
-      
       try {
         await this.loadExperiences();
         
@@ -317,12 +309,9 @@ export class AppComponent implements OnInit {
   }
 
   private async handleProjectsOperation(operationId: string) {
-    console.log(`Handling projects operation: ${operationId}`);
-    
     if (operationId === 'create') {
       // Enable admin mode and open form for creating new project
       if (this.projectsComponent) {
-        console.log('Projects component found, enabling admin mode');
         this.projectsComponent.enableAdminMode();
         
         // Small delay to ensure admin mode is set
@@ -335,8 +324,6 @@ export class AppComponent implements OnInit {
       }
     } else if (operationId === 'update' || operationId === 'delete') {
       // Load projects and show selection modal
-      console.log('Loading projects for selection...');
-      
       try {
         await this.loadProjects();
         
@@ -370,8 +357,6 @@ export class AppComponent implements OnInit {
     this.selectedExperienceId.set(experienceId);
     const operation = this.selectedOperation();
     
-    console.log(`Selected experience ${experienceId} for operation: ${operation}`);
-    
     this.closeExperienceSelectionModal();
     
     // Execute the operation
@@ -386,8 +371,6 @@ export class AppComponent implements OnInit {
     this.selectedProjectId.set(projectId);
     const operation = this.selectedOperation();
     
-    console.log(`Selected project ${projectId} for operation: ${operation}`);
-    
     this.closeProjectSelectionModal();
     
     // Execute the operation
@@ -401,10 +384,7 @@ export class AppComponent implements OnInit {
   private updateExperience(experienceId: number) {
     const experience = this.experiences().find(exp => exp.id === experienceId);
     if (experience) {
-      console.log('Opening update form for experience:', experience);
-      
       if (this.experienceComponent) {
-        console.log('Experience component found, enabling admin mode and opening form');
         this.experienceComponent.enableAdminMode();
         
         // Small delay to ensure admin mode is set
@@ -423,10 +403,7 @@ export class AppComponent implements OnInit {
   private updateProject(projectId: number) {
     const project = this.projects().find(proj => proj.id === projectId);
     if (project) {
-      console.log('Opening update form for project:', project);
-      
       if (this.projectsComponent) {
-        console.log('Projects component found, enabling admin mode and opening form');
         this.projectsComponent.enableAdminMode();
         
         // Small delay to ensure admin mode is set
@@ -450,8 +427,6 @@ export class AppComponent implements OnInit {
       
       if (confirmDelete) {
         try {
-          console.log('Deleting experience:', experienceId);
-          
           await this.experienceService.deleteExperience(experienceId);
           
           // Reload experiences in both parent and child components
@@ -463,7 +438,6 @@ export class AppComponent implements OnInit {
           }
           
           alert('Experience deleted successfully!');
-          console.log('Experience deleted successfully');
         } catch (error: any) {
           console.error('Delete error:', error);
           alert(error.message || 'Failed to delete experience');
@@ -482,8 +456,6 @@ export class AppComponent implements OnInit {
       
       if (confirmDelete) {
         try {
-          console.log('Deleting project:', projectId);
-          
           await this.projectService.deleteProject(projectId);
           
           // Reload projects in both parent and child components
@@ -495,7 +467,6 @@ export class AppComponent implements OnInit {
           }
           
           alert('Project deleted successfully!');
-          console.log('Project deleted successfully');
         } catch (error: any) {
           console.error('Delete project error:', error);
           alert(error.message || 'Failed to delete project');
@@ -508,11 +479,9 @@ export class AppComponent implements OnInit {
 
   private async loadExperiences() {
     try {
-      console.log('Loading experiences in app component...');
       const experiences = await this.experienceService.getAllExperiences();
       experiences.sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime());
       this.experiences.set(experiences);
-      console.log('Loaded experiences in app component:', experiences.length);
     } catch (error) {
       console.error('Error loading experiences in app component:', error);
       this.experiences.set([]);
@@ -521,11 +490,9 @@ export class AppComponent implements OnInit {
 
   private async loadProjects() {
     try {
-      console.log('Loading projects in app component...');
       const projects = await this.projectService.getAllProjects();
       projects.sort((a, b) => b.id - a.id);
       this.projects.set(projects);
-      console.log('Loaded projects in app component:', projects.length);
     } catch (error) {
       console.error('Error loading projects in app component:', error);
       this.projects.set([]);
@@ -548,8 +515,6 @@ export class AppComponent implements OnInit {
     if (this.projectsComponent) {
       this.projectsComponent.disableAdminMode();
     }
-    
-    console.log('Admin logged out');
   }
 
   // Helper methods for debugging

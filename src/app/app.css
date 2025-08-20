@@ -21,7 +21,7 @@ body {
 /* Light Theme */
 body:not(.dark-theme) {
   color: #333 !important;
-  background: #667eea !important;
+  background: #EAEAEA !important;
 }
 
 /* Ensure all sections inherit the same background */
@@ -34,7 +34,7 @@ body:not(.dark-theme) {
   position: fixed;
   top: 0;
   width: 100%;
-  background: rgba(102, 126, 234, 0.95); /* Light theme - matches body background */
+  background: #EAEAEA; /* Light theme - matches body background */
   backdrop-filter: blur(15px);
   padding: 1rem 2rem;
   display: flex;
@@ -53,7 +53,7 @@ body:not(.dark-theme) {
 }
 
 .navbar.scrolled {
-  background: rgba(102, 126, 234, 0.98); /* Light theme scrolled */
+  background: #EAEAEA; /* Light theme scrolled */
   box-shadow: 0 2px 25px rgba(0, 0, 0, 0.15);
 }
 
@@ -66,7 +66,7 @@ body:not(.dark-theme) {
 .logo {
   font-size: 1.5rem;
   font-weight: bold;
-  color: #ffffff !important; /* White for light theme (since bg is blue) */
+  color: #0f0f0f !important; /* Black for light theme (since bg is gray) */
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -91,7 +91,7 @@ body:not(.dark-theme) {
   display: none;
   background: transparent;
   border: none;
-  color: #ffffff; /* White for light theme (since navbar bg is blue) */
+  color: #252424; /* Black for light theme (since navbar bg is gray) */
   font-size: 1.5rem;
   cursor: pointer;
   padding: 0.5rem;
@@ -113,7 +113,7 @@ body:not(.dark-theme) {
   left: 0;
   width: 100%;
   height: calc(100vh - 80px);
-  background: rgba(102, 126, 234, 0.98); /* Light theme - matches navbar */
+  background: #EAEAEA; /* Light theme - matches navbar */
   backdrop-filter: blur(10px);
   transform: translateX(-100%);
   transition: transform 0.3s ease;
@@ -142,7 +142,7 @@ body:not(.dark-theme) {
   display: block;
   padding: 1rem 0;
   text-decoration: none;
-  color: #ffffff; /* White for light theme (since mobile menu bg is blue) */
+  color: #1d1c1c; /* Black for light theme (since mobile menu bg is gray) */
   font-weight: 500;
   font-size: 1.2rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
@@ -155,7 +155,7 @@ body:not(.dark-theme) {
 }
 
 .mobile-nav-links a:hover {
-  color: #f0f8ff; /* Light blue on hover for light theme */
+  color: #303d46; 
   padding-left: 1rem;
 }
 
@@ -165,7 +165,7 @@ body:not(.dark-theme) {
 
 .nav-links a {
   text-decoration: none;
-  color: #ffffff; /* White for light theme (since navbar bg is blue) */
+  color: #1a1818; /* Black for light theme (since navbar bg is gray) */
   font-weight: 500;
   transition: all 0.3s ease;
   position: relative;
@@ -179,8 +179,8 @@ body:not(.dark-theme) {
 }
 
 .nav-links a:hover {
-  color: #f0f8ff; /* Light blue on hover for light theme */
-  background: rgba(255, 255, 255, 0.1);
+  color: #0a90fd; /* Blue on hover for light theme */
+  background: rgba(172, 157, 157, 0.1);
 }
 
 .navbar.dark-theme .nav-links a:hover {
@@ -260,12 +260,12 @@ body:not(.dark-theme) {
   display: inline-block;
 }
 
-/* Admin Toggle Button - FIXED - Remove background box */
+/* Admin Toggle Button */
 .admin-toggle {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  border: 2px solid rgba(255, 255, 255, 0.8) !important;
+  border: 2px solid #333333 !important; /* Dark border for light theme */
   background: transparent !important;
   cursor: pointer;
   display: flex;
@@ -287,40 +287,59 @@ body:not(.dark-theme) {
   user-select: none !important;
 }
 
+/* Dark theme specific styling for admin toggle */
+.navbar.dark-theme .admin-toggle {
+  border: 2px solid rgb(156, 68, 68) !important; /* Keep red border for dark theme */
+}
+
 .admin-toggle:focus {
   outline: none !important;
   box-shadow: none !important;
 }
 
 .admin-toggle:hover {
-  background: rgba(255, 255, 255, 0.15) !important;
-  border-color: rgba(255, 255, 255, 1) !important;
+  border-color: #000000 !important; /* Black border on hover for light theme */
   transform: scale(1.05);
-  box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
 }
 
 .admin-toggle.active {
-  background: rgba(255, 255, 255, 0.2) !important;
-  border-color: rgba(255, 255, 255, 1) !important;
+  border-color: #000000 !important; /* Black border when active for light theme */
   transform: scale(1.02);
-  box-shadow: 0 0 12px rgba(255, 255, 255, 0.3);
+}
+
+/* Dark theme hover and active states */
+.navbar.dark-theme .admin-toggle:hover {
+  border-color: rgb(66, 3, 3) !important; /* Dark red on hover for dark theme */
+}
+
+.navbar.dark-theme .admin-toggle.active {
+  border-color: rgb(10, 10, 10) !important; /* Very dark border when active for dark theme */
 }
 
 .admin-icon {
   width: 24px !important;
   height: 24px !important;
   object-fit: contain;
-  filter: brightness(0) invert(1) !important; /* Always white */
+  filter: brightness(0) invert(0) !important; /* Black for light theme */
   opacity: 1 !important;
   visibility: visible !important;
   pointer-events: none; /* Prevent icon from interfering with button clicks */
+}
+
+/* Dark theme admin icon */
+.navbar.dark-theme .admin-icon,
+.navbar.dark-theme .admin-toggle .admin-icon,
+.navbar.dark-theme .admin-toggle:hover .admin-icon,
+.navbar.dark-theme .admin-toggle.active .admin-icon,
+.navbar.dark-theme .admin-toggle:focus .admin-icon {
+  filter: brightness(0) invert(1) !important; /* White for dark theme */
 }
 
 .admin-toggle .admin-icon,
 .admin-toggle:hover .admin-icon,
 .admin-toggle.active .admin-icon,
 .admin-toggle:focus .admin-icon {
-  filter: brightness(0) invert(1) !important; /* Always white */
+  filter: brightness(0) invert(0) !important; /* Black for light theme */
   opacity: 1 !important;
   visibility: visible !important;
 }
@@ -333,7 +352,7 @@ body:not(.dark-theme) {
 
 /* Additional fixes for button appearance */
 .admin-toggle:active {
-  background: rgba(255, 255, 255, 0.25) !important;
+  /* background: rgba(255, 255, 255, 0.25) !important; */
   transform: scale(0.98);
 }
 
@@ -1039,9 +1058,9 @@ body.dark-theme .admin-modal-actions .btn-cancel {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  border: 2px solid #ffffff; /* White border for light theme */
+  border: 2px solid #333333; /* Dark border for light theme */
   background: transparent;
-  color: #ffffff; /* White icon for light theme */
+  color: #333333; /* Dark icon for light theme */
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -1057,8 +1076,8 @@ body.dark-theme .admin-modal-actions .btn-cancel {
 }
 
 .theme-toggle:hover {
-  background: #ffffff; /* White background on hover for light theme */
-  color: #667eea; /* Blue icon on hover for light theme */
+  background: #333333; /* Dark background on hover for light theme */
+  color: #ffffff; /* White icon on hover for light theme */
   transform: scale(1.1);
 }
 
@@ -1252,7 +1271,7 @@ body.dark-theme .resume-btn:hover {
 
 body:not(.dark-theme) .resume-btn {
   background: #ffffff;
-  color: #667eea;
+  color: #e74de7;
   box-shadow: 0 4px 15px rgba(255, 255, 255, 0.3);
 }
 
@@ -1291,7 +1310,7 @@ body:not(.dark-theme) .resume-btn:hover {
   width: 100%;
   height: 330px;
   border-radius: 10px;
-  background: linear-gradient(45deg, #667eea, #764ba2);
+  background: linear-gradient(45deg, #e74de7, #764ba2);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1306,7 +1325,7 @@ body.dark-theme .profile-image-placeholder {
 
 body:not(.dark-theme) .profile-image-placeholder {
   background: linear-gradient(45deg, #ffffff, #f8f9fa);
-  color: #667eea;
+  color: #e74de7;
 }
 
 /* Content sections - Optimized spacing */

@@ -17,7 +17,7 @@ body {
 /* Light theme override */
 body:not(.dark-theme) {
   color: #333 !important;
-  background: #667eea !important;
+  background: #EAEAEA !important;
 }
 
 * {

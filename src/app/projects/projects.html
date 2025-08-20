@@ -1,4 +1,4 @@
-<!-- Enhanced Square Project Cards HTML Template with Know More Modal -->
+<!-- Updated src/app/projects/projects.html - Fixed modal behavior (no backdrop close) -->
 <section id="projects" class="projects-section">
   <div class="container">
     <!-- Section Header -->
@@ -17,11 +17,10 @@
       <p>Loading projects...</p>
     </div>
 
-    <!-- Project Form Modal -->
+    <!-- Project Form Modal - FIXED: No backdrop close -->
     <div
       *ngIf="showForm() && isAdmin()"
       class="modal-overlay"
-      (click)="closeFormOnBackdrop($event)"
       role="dialog"
       aria-modal="true"
       aria-labelledby="form-title"
@@ -240,11 +239,10 @@
       </div>
     </div>
 
-    <!-- GitHub Repositories Modal -->
+    <!-- GitHub Repositories Modal - FIXED: No backdrop close -->
     <div
       *ngIf="showGithubRepos()"
       class="github-repos-modal"
-      (click)="closeGithubRepos()"
       role="dialog"
       aria-modal="true"
       aria-labelledby="repos-title"
@@ -282,11 +280,10 @@
       </div>
     </div>
 
-    <!-- NEW: Project Details Modal -->
+    <!-- Project Details Modal - FIXED: No backdrop close -->
     <div
       *ngIf="showProjectDetails()"
       class="project-details-modal"
-      (click)="closeProjectDetails()"
       role="dialog"
       aria-modal="true"
       aria-labelledby="project-details-title"

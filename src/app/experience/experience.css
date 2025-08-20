@@ -51,7 +51,7 @@ body.dark-theme .spinner {
 
 body:not(.dark-theme) .spinner {
   border-color: rgba(0, 0, 0, 0.2);
-  border-top-color: #667eea;
+  border-top-color: #EAEAEA;
 }
 
 @keyframes spin {
@@ -608,7 +608,7 @@ body:not(.dark-theme) .no-experiences {
   width: 12px;
   height: 12px;
   background: #007bff;
-  border: 3px solid rgba(255, 255, 255, 0.9);
+  border: 3px solid #ffffff;
   border-radius: 50%;
   position: relative;
   z-index: 2;
@@ -623,43 +623,58 @@ body.dark-theme .timeline-dot {
 }
 
 body:not(.dark-theme) .timeline-dot {
-  border-color: rgba(255, 255, 255, 0.8);
-  background: #667eea;
-  box-shadow: 0 0 0 3px #667eea;
+  border-color: #ffffff;
+  background: #007bff;
+  box-shadow: 0 0 0 3px #007bff;
 }
 
 .timeline-dot.current {
-  background: #28a745;
-  box-shadow: 0 0 0 3px #28a745, 0 0 0 6px rgba(40, 167, 69, 0.2);
+  background: #28a745 !important;
+  box-shadow: 0 0 0 3px #28a745, 0 0 0 6px rgba(40, 167, 69, 0.2) !important;
   animation: pulse 2s infinite;
+}
+
+body.dark-theme .timeline-dot.current {
+  background: #28a745 !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+  box-shadow: 0 0 0 3px #28a745, 0 0 0 6px rgba(40, 167, 69, 0.2) !important;
+}
+
+body:not(.dark-theme) .timeline-dot.current {
+  background: #28a745 !important;
+  border-color: rgba(0, 0, 0, 0.2) !important;
+  box-shadow: 0 0 0 3px #28a745, 0 0 0 6px rgba(40, 167, 69, 0.2) !important;
 }
 
 @keyframes pulse {
   0% { 
-    box-shadow: 0 0 0 3px #28a745, 0 0 0 6px rgba(40, 167, 69, 0.2);
+    box-shadow: 0 0 0 3px #28a745, 0 0 0 6px rgba(40, 167, 69, 0.2) !important;
   }
   70% { 
-    box-shadow: 0 0 0 3px #28a745, 0 0 0 15px rgba(40, 167, 69, 0);
+    box-shadow: 0 0 0 3px #28a745, 0 0 0 15px rgba(40, 167, 69, 0) !important;
   }
   100% { 
-    box-shadow: 0 0 0 3px #28a745, 0 0 0 6px rgba(40, 167, 69, 0);
+    box-shadow: 0 0 0 3px #28a745, 0 0 0 6px rgba(40, 167, 69, 0) !important;
   }
 }
 
 .timeline-line {
   width: 2px;
-  background: rgba(255, 255, 255, 0.3);
+  background: #007bff;
   flex: 1;
   margin-top: 10px;
   min-height: 60px;
+  opacity: 0.3;
 }
 
 body.dark-theme .timeline-line {
-  background: rgba(255, 255, 255, 0.2);
+  background: #64b5f6;
+  opacity: 0.4;
 }
 
 body:not(.dark-theme) .timeline-line {
-  background: rgba(255, 255, 255, 0.4);
+  background: #007bff;
+  opacity: 0.5;
 }
 
 .timeline-item:not(.last-item) .timeline-line {

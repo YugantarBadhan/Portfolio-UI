@@ -527,7 +527,7 @@ body:not(.dark-theme) .project-card .card-body .description-preview {
   pointer-events: none;
 }
 
-/* ENTERPRISE PROFESSIONAL KNOW MORE BUTTON */
+/* ENTERPRISE PROFESSIONAL KNOW MORE BUTTON - UPDATED */
 .know-more-btn {
   background: linear-gradient(135deg, #495057, #6c757d);
   border: 2px solid #6c757d;
@@ -557,12 +557,46 @@ body:not(.dark-theme) .project-card .card-body .description-preview {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* UPDATED: Force white text color for all child elements */
+.know-more-btn * {
+  color: white !important;
+  text-shadow: none !important;
+}
+
+.know-more-btn span {
+  color: white !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.025em !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1) !important;
+}
+
+.know-more-btn i {
+  color: white !important;
+  font-size: 0.9rem !important;
+  margin-right: 2px !important;
+}
+
 .know-more-btn:hover {
   background: linear-gradient(135deg, #343a40, #495057);
   border-color: #495057;
   transform: translateY(-2px) scale(1.02) translateZ(0);
   box-shadow: 0 4px 15px rgba(73, 80, 87, 0.3);
   text-decoration: none;
+  color: white !important;
+}
+
+.know-more-btn:hover * {
+  color: white !important;
+}
+
+.know-more-btn:hover span {
+  color: white !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2) !important;
+}
+
+.know-more-btn:hover i {
+  color: white !important;
+  transform: translateX(3px) scale(1.1);
 }
 
 .know-more-btn:active {
@@ -570,21 +604,25 @@ body:not(.dark-theme) .project-card .card-body .description-preview {
   box-shadow: 0 2px 8px rgba(73, 80, 87, 0.25);
 }
 
-.know-more-btn i {
-  font-size: 0.9rem;
-  transition: transform 0.3s ease;
-}
-
-.know-more-btn:hover i {
-  transform: translateX(3px);
-}
-
-/* Theme adjustments for know more button */
+/* Theme adjustments for know more button - UPDATED */
 body.dark-theme .know-more-btn {
   background: linear-gradient(135deg, #6c757d, #adb5bd);
   border-color: #6c757d;
   color: #212529 !important;
   box-shadow: 0 2px 8px rgba(108, 117, 125, 0.2);
+}
+
+body.dark-theme .know-more-btn * {
+  color: #212529 !important;
+}
+
+body.dark-theme .know-more-btn span {
+  color: #212529 !important;
+  text-shadow: none !important;
+}
+
+body.dark-theme .know-more-btn i {
+  color: #212529 !important;
 }
 
 body.dark-theme .know-more-btn:hover {
@@ -594,6 +632,19 @@ body.dark-theme .know-more-btn:hover {
   box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
 }
 
+body.dark-theme .know-more-btn:hover * {
+  color: white !important;
+}
+
+body.dark-theme .know-more-btn:hover span {
+  color: white !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1) !important;
+}
+
+body.dark-theme .know-more-btn:hover i {
+  color: white !important;
+}
+
 body:not(.dark-theme) .know-more-btn {
   background: linear-gradient(135deg, #495057, #6c757d);
   border-color: #6c757d;
@@ -601,11 +652,37 @@ body:not(.dark-theme) .know-more-btn {
   box-shadow: 0 2px 8px rgba(73, 80, 87, 0.2);
 }
 
+body:not(.dark-theme) .know-more-btn * {
+  color: white !important;
+}
+
+body:not(.dark-theme) .know-more-btn span {
+  color: white !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1) !important;
+}
+
+body:not(.dark-theme) .know-more-btn i {
+  color: white !important;
+}
+
 body:not(.dark-theme) .know-more-btn:hover {
   background: linear-gradient(135deg, #343a40, #495057);
   border-color: #495057;
   color: white !important;
   box-shadow: 0 4px 15px rgba(73, 80, 87, 0.3);
+}
+
+body:not(.dark-theme) .know-more-btn:hover * {
+  color: white !important;
+}
+
+body:not(.dark-theme) .know-more-btn:hover span {
+  color: white !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2) !important;
+}
+
+body:not(.dark-theme) .know-more-btn:hover i {
+  color: white !important;
 }
 
 /* Tech Stack Section - Square Card Optimized */

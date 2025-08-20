@@ -1,4 +1,4 @@
-// Updated src/app/experience/experience.ts - Cleaned console logs
+// Updated src/app/experience/experience.ts - Fixed modal behavior
 import { Component, OnInit, inject, signal, PLATFORM_ID, Inject, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
@@ -79,7 +79,7 @@ export class ExperienceComponent implements OnInit, AfterViewInit {
     this.resetForm();
     
     if (this.isBrowser) {
-      document.body.style.overflow = 'hidden';
+      document.body.style.overflow = 'hidden'; // Prevent background scrolling
     }
     
     if (experience) {
@@ -377,15 +377,11 @@ export class ExperienceComponent implements OnInit, AfterViewInit {
     this.resetForm();
     
     if (this.isBrowser) {
-      document.body.style.overflow = 'auto';
+      document.body.style.overflow = 'auto'; // Restore background scrolling
     }
   }
 
-  closeFormOnBackdrop(event: Event) {
-    if (event.target === event.currentTarget) {
-      this.closeForm();
-    }
-  }
+  // Removed closeFormOnBackdrop method - no longer needed
 
   resetForm() {
     this.experienceForm.reset();

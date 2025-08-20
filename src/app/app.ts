@@ -1,4 +1,4 @@
-// Updated src/app/app.ts - Enhanced admin interface with Projects integration - Cleaned console logs
+// Updated src/app/app.ts - Fixed modal behavior (no backdrop close, prevent background scroll)
 import {
   Component,
   OnInit,
@@ -199,6 +199,11 @@ export class AppComponent implements OnInit {
       this.showAdminDropdown.set(false);
       this.adminToken = '';
       
+      // Prevent background scrolling
+      if (isPlatformBrowser(this.platformId)) {
+        document.body.style.overflow = 'hidden';
+      }
+      
       // Focus the input after modal opens
       setTimeout(() => {
         const input = document.querySelector('.admin-token-input') as HTMLInputElement;
@@ -211,6 +216,11 @@ export class AppComponent implements OnInit {
       this.selectedAdminSection.set(sectionId);
       this.showAdminOperationsModal.set(true);
       this.showAdminDropdown.set(false);
+      
+      // Prevent background scrolling
+      if (isPlatformBrowser(this.platformId)) {
+        document.body.style.overflow = 'hidden';
+      }
     }
   }
 
@@ -218,6 +228,11 @@ export class AppComponent implements OnInit {
     this.showAdminTokenModal.set(false);
     this.selectedAdminSection.set('');
     this.adminToken = '';
+    
+    // Restore background scrolling
+    if (isPlatformBrowser(this.platformId)) {
+      document.body.style.overflow = 'auto';
+    }
   }
 
   submitAdminToken() {
@@ -239,6 +254,10 @@ export class AppComponent implements OnInit {
       // Show operations modal after successful authentication
       setTimeout(() => {
         this.showAdminOperationsModal.set(true);
+        // Prevent background scrolling for the next modal
+        if (isPlatformBrowser(this.platformId)) {
+          document.body.style.overflow = 'hidden';
+        }
       }, 100);
     } else {
       alert('Invalid admin token');
@@ -257,6 +276,11 @@ export class AppComponent implements OnInit {
   closeAdminOperationsModal() {
     this.showAdminOperationsModal.set(false);
     this.selectedAdminSection.set('');
+    
+    // Restore background scrolling
+    if (isPlatformBrowser(this.platformId)) {
+      document.body.style.overflow = 'auto';
+    }
   }
 
   selectOperation(operationId: string) {
@@ -301,6 +325,11 @@ export class AppComponent implements OnInit {
         
         // Show experience selection modal
         this.showExperienceSelectionModal.set(true);
+        
+        // Prevent background scrolling
+        if (isPlatformBrowser(this.platformId)) {
+          document.body.style.overflow = 'hidden';
+        }
       } catch (error) {
         console.error('Error loading experiences:', error);
         alert('Failed to load experiences');
@@ -334,6 +363,11 @@ export class AppComponent implements OnInit {
         
         // Show project selection modal
         this.showProjectSelectionModal.set(true);
+        
+        // Prevent background scrolling
+        if (isPlatformBrowser(this.platformId)) {
+          document.body.style.overflow = 'hidden';
+        }
       } catch (error) {
         console.error('Error loading projects:', error);
         alert('Failed to load projects');
@@ -345,12 +379,22 @@ export class AppComponent implements OnInit {
     this.showExperienceSelectionModal.set(false);
     this.selectedOperation.set('');
     this.selectedExperienceId.set(null);
+    
+    // Restore background scrolling
+    if (isPlatformBrowser(this.platformId)) {
+      document.body.style.overflow = 'auto';
+    }
   }
 
   closeProjectSelectionModal() {
     this.showProjectSelectionModal.set(false);
     this.selectedOperation.set('');
     this.selectedProjectId.set(null);
+    
+    // Restore background scrolling
+    if (isPlatformBrowser(this.platformId)) {
+      document.body.style.overflow = 'auto';
+    }
   }
 
   selectExperience(experienceId: number) {

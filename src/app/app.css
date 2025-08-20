@@ -1,4 +1,4 @@
-/* Updated app.css - Enhanced admin interface styles with fixed modal text colors */
+/* Updated app.css - Enhanced admin interface styles with fixed modal text colors and dropdown hover */
 * {
   margin: 0;
   padding: 0;
@@ -342,6 +342,7 @@ body:not(.dark-theme) {
 .admin-toggle::after {
   display: none !important;
 }
+
 /* Admin Dropdown */
 .admin-dropdown {
   position: absolute;
@@ -720,9 +721,11 @@ body.dark-theme .admin-operation-btn {
   font-size: 1.5rem;
 }
 
-/* Replace the existing experience selection styles in app.css with this fixed version */
+/* ===================================== */
+/* FIXED: Experience/Project Selection List Hover Effect */
+/* ===================================== */
 
-/* Experience Selection List */
+/* Experience Selection List Container */
 .experience-selection-list {
   max-height: 400px;
   overflow-y: auto;
@@ -739,7 +742,7 @@ body.dark-theme .experience-selection-list {
   border-color: rgba(255, 255, 255, 0.2);
 }
 
-/* FIXED: Professional hover effect for selection items */
+/* FIXED: Professional hover effect for ENTIRE selection item block */
 .experience-selection-item {
   width: 100%;
   padding: 18px 24px;
@@ -754,7 +757,6 @@ body.dark-theme .experience-selection-list {
   position: relative;
   box-sizing: border-box;
   min-height: auto;
-  line-height: 1.4;
   word-wrap: break-word;
   overflow: hidden;
 }
@@ -780,7 +782,6 @@ body.dark-theme .experience-selection-item {
 
 .experience-selection-item.delete-mode:hover {
   background: rgba(220, 53, 69, 0.08) !important;
-  color: #dc3545 !important;
   border-bottom-color: rgba(220, 53, 69, 0.2);
   box-shadow: 
     inset 4px 0 0 #dc3545,
@@ -797,33 +798,41 @@ body.dark-theme .experience-selection-item:hover {
 
 body.dark-theme .experience-selection-item.delete-mode:hover {
   background: rgba(244, 67, 54, 0.12) !important;
-  color: #f44336 !important;
   border-bottom-color: rgba(244, 67, 54, 0.25);
   box-shadow: 
     inset 4px 0 0 #f44336,
     0 2px 8px rgba(244, 67, 54, 0.15);
 }
 
-/* Enhanced experience info container */
+/* FIXED: Experience info container - prevent individual line hover */
 .experience-info {
   display: flex;
   flex-direction: column;
   gap: 6px;
   flex: 1;
-  pointer-events: none;
+  pointer-events: none; /* Disable pointer events on container */
   position: relative;
   z-index: 1;
   padding-right: 50px;
 }
 
+/* FIXED: All child elements inherit parent styles without individual hover */
 .experience-info * {
-  pointer-events: auto;
-  user-select: text;
+  pointer-events: none; /* Disable pointer events on all children */
+  user-select: none; /* Prevent text selection interference */
   cursor: inherit;
   margin: 0;
   padding: 0;
   display: block;
   width: 100%;
+  transition: none !important; /* Remove individual transitions */
+}
+
+/* Prevent any hover effects on child elements */
+.experience-info *:hover {
+  background: transparent !important;
+  color: inherit !important;
+  transform: none !important;
 }
 
 .experience-info h4 {
@@ -887,6 +896,7 @@ body.dark-theme .experience-selection-item i {
   color: rgba(255, 255, 255, 0.6) !important;
 }
 
+/* Icon changes color when parent is hovered */
 .experience-selection-item:hover i {
   color: #007bff !important;
   transform: translateY(-50%) scale(1.1);
@@ -923,6 +933,19 @@ body.dark-theme .experience-selection-item.delete-mode:hover i {
 
 .experience-selection-item.delete-mode:active {
   background: rgba(220, 53, 69, 0.12) !important;
+}
+
+/* When delete mode, change text color on hover */
+.experience-selection-item.delete-mode:hover .experience-info h4,
+.experience-selection-item.delete-mode:hover .experience-info p,
+.experience-selection-item.delete-mode:hover .experience-info small {
+  color: #dc3545 !important;
+}
+
+body.dark-theme .experience-selection-item.delete-mode:hover .experience-info h4,
+body.dark-theme .experience-selection-item.delete-mode:hover .experience-info p,
+body.dark-theme .experience-selection-item.delete-mode:hover .experience-info small {
+  color: #f44336 !important;
 }
 
 /* Scrollbar styling for better UX */
@@ -1394,12 +1417,12 @@ body:not(.dark-theme) .profile-image-placeholder {
     font-size: 1rem;
   }
 
-.admin-toggle {
-  width: 35px;
-  height: 35px;
-  margin-right: 0.3rem;
-  -webkit-tap-highlight-color: transparent !important;
-}
+  .admin-toggle {
+    width: 35px;
+    height: 35px;
+    margin-right: 0.3rem;
+    -webkit-tap-highlight-color: transparent !important;
+  }
 
   .admin-icon {
     width: 20px;

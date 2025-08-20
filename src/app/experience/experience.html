@@ -1,4 +1,4 @@
-<!-- Updated src/app/experience/experience.html - Remove admin controls from section header -->
+<!-- Updated src/app/experience/experience.html - Fixed modal behavior -->
 <section id="experience" class="experience-section">
   <div class="container">
     <!-- Section Header - Admin controls removed -->
@@ -12,15 +12,8 @@
       <p>Loading experiences...</p>
     </div>
 
-    <!-- Admin Add Button - Only show when admin mode is enabled -->
-    <!-- <div *ngIf="isAdmin() && !showForm()" class="admin-actions">
-      <button class="btn-add" (click)="openForm()">
-        + Add New Experience
-      </button>
-    </div> -->
-
-    <!-- Experience Form Modal -->
-    <div *ngIf="showForm() && isAdmin()" class="modal-overlay" (click)="closeFormOnBackdrop($event)">
+    <!-- Experience Form Modal - FIXED: No backdrop close -->
+    <div *ngIf="showForm() && isAdmin()" class="modal-overlay">
       <div class="experience-form-container" (click)="$event.stopPropagation()">
         <div class="form-header">
           <h3>{{ editingId() ? 'Edit Experience' : 'Add New Experience' }}</h3>

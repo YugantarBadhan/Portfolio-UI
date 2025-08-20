@@ -1,4 +1,4 @@
-<!-- Updated src/app/app.html with enhanced admin functionality including Projects -->
+<!-- Updated src/app/app.html with fixed modal behavior -->
 <!-- Navigation Bar -->
 <nav
   class="navbar"
@@ -147,8 +147,8 @@
   </div>
 </nav>
 
-<!-- Admin Token Modal -->
-<div *ngIf="showAdminTokenModal()" class="admin-modal-overlay" (click)="closeAdminTokenModal()">
+<!-- Admin Token Modal - FIXED: No backdrop close -->
+<div *ngIf="showAdminTokenModal()" class="admin-modal-overlay">
   <div class="admin-modal-container" (click)="$event.stopPropagation()">
     <div class="admin-modal-header">
       <h3>Admin Authentication</h3>
@@ -180,8 +180,8 @@
   </div>
 </div>
 
-<!-- Admin Operations Modal -->
-<div *ngIf="showAdminOperationsModal()" class="admin-modal-overlay" (click)="closeAdminOperationsModal()">
+<!-- Admin Operations Modal - FIXED: No backdrop close -->
+<div *ngIf="showAdminOperationsModal()" class="admin-modal-overlay">
   <div class="admin-modal-container" (click)="$event.stopPropagation()">
     <div class="admin-modal-header">
       <h3>{{ selectedAdminSection() | titlecase }} Management</h3>
@@ -209,8 +209,8 @@
   </div>
 </div>
 
-<!-- Experience Selection Modal -->
-<div *ngIf="showExperienceSelectionModal()" class="admin-modal-overlay" (click)="closeExperienceSelectionModal()">
+<!-- Experience Selection Modal - FIXED: No backdrop close -->
+<div *ngIf="showExperienceSelectionModal()" class="admin-modal-overlay">
   <div class="admin-modal-container" (click)="$event.stopPropagation()">
     <div class="admin-modal-header">
       <h3>Select Experience to {{ selectedOperation() | titlecase }}</h3>
@@ -244,8 +244,8 @@
   </div>
 </div>
 
-<!-- Project Selection Modal -->
-<div *ngIf="showProjectSelectionModal()" class="admin-modal-overlay" (click)="closeProjectSelectionModal()">
+<!-- Project Selection Modal - FIXED: No backdrop close -->
+<div *ngIf="showProjectSelectionModal()" class="admin-modal-overlay">
   <div class="admin-modal-container" (click)="$event.stopPropagation()">
     <div class="admin-modal-header">
       <h3>Select Project to {{ selectedOperation() | titlecase }}</h3>

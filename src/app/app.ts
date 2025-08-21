@@ -99,12 +99,19 @@ export class AppComponent implements OnInit, OnDestroy {
     this.isBrowser = isPlatformBrowser(platformId);
   }
 
-  ngOnInit() {
+    ngOnInit() {
+    // FIXED: Set dark theme as default immediately
     this.isDarkTheme = true;
 
     if (this.isBrowser) {
+      // Check saved theme preference
       const savedTheme = localStorage.getItem('theme');
-      this.isDarkTheme = savedTheme === null || savedTheme === 'dark';
+      
+      // If user previously selected light theme, switch to it
+      if (savedTheme === 'light') {
+        this.isDarkTheme = false;
+      }
+      // Otherwise keep dark theme (default)
       
       // Check if user is already authenticated as admin
       const savedAdminToken = localStorage.getItem('adminToken');
@@ -116,6 +123,7 @@ export class AppComponent implements OnInit, OnDestroy {
       this.setupSectionObserver();
     }
 
+    // Apply theme immediately
     this.applyTheme();
     // Don't load data on init - wait for lazy loading
   }
@@ -213,7 +221,7 @@ export class AppComponent implements OnInit, OnDestroy {
     }
   }
 
-  toggleTheme() {
+    toggleTheme() {
     this.isDarkTheme = !this.isDarkTheme;
 
     if (this.isBrowser) {
@@ -224,9 +232,16 @@ export class AppComponent implements OnInit, OnDestroy {
     this.cdr.markForCheck();
   }
 
-  private applyTheme() {
+   private applyTheme() {
     if (typeof document !== 'undefined') {
-      document.body.classList.toggle('dark-theme', this.isDarkTheme);
+      // FIXED: Use specific theme classes for smooth transitions
+      if (this.isDarkTheme) {
+        document.body.classList.remove('light-theme');
+        document.body.classList.add('dark-theme');
+      } else {
+        document.body.classList.remove('dark-theme');
+        document.body.classList.add('light-theme');
+      }
     }
   }
 

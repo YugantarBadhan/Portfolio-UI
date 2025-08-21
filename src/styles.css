@@ -6,18 +6,27 @@ body {
   padding: 0;
 }
 
+/* FIXED: Default to dark theme immediately - no flash */
 body {
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-  transition: all 0.3s ease;
-  /* Default to dark theme */
+  /* REMOVED: transition from body to prevent flash */
+  /* Default to dark theme IMMEDIATELY */
   color: #ffffff !important;
   background: #2c3e50 !important;
 }
 
-/* Light theme override */
-body:not(.dark-theme) {
+/* Light theme override - ONLY when class is present */
+body.light-theme {
   color: #333 !important;
   background: #EAEAEA !important;
+  transition: background-color 0.3s ease, color 0.3s ease !important;
+}
+
+/* Dark theme with smooth transition when toggling */
+body.dark-theme {
+  color: #ffffff !important;
+  background: #2c3e50 !important;
+  transition: background-color 0.3s ease, color 0.3s ease !important;
 }
 
 * {
@@ -53,11 +62,11 @@ app-root {
   color: inherit !important;
 }
 
-/* Override any conflicting background styles */
-body * {
+/* REMOVED: This was causing conflicts */
+/* body * {
   background: inherit;
   color: inherit;
-}
+} */
 
 /* Exception for specific UI elements that need their own colors */
 button,

@@ -1,4 +1,4 @@
-/* Updated app.css - Enhanced admin interface styles with fixed modal text colors and dropdown hover */
+/* Updated app.css - Fixed selection list hover effects (icons only) */
 * {
   margin: 0;
   padding: 0;
@@ -741,7 +741,7 @@ body.dark-theme .admin-operation-btn {
 }
 
 /* ===================================== */
-/* FIXED: Experience/Project Selection List Hover Effect */
+/* UPDATED: Experience/Project Selection List - NO ROW HOVER, ONLY ICON HOVER */
 /* ===================================== */
 
 /* Experience Selection List Container */
@@ -761,15 +761,15 @@ body.dark-theme .experience-selection-list {
   border-color: rgba(255, 255, 255, 0.2);
 }
 
-/* FIXED: Professional hover effect for ENTIRE selection item block */
+/* UPDATED: Selection item - NO HOVER EFFECT ON ROW */
 .experience-selection-item {
   width: 100%;
   padding: 18px 24px;
   border: none;
   border-bottom: 1px solid rgba(0, 0, 0, 0.06);
   background: transparent;
-  cursor: pointer;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: default; /* Changed from pointer to default */
+  transition: none; /* Removed transition */
   display: block;
   text-align: left;
   color: #333333 !important;
@@ -789,69 +789,36 @@ body.dark-theme .experience-selection-item {
   border-bottom: none;
 }
 
-/* Professional hover effect - applies to entire item block */
+/* REMOVED: All hover effects for the row */
 .experience-selection-item:hover {
-  background: rgba(0, 123, 255, 0.08) !important;
-  border-bottom-color: rgba(0, 123, 255, 0.2);
-  transform: translateX(4px);
-  box-shadow: 
-    inset 4px 0 0 #007bff,
-    0 2px 8px rgba(0, 123, 255, 0.12);
+  background: transparent !important; /* No background change */
+  border-bottom-color: inherit; /* Keep original border color */
+  transform: none !important; /* No transform */
+  box-shadow: none !important; /* No shadow */
 }
 
-.experience-selection-item.delete-mode:hover {
-  background: rgba(220, 53, 69, 0.08) !important;
-  border-bottom-color: rgba(220, 53, 69, 0.2);
-  box-shadow: 
-    inset 4px 0 0 #dc3545,
-    0 2px 8px rgba(220, 53, 69, 0.12);
-}
-
-body.dark-theme .experience-selection-item:hover {
-  background: rgba(100, 181, 246, 0.12) !important;
-  border-bottom-color: rgba(100, 181, 246, 0.25);
-  box-shadow: 
-    inset 4px 0 0 #64b5f6,
-    0 2px 8px rgba(100, 181, 246, 0.15);
-}
-
-body.dark-theme .experience-selection-item.delete-mode:hover {
-  background: rgba(244, 67, 54, 0.12) !important;
-  border-bottom-color: rgba(244, 67, 54, 0.25);
-  box-shadow: 
-    inset 4px 0 0 #f44336,
-    0 2px 8px rgba(244, 67, 54, 0.15);
-}
-
-/* FIXED: Experience info container - prevent individual line hover */
+/* Experience info container */
 .experience-info {
   display: flex;
   flex-direction: column;
   gap: 6px;
   flex: 1;
-  pointer-events: none; /* Disable pointer events on container */
+  pointer-events: none;
   position: relative;
   z-index: 1;
   padding-right: 50px;
 }
 
-/* FIXED: All child elements inherit parent styles without individual hover */
+/* All child elements inherit parent styles */
 .experience-info * {
-  pointer-events: none; /* Disable pointer events on all children */
-  user-select: none; /* Prevent text selection interference */
+  pointer-events: none;
+  user-select: none;
   cursor: inherit;
   margin: 0;
   padding: 0;
   display: block;
   width: 100%;
-  transition: none !important; /* Remove individual transitions */
-}
-
-/* Prevent any hover effects on child elements */
-.experience-info *:hover {
-  background: transparent !important;
-  color: inherit !important;
-  transform: none !important;
+  transition: none !important;
 }
 
 .experience-info h4 {
@@ -898,7 +865,7 @@ body.dark-theme .experience-info small {
   color: rgba(255, 255, 255, 0.6) !important;
 }
 
-/* Icon styling - positioned to avoid layout interference */
+/* UPDATED: Icon styling - Now with hover effects */
 .experience-selection-item i {
   position: absolute;
   right: 24px;
@@ -907,64 +874,63 @@ body.dark-theme .experience-info small {
   font-size: 1.1rem !important;
   color: #999999 !important;
   transition: all 0.25s ease;
-  pointer-events: none;
+  pointer-events: all !important; /* Enable pointer events for icons */
   z-index: 2;
+  cursor: pointer;
+  padding: 8px; /* Add padding for better click area */
+  border-radius: 4px;
 }
 
 body.dark-theme .experience-selection-item i {
   color: rgba(255, 255, 255, 0.6) !important;
 }
 
-/* Icon changes color when parent is hovered */
-.experience-selection-item:hover i {
+/* UPDATED: Icon hover effects based on operation type */
+/* For Update operation - Blue hover */
+.experience-selection-item i.fa-edit:hover {
   color: #007bff !important;
-  transform: translateY(-50%) scale(1.1);
+  background: rgba(0, 123, 255, 0.1);
+  transform: translateY(-50%) scale(1.2);
 }
 
-.experience-selection-item.delete-mode:hover i {
-  color: #dc3545 !important;
-}
-
-body.dark-theme .experience-selection-item:hover i {
+body.dark-theme .experience-selection-item i.fa-edit:hover {
   color: #64b5f6 !important;
+  background: rgba(100, 181, 246, 0.15);
 }
 
-body.dark-theme .experience-selection-item.delete-mode:hover i {
+/* For Delete operation - Red hover */
+.experience-selection-item i.fa-trash-alt:hover {
+  color: #dc3545 !important;
+  background: rgba(220, 53, 69, 0.1);
+  transform: translateY(-50%) scale(1.2);
+}
+
+body.dark-theme .experience-selection-item i.fa-trash-alt:hover {
   color: #f44336 !important;
+  background: rgba(244, 67, 54, 0.15);
 }
 
 /* Focus states for accessibility */
 .experience-selection-item:focus {
   outline: 2px solid #007bff;
   outline-offset: -2px;
-  background: rgba(0, 123, 255, 0.1) !important;
-}
-
-.experience-selection-item:focus:not(:hover) {
-  transform: none;
-  box-shadow: inset 4px 0 0 #007bff;
+  background: transparent !important; /* Keep transparent on focus */
 }
 
 .experience-selection-item:active {
-  transform: translateX(2px);
-  background: rgba(0, 123, 255, 0.12) !important;
+  transform: none !important; /* No transform on active */
+  background: transparent !important; /* Keep transparent on active */
 }
 
-.experience-selection-item.delete-mode:active {
-  background: rgba(220, 53, 69, 0.12) !important;
+/* Delete mode - NO row change, only affects icon */
+.experience-selection-item.delete-mode {
+  background: transparent !important;
 }
 
-/* When delete mode, change text color on hover */
-.experience-selection-item.delete-mode:hover .experience-info h4,
-.experience-selection-item.delete-mode:hover .experience-info p,
-.experience-selection-item.delete-mode:hover .experience-info small {
-  color: #dc3545 !important;
-}
-
-body.dark-theme .experience-selection-item.delete-mode:hover .experience-info h4,
-body.dark-theme .experience-selection-item.delete-mode:hover .experience-info p,
-body.dark-theme .experience-selection-item.delete-mode:hover .experience-info small {
-  color: #f44336 !important;
+.experience-selection-item.delete-mode:hover {
+  background: transparent !important;
+  transform: none !important;
+  box-shadow: none !important;
 }
 
 /* Scrollbar styling for better UX */

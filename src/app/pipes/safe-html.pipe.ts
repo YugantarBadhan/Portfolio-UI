@@ -1,4 +1,3 @@
-// src/app/pipes/safe-html.pipe.ts
 import { Pipe, PipeTransform, inject, Inject, PLATFORM_ID } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { isPlatformBrowser } from '@angular/common';

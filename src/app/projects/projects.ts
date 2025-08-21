@@ -1,4 +1,3 @@
-// Enhanced Square Projects Component with Know More Modal - Cleaned console logs
 import {
   Component,
   OnInit,
@@ -10,6 +9,9 @@ import {
   ElementRef,
   AfterViewInit,
   HostListener,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  OnDestroy
 } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import {
@@ -37,14 +39,16 @@ interface GitHubRepo {
   imports: [CommonModule, ReactiveFormsModule, SafeHtmlPipe],
   templateUrl: './projects.html',
   styleUrls: ['./projects.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ProjectsComponent implements OnInit, AfterViewInit {
+export class ProjectsComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('quillEditor', { static: false }) quillEditorRef!: ElementRef;
   @ViewChild('projectsGrid', { static: false }) projectsGridRef!: ElementRef;
 
   private projectService = inject(ProjectService);
   private fb = inject(FormBuilder);
   private configService = inject(ConfigService);
+  private cdr = inject(ChangeDetectorRef);
 
   projects = signal<Project[]>([]);
   isLoading = signal(false);
@@ -54,20 +58,21 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
   showGithubRepos = signal(false);
   currentGithubRepos = signal<GitHubRepo[]>([]);
 
-  // NEW: Project Details Modal State
+  // Project Details Modal State
   showProjectDetails = signal(false);
   selectedProject = signal<Project | null>(null);
 
-  // Enhanced carousel state for perfect square cards and full-screen layout
+  // Enhanced carousel state
   currentTranslateX = signal(0);
   currentIndicatorIndex = signal(0);
-  cardsPerView = signal(3); // Default to 3 for desktop
+  cardsPerView = signal(3);
   maxTranslateX = signal(0);
-  cardWidth = signal(450); // Default card width - increased for consistency
+  cardWidth = signal(450);
 
   private isBrowser: boolean;
   private quillEditor: any = null;
   private quillLoaded = false;
+  private quillLoadPromise: Promise<void> | null = null;
   private resizeTimeout: any;
   private intersectionObserver?: IntersectionObserver;
   private animationFrameId?: number;
@@ -88,9 +93,8 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
 
   ngOnInit() {
     this.loadProjects();
-    // Only load Quill in browser environment
+    // Don't load Quill on init - wait for form to be opened
     if (this.isBrowser) {
-      this.loadQuillEditor();
       this.calculateCardsPerView();
       this.setupIntersectionObserver();
       this.optimizeForAnimations();
@@ -98,12 +102,12 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit() {
-    // Only initialize Quill in browser environment
+    // Only initialize Quill in browser environment when form is shown
     if (this.isBrowser && this.showForm() && this.quillLoaded) {
       setTimeout(() => this.initializeQuillEditor(), 100);
     }
 
-    // Initialize carousel calculations with delay for proper DOM measurement
+    // Initialize carousel calculations
     if (this.isBrowser) {
       setTimeout(() => {
         this.calculateCardsPerView();
@@ -113,24 +117,43 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
     }
   }
 
+  ngOnDestroy() {
+    // Cleanup
+    if (this.animationFrameId) {
+      cancelAnimationFrame(this.animationFrameId);
+    }
+
+    if (this.intersectionObserver) {
+      this.intersectionObserver.disconnect();
+    }
+
+    if (this.resizeTimeout) {
+      clearTimeout(this.resizeTimeout);
+    }
+
+    this.destroyQuillEditor();
+
+    if (this.isBrowser) {
+      document.body.style.overflow = 'auto';
+    }
+  }
+
   @HostListener('window:resize', ['$event'])
   onWindowResize(event: any) {
     if (this.isBrowser) {
-      // Debounce resize events for better performance
       clearTimeout(this.resizeTimeout);
       this.resizeTimeout = setTimeout(() => {
         this.calculateCardsPerView();
         this.updateCarouselConstraints();
-        // Reset position if needed
         this.adjustCarouselPosition();
         this.applyOptimizedStyles();
+        this.cdr.markForCheck();
       }, 150);
     }
   }
 
   @HostListener('window:keydown', ['$event'])
   onKeyDown(event: KeyboardEvent) {
-    // Enhanced keyboard navigation for modals
     if (this.showProjectDetails()) {
       if (event.key === 'Escape') {
         this.closeProjectDetails();
@@ -153,18 +176,86 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
     }
   }
 
-  // Admin Mode Control Methods - EXISTING
+  // Lazy load Quill editor only when needed
+  private async loadQuillEditor(): Promise<void> {
+    if (!this.isBrowser || this.quillLoaded) {
+      return;
+    }
+
+    // Return existing promise if already loading
+    if (this.quillLoadPromise) {
+      return this.quillLoadPromise;
+    }
+
+    this.quillLoadPromise = new Promise<void>((resolve, reject) => {
+      // Check if Quill is already loaded
+      if (typeof (window as any).Quill !== 'undefined') {
+        this.quillLoaded = true;
+        resolve();
+        return;
+      }
+
+      // Check if scripts are already in DOM
+      const existingQuillScript = document.querySelector('script[src*="quill.min.js"]');
+      if (existingQuillScript) {
+        // Wait for existing script to load
+        existingQuillScript.addEventListener('load', () => {
+          this.quillLoaded = true;
+          resolve();
+        });
+        return;
+      }
+
+      // Load Quill CSS with optimized loading
+      const existingQuillCSS = document.querySelector('link[href*="quill.snow.min.css"]');
+      if (!existingQuillCSS) {
+        const quillCSS = document.createElement('link');
+        quillCSS.rel = 'stylesheet';
+        quillCSS.href = 'https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.snow.min.css';
+        quillCSS.media = 'print'; // Load without blocking
+        quillCSS.onload = () => { 
+          quillCSS.media = 'all'; // Apply styles after load
+        };
+        document.head.appendChild(quillCSS);
+      }
+
+      // Load Quill JS asynchronously
+      const quillJS = document.createElement('script');
+      quillJS.src = 'https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.min.js';
+      quillJS.async = true;
+      quillJS.defer = true;
+      
+      quillJS.onload = () => {
+        this.quillLoaded = true;
+        resolve();
+      };
+      
+      quillJS.onerror = (error) => {
+        console.error('Failed to load Quill editor:', error);
+        this.quillLoadPromise = null; // Reset promise on error
+        reject(error);
+      };
+      
+      document.head.appendChild(quillJS);
+    });
+
+    return this.quillLoadPromise;
+  }
+
+  // Admin Mode Control Methods
   enableAdminMode() {
     this.isAdmin.set(true);
     this.checkAdminStatus();
+    this.cdr.markForCheck();
   }
 
   disableAdminMode() {
     this.isAdmin.set(false);
     this.closeForm();
+    this.cdr.markForCheck();
   }
 
-  // Admin operation methods to be called from parent component - EXISTING
+  // Admin operation methods
   async handleCreateOperation() {
     this.openForm();
   }
@@ -174,7 +265,7 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
       alert('No projects available to update');
       return false;
     }
-    return true; // Indicates that project selection should be shown
+    return true;
   }
 
   async handleDeleteOperation() {
@@ -182,14 +273,11 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
       alert('No projects available to delete');
       return false;
     }
-    return true; // Indicates that project selection should be shown
+    return true;
   }
 
-  // Handle project selection for update/delete operations - EXISTING
-  async handleProjectSelection(
-    projectId: number,
-    operation: 'update' | 'delete'
-  ) {
+  // Handle project selection for update/delete operations
+  async handleProjectSelection(projectId: number, operation: 'update' | 'delete') {
     const project = this.projects().find((p) => p.id === projectId);
     if (!project) {
       alert('Project not found');
@@ -203,104 +291,62 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
     }
   }
 
-  // Refresh projects method for parent component - EXISTING
+  // Refresh projects method
   async refreshProjects() {
     await this.loadProjects();
   }
 
-  // ================================
-  // NEW: PROJECT DETAILS MODAL METHODS
-  // ================================
-
-  /**
-   * Opens the project details modal with full description and enhanced UI
-   * @param project - The project to display details for
-   */
+  // Project Details Modal Methods
   openProjectDetails(project: Project): void {
     this.selectedProject.set(project);
     this.showProjectDetails.set(true);
 
-    // Prevent body scroll when modal is open
     if (this.isBrowser) {
       document.body.style.overflow = 'hidden';
 
-      // Focus management for accessibility
       setTimeout(() => {
-        const closeButton = document.querySelector(
-          '.modal-close-btn'
-        ) as HTMLElement;
+        const closeButton = document.querySelector('.modal-close-btn') as HTMLElement;
         if (closeButton) {
           closeButton.focus();
         }
       }, 100);
     }
+    this.cdr.markForCheck();
   }
 
-  /**
-   * Closes the project details modal
-   */
   closeProjectDetails(): void {
     this.showProjectDetails.set(false);
     this.selectedProject.set(null);
 
-    // Restore body scroll
     if (this.isBrowser) {
       document.body.style.overflow = 'auto';
-
-      // Return focus to the "Know More" button that opened the modal
-      setTimeout(() => {
-        const activeProject = this.selectedProject();
-        if (activeProject) {
-          const knowMoreBtn = document.querySelector(
-            `[data-project-id="${activeProject.id}"] .know-more-btn`
-          ) as HTMLElement;
-          if (knowMoreBtn) {
-            knowMoreBtn.focus();
-          }
-        }
-      }, 100);
     }
+    this.cdr.markForCheck();
   }
 
-  /**
-   * Generates a clean preview of the project description
-   * Removes HTML tags and limits to approximately 4 lines
-   * SSR-safe implementation
-   * @param description - Full HTML description (can be null/undefined)
-   * @returns Clean preview text
-   */
   getDescriptionPreview(description: string | null | undefined): string {
     if (!description) return '';
 
     let plainText = '';
 
     if (this.isBrowser && typeof document !== 'undefined') {
-      // Browser environment: Use DOM manipulation for accurate HTML stripping
       try {
         const tempDiv = document.createElement('div');
         tempDiv.innerHTML = description;
         plainText = tempDiv.textContent || tempDiv.innerText || '';
       } catch (error) {
-        console.warn(
-          'Error parsing HTML in browser, falling back to regex:',
-          error
-        );
         plainText = this.stripHtmlWithRegex(description);
       }
     } else {
-      // SSR environment: Use regex-based HTML stripping
       plainText = this.stripHtmlWithRegex(description);
     }
 
-    // Calculate approximate character limit for 4 lines
-    // Assuming average of 80-90 characters per line at 1.1rem font size
     const maxChars = 320;
 
     if (plainText.length <= maxChars) {
       return plainText;
     }
 
-    // Find the last complete sentence within the limit
     const truncated = plainText.substring(0, maxChars);
     const lastSentenceEnd = Math.max(
       truncated.lastIndexOf('.'),
@@ -309,10 +355,8 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
     );
 
     if (lastSentenceEnd > maxChars * 0.7) {
-      // If sentence end is reasonably close
       return plainText.substring(0, lastSentenceEnd + 1);
     } else {
-      // Fall back to word boundary
       const lastSpace = truncated.lastIndexOf(' ');
       return lastSpace > 0
         ? plainText.substring(0, lastSpace) + '...'
@@ -320,18 +364,11 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
     }
   }
 
-  /**
-   * Regex-based HTML stripping for SSR environment
-   * @param html - HTML string to strip
-   * @returns Plain text content
-   */
   private stripHtmlWithRegex(html: string): string {
     if (!html || typeof html !== 'string') return '';
 
-    // Remove HTML tags using regex
     let text = html.replace(/<[^>]*>/g, '');
 
-    // Decode common HTML entities
     text = text
       .replace(/&nbsp;/g, ' ')
       .replace(/&amp;/g, '&')
@@ -341,20 +378,15 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
       .replace(/&#39;/g, "'")
       .replace(/&hellip;/g, '...');
 
-    // Clean up extra whitespace
     text = text.replace(/\s+/g, ' ').trim();
 
     return text;
   }
 
-  // ================================
-  // ENHANCED ANIMATION AND OPTIMIZATION METHODS
-  // ================================
-
+  // Animation Optimization Methods
   private optimizeForAnimations() {
     if (!this.isBrowser) return;
 
-    // Force hardware acceleration on key elements
     const style = document.createElement('style');
     style.textContent = `
       .project-card {
@@ -366,25 +398,6 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
         backface-visibility: hidden !important;
         perspective: 1000px !important;
       }
-      
-      .project-card:hover {
-        -webkit-font-smoothing: antialiased !important;
-        -moz-osx-font-smoothing: grayscale !important;
-        text-rendering: optimizeLegibility !important;
-      }
-      
-      .project-card * {
-        -webkit-font-smoothing: inherit !important;
-        -moz-osx-font-smoothing: inherit !important;
-        text-rendering: inherit !important;
-      }
-      
-      .project-details-modal {
-        -webkit-transform: translateZ(0) !important;
-        transform: translateZ(0) !important;
-        -webkit-font-smoothing: antialiased !important;
-        -moz-osx-font-smoothing: grayscale !important;
-      }
     `;
     document.head.appendChild(style);
   }
@@ -392,50 +405,17 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
   private applyOptimizedStyles() {
     if (!this.isBrowser) return;
 
-    // Apply optimization to all project cards
-    const cards = document.querySelectorAll(
-      '.project-card'
-    ) as NodeListOf<HTMLElement>;
+    const cards = document.querySelectorAll('.project-card') as NodeListOf<HTMLElement>;
     cards.forEach((card) => {
-      // Force hardware acceleration and crisp text
       card.style.setProperty('-webkit-transform', 'translateZ(0)', 'important');
       card.style.setProperty('transform', 'translateZ(0)', 'important');
-      card.style.setProperty(
-        '-webkit-font-smoothing',
-        'antialiased',
-        'important'
-      );
-      card.style.setProperty(
-        '-moz-osx-font-smoothing',
-        'grayscale',
-        'important'
-      );
-      card.style.setProperty(
-        'text-rendering',
-        'optimizeLegibility',
-        'important'
-      );
+      card.style.setProperty('-webkit-font-smoothing', 'antialiased', 'important');
+      card.style.setProperty('-moz-osx-font-smoothing', 'grayscale', 'important');
+      card.style.setProperty('text-rendering', 'optimizeLegibility', 'important');
       card.style.setProperty('backface-visibility', 'hidden', 'important');
-
-      // Apply to all child elements
-      const allChildren = card.querySelectorAll('*') as NodeListOf<HTMLElement>;
-      allChildren.forEach((child) => {
-        child.style.setProperty(
-          '-webkit-font-smoothing',
-          'inherit',
-          'important'
-        );
-        child.style.setProperty(
-          '-moz-osx-font-smoothing',
-          'inherit',
-          'important'
-        );
-        child.style.setProperty('text-rendering', 'inherit', 'important');
-      });
     });
   }
 
-  // Enhanced Performance Optimization with Intersection Observer
   private setupIntersectionObserver() {
     if (!this.isBrowser || typeof IntersectionObserver === 'undefined') {
       return;
@@ -447,7 +427,6 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
           const card = entry.target as HTMLElement;
           if (entry.isIntersecting) {
             card.style.willChange = 'transform';
-            // Apply optimization when card becomes visible
             this.optimizeCardForAnimation(card);
           } else {
             card.style.willChange = 'auto';
@@ -463,14 +442,9 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
   }
 
   private optimizeCardForAnimation(card: HTMLElement) {
-    // Apply optimizations to prevent blur during animations
     card.style.setProperty('-webkit-transform', 'translateZ(0)', 'important');
     card.style.setProperty('transform', 'translateZ(0)', 'important');
-    card.style.setProperty(
-      '-webkit-font-smoothing',
-      'antialiased',
-      'important'
-    );
+    card.style.setProperty('-webkit-font-smoothing', 'antialiased', 'important');
     card.style.setProperty('-moz-osx-font-smoothing', 'grayscale', 'important');
     card.style.setProperty('text-rendering', 'optimizeLegibility', 'important');
     card.style.setProperty('backface-visibility', 'hidden', 'important');
@@ -483,33 +457,31 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
     const cards = document.querySelectorAll('.project-card');
     cards.forEach((card) => {
       this.intersectionObserver!.observe(card);
-      // Immediately optimize visible cards
       this.optimizeCardForAnimation(card as HTMLElement);
     });
   }
 
-  // Enhanced Carousel Methods for Perfect Square Cards and Full-Screen Layout
+  // Carousel Methods
   private calculateCardsPerView() {
     if (!this.isBrowser) return;
 
     const windowWidth = window.innerWidth;
 
-    // Calculate optimal card count based on consistent card sizes
     if (windowWidth <= 480) {
       this.cardsPerView.set(1);
-      this.cardWidth.set(320); // Fixed size for mobile
+      this.cardWidth.set(320);
     } else if (windowWidth <= 768) {
       this.cardsPerView.set(1);
-      this.cardWidth.set(350); // Fixed size for tablet
+      this.cardWidth.set(350);
     } else if (windowWidth <= 1200) {
       this.cardsPerView.set(2);
-      this.cardWidth.set(380); // Fixed size for small desktop
+      this.cardWidth.set(380);
     } else if (windowWidth <= 1400) {
       this.cardsPerView.set(3);
-      this.cardWidth.set(400); // Fixed size for medium desktop
+      this.cardWidth.set(400);
     } else {
       this.cardsPerView.set(3);
-      this.cardWidth.set(450); // Fixed size for large desktop
+      this.cardWidth.set(450);
     }
 
     this.updateCarouselConstraints();
@@ -519,13 +491,10 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
   private updateCardStyles() {
     if (!this.isBrowser) return;
 
-    const cards = document.querySelectorAll(
-      '.project-card'
-    ) as NodeListOf<HTMLElement>;
+    const cards = document.querySelectorAll('.project-card') as NodeListOf<HTMLElement>;
     const cardSize = this.cardWidth();
 
     cards.forEach((card) => {
-      // Force consistent square dimensions
       card.style.setProperty('width', `${cardSize}px`, 'important');
       card.style.setProperty('height', `${cardSize}px`, 'important');
       card.style.setProperty('min-width', `${cardSize}px`, 'important');
@@ -533,7 +502,6 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
       card.style.setProperty('max-width', `${cardSize}px`, 'important');
       card.style.setProperty('max-height', `${cardSize}px`, 'important');
 
-      // Apply animation optimizations
       this.optimizeCardForAnimation(card);
     });
   }
@@ -549,21 +517,18 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
       return;
     }
 
-    // Calculate max scroll based on card width and gap
     const cardWidth = this.cardWidth();
-    const gap = 32; // 2rem gap between cards
+    const gap = 32;
     const scrollDistance = cardWidth + gap;
     const maxScroll = (totalProjects - cardsPerView) * scrollDistance;
     this.maxTranslateX.set(-maxScroll);
   }
 
   private adjustCarouselPosition() {
-    // Ensure current position is still valid after resize
     const currentTranslate = this.currentTranslateX();
     const maxTranslate = this.maxTranslateX();
 
     if (currentTranslate < maxTranslate) {
-      // Calculate nearest valid position
       const cardWidth = this.cardWidth();
       const gap = 32;
       const scrollDistance = cardWidth + gap;
@@ -589,7 +554,7 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
 
     const currentTranslate = this.currentTranslateX();
     const cardWidth = this.cardWidth();
-    const gap = 32; // 2rem gap
+    const gap = 32;
     const scrollAmount = cardWidth + gap;
 
     let newTranslate = currentTranslate;
@@ -603,17 +568,14 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
       );
     }
 
-    // Smooth animation with enhanced easing and optimization
     this.animateCarousel(newTranslate);
   }
 
-  // OPTIMIZED: Enhanced animation with blur prevention
   private animateCarousel(targetTranslate: number) {
     const startTranslate = this.currentTranslateX();
-    const duration = 600; // Slightly longer for smoother animation
+    const duration = 600;
     const startTime = performance.now();
 
-    // Cancel any existing animation
     if (this.animationFrameId) {
       cancelAnimationFrame(this.animationFrameId);
     }
@@ -622,17 +584,14 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
       const elapsed = currentTime - startTime;
       const progress = Math.min(elapsed / duration, 1);
 
-      // Enhanced easing function for smoother animation
       const easeOutCubic = 1 - Math.pow(1 - progress, 3);
 
       const currentTranslate =
         startTranslate + (targetTranslate - startTranslate) * easeOutCubic;
       this.currentTranslateX.set(currentTranslate);
 
-      // Force repaint optimization
       const grid = document.querySelector('.projects-grid') as HTMLElement;
       if (grid) {
-        // Use transform3d for hardware acceleration and blur prevention
         grid.style.transform = `translate3d(${currentTranslate}px, 0, 0)`;
         grid.style.webkitTransform = `translate3d(${currentTranslate}px, 0, 0)`;
       }
@@ -644,7 +603,6 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
         this.updateIndicatorIndex();
         this.animationFrameId = undefined;
 
-        // Final optimization application
         setTimeout(() => {
           this.applyOptimizedStyles();
         }, 50);
@@ -696,7 +654,6 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
     this.animateCarousel(clampedTranslate);
   }
 
-  // TrackBy function for better performance
   trackByProjectId(index: number, project: Project): number {
     return project.id;
   }
@@ -728,8 +685,9 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
     this.showGithubRepos.set(true);
 
     if (this.isBrowser) {
-      document.body.style.overflow = 'hidden'; // Prevent background scrolling
+      document.body.style.overflow = 'hidden';
     }
+    this.cdr.markForCheck();
   }
 
   closeGithubRepos(): void {
@@ -737,8 +695,9 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
     this.currentGithubRepos.set([]);
 
     if (this.isBrowser) {
-      document.body.style.overflow = 'auto'; // Restore background scrolling
+      document.body.style.overflow = 'auto';
     }
+    this.cdr.markForCheck();
   }
 
   private extractRepoName(url: string): string {
@@ -754,48 +713,11 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
 
       return pathParts[pathParts.length - 1] || '';
     } catch {
-      // If URL parsing fails, try simple string manipulation
       const parts = url.split('/').filter((part) => part);
       if (parts.length >= 2) {
         return `${parts[parts.length - 2]}/${parts[parts.length - 1]}`;
       }
       return parts[parts.length - 1] || '';
-    }
-  }
-
-  private async loadQuillEditor() {
-    if (!this.isBrowser || this.quillLoaded) {
-      return;
-    }
-
-    try {
-      // Ensure we're in browser before manipulating DOM
-      if (typeof document === 'undefined') {
-        return;
-      }
-
-      // Load Quill CSS
-      const quillCSS = document.createElement('link');
-      quillCSS.rel = 'stylesheet';
-      quillCSS.href =
-        'https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.snow.min.css';
-      document.head.appendChild(quillCSS);
-
-      // Load Quill JS
-      const quillJS = document.createElement('script');
-      quillJS.src =
-        'https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.min.js';
-
-      return new Promise<void>((resolve, reject) => {
-        quillJS.onload = () => {
-          this.quillLoaded = true;
-          resolve();
-        };
-        quillJS.onerror = reject;
-        document.head.appendChild(quillJS);
-      });
-    } catch (error) {
-      console.error('Failed to load Quill editor:', error);
     }
   }
 
@@ -810,14 +732,12 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
     }
 
     try {
-      // Double check we have Quill available
       if (typeof Quill === 'undefined') {
         console.warn('Quill is not loaded, falling back to textarea');
         this.showQuillFallback();
         return;
       }
 
-      // Enhanced Quill configuration with more formatting options
       const toolbarOptions = [
         [{ header: [1, 2, 3, false] }],
         ['bold', 'italic', 'underline', 'strike'],
@@ -852,50 +772,37 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
         ],
       });
 
-      // Enhanced styling enforcement with retry mechanism
       const forceStyles = () => {
         this.forceWhiteBackgroundBlackText();
-        // Additional retry for stubborn elements
         setTimeout(() => this.forceWhiteBackgroundBlackText(), 50);
       };
 
-      // Initial styling
       setTimeout(forceStyles, 50);
 
-      // Set initial content if editing
       const currentDescription = this.projectForm.get('description')?.value;
       if (currentDescription) {
         this.quillEditor.root.innerHTML = currentDescription;
         setTimeout(forceStyles, 100);
       }
 
-      // Enhanced event listeners with styling enforcement
       this.quillEditor.on('text-change', () => {
         const html = this.quillEditor.root.innerHTML;
         const text = this.quillEditor.getText().trim();
 
-        // Update form control with HTML content
         this.projectForm.get('description')?.setValue(html);
 
-        // Enhanced validation
         if (text.length === 0 || html === '<p><br></p>') {
           this.projectForm.get('description')?.setErrors({ required: true });
         } else {
           this.projectForm.get('description')?.setErrors(null);
         }
 
-        // Force styling after each change with debouncing
         setTimeout(forceStyles, 10);
+        this.cdr.markForCheck();
       });
 
-      this.quillEditor.on('selection-change', () => {
-        setTimeout(forceStyles, 10);
-      });
-
-      // Handle focus/blur events for better UX
       this.quillEditor.on('selection-change', (range: any) => {
         if (range) {
-          // Editor is focused
           const container = this.quillEditorRef.nativeElement.closest(
             '.quill-editor-container'
           );
@@ -904,7 +811,6 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
             container.style.boxShadow = '0 0 0 2px rgba(0, 123, 255, 0.25)';
           }
         } else {
-          // Editor is blurred
           const container = this.quillEditorRef.nativeElement.closest(
             '.quill-editor-container'
           );
@@ -913,10 +819,10 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
             container.style.boxShadow = 'none';
           }
         }
+        setTimeout(forceStyles, 10);
       });
     } catch (error) {
       console.error('Error initializing Quill editor:', error);
-      // Fallback to regular textarea if Quill fails
       this.showQuillFallback();
     }
   }
@@ -928,7 +834,6 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
 
     const editorElement = this.quillEditor.root;
 
-    // Enhanced styling enforcement with important flags
     const forceStyle = (
       element: HTMLElement,
       styles: Record<string, string>
@@ -938,7 +843,6 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
       });
     };
 
-    // Force main editor styles
     forceStyle(editorElement, {
       background: 'white',
       color: '#333333',
@@ -947,7 +851,6 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
       'font-family': 'inherit',
     });
 
-    // Force container styles
     const container = editorElement.parentElement;
     if (container && container.classList.contains('ql-container')) {
       forceStyle(container, {
@@ -956,7 +859,6 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
       });
     }
 
-    // Force all child elements
     const allElements = editorElement.querySelectorAll('*');
     allElements.forEach((element: Element) => {
       const htmlElement = element as HTMLElement;
@@ -965,31 +867,6 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
         background: 'transparent',
       });
     });
-
-    // Force specific text elements with enhanced selectors
-    const textSelectors =
-      'p, div, span, h1, h2, h3, h4, h5, h6, li, strong, em, u, s, a, ol, ul, blockquote';
-    const textElements = editorElement.querySelectorAll(textSelectors);
-    textElements.forEach((element: Element) => {
-      const htmlElement = element as HTMLElement;
-      forceStyle(htmlElement, {
-        color: '#333333',
-        background: 'transparent',
-      });
-
-      // Remove any inline styles that might override our important styles
-      if (htmlElement.style.color && htmlElement.style.color !== '#333333') {
-        htmlElement.style.removeProperty('color');
-        htmlElement.style.setProperty('color', '#333333', 'important');
-      }
-    });
-
-    // Enhanced attribute-based styling
-    editorElement.setAttribute(
-      'style',
-      editorElement.getAttribute('style') +
-        '; color: #333333 !important; background: white !important;'
-    );
   }
 
   private showQuillFallback() {
@@ -997,7 +874,6 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
       return;
     }
 
-    // Hide Quill container and show fallback textarea
     if (this.quillEditorRef?.nativeElement) {
       this.quillEditorRef.nativeElement.style.display = 'none';
       const fallback = document.getElementById('description-fallback');
@@ -1013,27 +889,23 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
     }
 
     try {
-      // Get content before destroying
       const content = this.quillEditor.root.innerHTML;
       this.projectForm.get('description')?.setValue(content);
-
-      // Destroy the editor
       this.quillEditor = null;
     } catch (error) {
       console.error('Error destroying Quill editor:', error);
     }
   }
 
-  // Enhanced URL validators with better error handling
+  // Validators
   private urlValidator(control: any) {
     const value = control.value;
     if (!value || value.trim() === '') {
-      return null; // Allow empty values for optional fields
+      return null;
     }
 
     try {
       const url = new URL(value.trim());
-      // Additional validation for common URL issues
       if (!url.protocol.startsWith('http')) {
         return { invalidUrl: true };
       }
@@ -1046,10 +918,9 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
   private multiUrlValidator(control: any) {
     const value = control.value;
     if (!value || value.trim() === '') {
-      return null; // Allow empty values for optional fields
+      return null;
     }
 
-    // Split by comma and validate each URL
     const urls = value
       .split(',')
       .map((url: string) => url.trim())
@@ -1081,6 +952,7 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
     try {
       const adminToken = localStorage.getItem('adminToken');
       this.isAdmin.set(adminToken === this.configService.adminToken);
+      this.cdr.markForCheck();
     } catch (error) {
       console.error('Error checking admin status:', error);
       this.isAdmin.set(false);
@@ -1091,11 +963,9 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
     this.isLoading.set(true);
     try {
       const projects = await this.projectService.getAllProjects();
-      // Sort projects by ID in descending order (newest first)
       projects.sort((a, b) => b.id - a.id);
       this.projects.set(projects);
 
-      // Reset carousel position and recalculate constraints
       this.currentTranslateX.set(0);
       this.currentIndicatorIndex.set(0);
 
@@ -1104,14 +974,16 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
           this.calculateCardsPerView();
           this.updateCarouselConstraints();
           this.observeProjectCards();
-          this.applyOptimizedStyles(); // Apply optimizations after load
+          this.applyOptimizedStyles();
         }, 300);
       }
+      this.cdr.markForCheck();
     } catch (error) {
       console.error('Error loading projects:', error);
       this.projects.set([]);
     } finally {
       this.isLoading.set(false);
+      this.cdr.markForCheck();
     }
   }
 
@@ -1125,7 +997,6 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
     const githubValid = this.projectForm.get('githubLink')?.valid;
     const demoValid = this.projectForm.get('liveDemoLink')?.valid;
 
-    // Additional check for Quill content
     if (this.quillEditor) {
       const text = this.quillEditor.getText().trim();
       if (text.length === 0) {
@@ -1136,11 +1007,21 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
     return !!(titleValid && descriptionValid && githubValid && demoValid);
   }
 
-  openForm(project?: Project) {
+  async openForm(project?: Project) {
     this.resetForm();
 
+    // Load Quill only when form is opened
+    if (this.isBrowser && !this.quillLoaded) {
+      try {
+        await this.loadQuillEditor();
+      } catch (error) {
+        console.error('Failed to load Quill, using fallback textarea');
+        this.showQuillFallback();
+      }
+    }
+
     if (this.isBrowser) {
-      document.body.style.overflow = 'hidden'; // Prevent background scrolling
+      document.body.style.overflow = 'hidden';
     }
 
     if (project) {
@@ -1158,12 +1039,11 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
     }
 
     this.showForm.set(true);
+    this.cdr.markForCheck();
 
-    // Initialize Quill editor after form is shown with enhanced timing
     if (this.isBrowser && this.quillLoaded) {
       setTimeout(() => {
         this.initializeQuillEditor();
-        // Additional delay for content setting in edit mode
         if (project) {
           setTimeout(() => {
             if (this.quillEditor && project.description) {
@@ -1182,8 +1062,9 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
     this.resetForm();
 
     if (this.isBrowser) {
-      document.body.style.overflow = 'auto'; // Restore background scrolling
+      document.body.style.overflow = 'auto';
     }
+    this.cdr.markForCheck();
   }
 
   resetForm() {
@@ -1199,7 +1080,6 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
   }
 
   async onSubmit() {
-    // Ensure Quill content is saved to form before validation
     if (this.isBrowser && this.quillEditor) {
       const html = this.quillEditor.root.innerHTML;
       const text = this.quillEditor.getText().trim();
@@ -1220,7 +1100,7 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
 
       const projectData = {
         title: formValue.title.trim(),
-        description: formValue.description, // This now contains HTML from Quill
+        description: formValue.description,
         techStack: formValue.techStack?.trim() || null,
         githubLink: formValue.githubLink?.trim() || null,
         liveDemoLink: formValue.liveDemoLink?.trim() || null,
@@ -1235,7 +1115,6 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
       await this.loadProjects();
       this.closeForm();
 
-      // Enhanced success feedback
       const message = this.editingId()
         ? 'Project updated successfully!'
         : 'Project created successfully!';
@@ -1248,6 +1127,7 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
       alert(errorMessage);
     } finally {
       this.isLoading.set(false);
+      this.cdr.markForCheck();
     }
   }
 
@@ -1258,6 +1138,7 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
         control.markAsTouched();
       }
     });
+    this.cdr.markForCheck();
   }
 
   async deleteProject(id: number, title: string) {
@@ -1275,29 +1156,8 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
         alert(errorMessage);
       } finally {
         this.isLoading.set(false);
+        this.cdr.markForCheck();
       }
-    }
-  }
-
-  // Cleanup method for better memory management
-  ngOnDestroy() {
-    // Cancel any pending animations
-    if (this.animationFrameId) {
-      cancelAnimationFrame(this.animationFrameId);
-    }
-
-    if (this.intersectionObserver) {
-      this.intersectionObserver.disconnect();
-    }
-
-    if (this.resizeTimeout) {
-      clearTimeout(this.resizeTimeout);
-    }
-
-    this.destroyQuillEditor();
-
-    if (this.isBrowser) {
-      document.body.style.overflow = 'auto';
     }
   }
 }

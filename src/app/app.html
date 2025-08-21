@@ -1,4 +1,3 @@
-<!-- Updated src/app/app.html with fixed modal behavior -->
 <!-- Navigation Bar -->
 <nav
   class="navbar"
@@ -44,7 +43,7 @@
     <i class="fas fa-bars" *ngIf="!isMobileMenuOpen"></i>
     <i class="fas fa-times" *ngIf="isMobileMenuOpen"></i>
   </button>
-  
+
   <div class="nav-actions">
     <div class="social-buttons">
       <a
@@ -80,7 +79,7 @@
         <i class="fab fa-whatsapp"></i>
       </a>
     </div>
-    
+
     <!-- Admin Dropdown -->
     <div class="admin-dropdown-container">
       <button
@@ -91,9 +90,9 @@
       >
         <img src="assets/images/admin.png" alt="Admin" class="admin-icon" />
       </button>
-      
-      <div 
-        class="admin-dropdown" 
+
+      <div
+        class="admin-dropdown"
         [class.show]="showAdminDropdown()"
         [class.dark-theme]="isDarkTheme"
       >
@@ -101,30 +100,39 @@
           <span class="admin-status" *ngIf="isAdminAuthenticated()">
             <i class="fas fa-check-circle"></i> Authenticated
           </span>
-          <span class="admin-status not-authenticated" *ngIf="!isAdminAuthenticated()">
+          <span
+            class="admin-status not-authenticated"
+            *ngIf="!isAdminAuthenticated()"
+          >
             <i class="fas fa-lock"></i> Not Authenticated
           </span>
         </div>
-        
+
         <div class="admin-dropdown-content">
-          <button 
-            *ngFor="let section of adminSections" 
+          <button
+            *ngFor="let section of adminSections"
             class="admin-section-btn"
             [class.disabled]="!section.enabled"
-            (click)="section.enabled ? selectAdminSection(section.id, $event) : null"
-            [title]="section.enabled ? 'Manage ' + section.label : 'Coming Soon'"
+            (click)="
+              section.enabled ? selectAdminSection(section.id, $event) : null
+            "
+            [title]="
+              section.enabled ? 'Manage ' + section.label : 'Coming Soon'
+            "
           >
-            <i class="fas" 
-               [class.fa-briefcase]="section.id === 'experience'"
-               [class.fa-code]="section.id === 'projects'"
-               [class.fa-certificate]="section.id === 'certifications'"
-               [class.fa-graduation-cap]="section.id === 'educations'"
-               [class.fa-trophy]="section.id === 'awards'"></i>
+            <i
+              class="fas"
+              [class.fa-briefcase]="section.id === 'experience'"
+              [class.fa-code]="section.id === 'projects'"
+              [class.fa-certificate]="section.id === 'certifications'"
+              [class.fa-graduation-cap]="section.id === 'educations'"
+              [class.fa-trophy]="section.id === 'awards'"
+            ></i>
             {{ section.label }}
             <span *ngIf="!section.enabled" class="coming-soon">Soon</span>
           </button>
         </div>
-        
+
         <div class="admin-dropdown-footer" *ngIf="isAdminAuthenticated()">
           <button class="admin-logout-btn" (click)="logoutAdmin()">
             <i class="fas fa-sign-out-alt"></i> Logout
@@ -132,7 +140,7 @@
         </div>
       </div>
     </div>
-    
+
     <button
       class="theme-toggle"
       (click)="toggleTheme()"
@@ -154,11 +162,14 @@
       <h3>Admin Authentication</h3>
       <button class="close-btn" (click)="closeAdminTokenModal()">×</button>
     </div>
-    
+
     <div class="admin-modal-content">
-      <p>Enter admin token to manage <strong>{{ selectedAdminSection() }}</strong>:</p>
-      <input 
-        type="password" 
+      <p>
+        Enter admin token to manage <strong>{{ selectedAdminSection() }}</strong
+        >:
+      </p>
+      <input
+        type="password"
         class="admin-token-input"
         [(ngModel)]="adminToken"
         placeholder="Enter admin token"
@@ -166,11 +177,13 @@
         #tokenInput
       />
     </div>
-    
+
     <div class="admin-modal-actions">
-      <button class="btn-cancel" (click)="closeAdminTokenModal()">Cancel</button>
-      <button 
-        class="btn-submit" 
+      <button class="btn-cancel" (click)="closeAdminTokenModal()">
+        Cancel
+      </button>
+      <button
+        class="btn-submit"
         (click)="submitAdminToken()"
         [disabled]="!adminToken.trim()"
       >
@@ -187,11 +200,11 @@
       <h3>{{ selectedAdminSection() | titlecase }} Management</h3>
       <button class="close-btn" (click)="closeAdminOperationsModal()">×</button>
     </div>
-    
+
     <div class="admin-modal-content">
       <p>Choose an operation:</p>
       <div class="admin-operations-grid">
-        <button 
+        <button
           *ngFor="let operation of adminOperations"
           class="admin-operation-btn"
           [class]="'operation-' + operation.id"
@@ -202,9 +215,11 @@
         </button>
       </div>
     </div>
-    
+
     <div class="admin-modal-actions">
-      <button class="btn-cancel" (click)="closeAdminOperationsModal()">Cancel</button>
+      <button class="btn-cancel" (click)="closeAdminOperationsModal()">
+        Cancel
+      </button>
     </div>
   </div>
 </div>
@@ -214,14 +229,16 @@
   <div class="admin-modal-container" (click)="$event.stopPropagation()">
     <div class="admin-modal-header">
       <h3>Select Experience to {{ selectedOperation() | titlecase }}</h3>
-      <button class="close-btn" (click)="closeExperienceSelectionModal()">×</button>
+      <button class="close-btn" (click)="closeExperienceSelectionModal()">
+        ×
+      </button>
     </div>
-    
+
     <div class="admin-modal-content">
       <p *ngIf="experiences().length === 0">No experiences found.</p>
       <div *ngIf="experiences().length > 0" class="experience-selection-list">
-        <button 
-          *ngFor="let exp of experiences()" 
+        <button
+          *ngFor="let exp of experiences()"
           class="experience-selection-item"
           [class.delete-mode]="selectedOperation() === 'delete'"
           (click)="selectExperience(exp.id)"
@@ -229,17 +246,26 @@
           <div class="experience-info">
             <h4>{{ exp.companyName }}</h4>
             <p>{{ exp.role }}</p>
-            <small>{{ exp.startDate | date:'MMM yyyy' }} - {{ exp.current ? 'Present' : (exp.endDate | date:'MMM yyyy') }}</small>
+            <small
+              >{{ exp.startDate | date : "MMM yyyy" }} -
+              {{
+                exp.current ? "Present" : (exp.endDate | date : "MMM yyyy")
+              }}</small
+            >
           </div>
-          <i class="fas" 
-             [class.fa-edit]="selectedOperation() === 'update'"
-             [class.fa-trash-alt]="selectedOperation() === 'delete'"></i>
+          <i
+            class="fas"
+            [class.fa-edit]="selectedOperation() === 'update'"
+            [class.fa-trash-alt]="selectedOperation() === 'delete'"
+          ></i>
         </button>
       </div>
     </div>
-    
+
     <div class="admin-modal-actions">
-      <button class="btn-cancel" (click)="closeExperienceSelectionModal()">Cancel</button>
+      <button class="btn-cancel" (click)="closeExperienceSelectionModal()">
+        Cancel
+      </button>
     </div>
   </div>
 </div>
@@ -249,45 +275,91 @@
   <div class="admin-modal-container" (click)="$event.stopPropagation()">
     <div class="admin-modal-header">
       <h3>Select Project to {{ selectedOperation() | titlecase }}</h3>
-      <button class="close-btn" (click)="closeProjectSelectionModal()">×</button>
+      <button class="close-btn" (click)="closeProjectSelectionModal()">
+        ×
+      </button>
     </div>
-    
+
     <div class="admin-modal-content">
       <p *ngIf="projects().length === 0">No projects found.</p>
       <div *ngIf="projects().length > 0" class="experience-selection-list">
-        <button 
-          *ngFor="let project of projects()" 
+        <button
+          *ngFor="let project of projects()"
           class="experience-selection-item"
           [class.delete-mode]="selectedOperation() === 'delete'"
           (click)="selectProject(project.id)"
         >
           <div class="experience-info">
             <h4>{{ project.title }}</h4>
-            <p>{{ project.techStack || 'No tech stack specified' }}</p>
+            <p>{{ project.techStack || "No tech stack specified" }}</p>
             <small>Project ID: {{ project.id }}</small>
           </div>
-          <i class="fas" 
-             [class.fa-edit]="selectedOperation() === 'update'"
-             [class.fa-trash-alt]="selectedOperation() === 'delete'"></i>
+          <i
+            class="fas"
+            [class.fa-edit]="selectedOperation() === 'update'"
+            [class.fa-trash-alt]="selectedOperation() === 'delete'"
+          ></i>
         </button>
       </div>
     </div>
-    
+
     <div class="admin-modal-actions">
-      <button class="btn-cancel" (click)="closeProjectSelectionModal()">Cancel</button>
+      <button class="btn-cancel" (click)="closeProjectSelectionModal()">
+        Cancel
+      </button>
     </div>
   </div>
 </div>
 
 <!-- Mobile Navigation Menu -->
-<div class="mobile-menu" [class.open]="isMobileMenuOpen" [class.dark-theme]="isDarkTheme">
+<div
+  class="mobile-menu"
+  [class.open]="isMobileMenuOpen"
+  [class.dark-theme]="isDarkTheme"
+>
   <ul class="mobile-nav-links">
-    <li><a href="#home" (click)="scrollToSection('home', $event); toggleMobileMenu()">Home</a></li>
-    <li><a href="#experience" (click)="scrollToSection('experience', $event); toggleMobileMenu()">Experience</a></li>
-    <li><a href="#projects" (click)="scrollToSection('projects', $event); toggleMobileMenu()">Projects</a></li>
-    <li><a href="#certifications" (click)="scrollToSection('certifications', $event); toggleMobileMenu()">Certifications</a></li>
-    <li><a href="#educations" (click)="scrollToSection('educations', $event); toggleMobileMenu()">Educations</a></li>
-    <li><a href="#awards" (click)="scrollToSection('awards', $event); toggleMobileMenu()">Awards</a></li>
+    <li>
+      <a
+        href="#home"
+        (click)="scrollToSection('home', $event); toggleMobileMenu()"
+        >Home</a
+      >
+    </li>
+    <li>
+      <a
+        href="#experience"
+        (click)="scrollToSection('experience', $event); toggleMobileMenu()"
+        >Experience</a
+      >
+    </li>
+    <li>
+      <a
+        href="#projects"
+        (click)="scrollToSection('projects', $event); toggleMobileMenu()"
+        >Projects</a
+      >
+    </li>
+    <li>
+      <a
+        href="#certifications"
+        (click)="scrollToSection('certifications', $event); toggleMobileMenu()"
+        >Certifications</a
+      >
+    </li>
+    <li>
+      <a
+        href="#educations"
+        (click)="scrollToSection('educations', $event); toggleMobileMenu()"
+        >Educations</a
+      >
+    </li>
+    <li>
+      <a
+        href="#awards"
+        (click)="scrollToSection('awards', $event); toggleMobileMenu()"
+        >Awards</a
+      >
+    </li>
   </ul>
 </div>
 
@@ -317,10 +389,15 @@
         >
       </h1>
       <p>
-        I'm a <span class="highlight-text">passionate software engineer</span> with a focus on building 
-        <span class="highlight-text">scalable and efficient applications</span>. I have experience in 
-        <span class="highlight-text">full-stack development</span>, working with various technologies to deliver 
-        <span class="highlight-text">high-quality solutions</span>. I'm always eager to 
+        I'm a
+        <span class="highlight-text">passionate software engineer</span> with a
+        focus on building
+        <span class="highlight-text">scalable and efficient applications</span>.
+        I have experience in
+        <span class="highlight-text">full-stack development</span>, working with
+        various technologies to deliver
+        <span class="highlight-text">high-quality solutions</span>. I'm always
+        eager to
         <span class="highlight-text">learn and take on new challenges</span>.
       </p>
       <button class="resume-btn" (click)="downloadResume()">
@@ -332,10 +409,14 @@
 </section>
 
 <!-- Experience Section -->
-<app-experience></app-experience>
+<div id="experience" class="section-anchor">
+  <app-experience *ngIf="shouldShowExperience()"></app-experience>
+</div>
 
 <!-- Projects Section -->
-<app-projects></app-projects>
+<div id="projects" class="section-anchor">
+  <app-projects *ngIf="shouldShowProjects()"></app-projects>
+</div>
 
 <!-- Certifications Section - Placeholder -->
 <section class="section" [class.dark-theme]="isDarkTheme" id="certifications">

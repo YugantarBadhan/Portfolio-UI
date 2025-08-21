@@ -1,11 +1,7 @@
-/* Updated src/app/experience/experience.css - Remove admin controls from section header */
-
 /* Experience Section - Optimized spacing */
 .experience-section {
   padding: 2rem 0; /* Reduced top padding to minimize gap from hero section */
-  /* Removed min-height to eliminate unnecessary spacing */
   color: inherit;
-  /* Remove any background declarations to inherit from body */
 }
 
 .container {

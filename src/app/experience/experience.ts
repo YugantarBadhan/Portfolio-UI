@@ -1,5 +1,17 @@
-// Updated src/app/experience/experience.ts - Fixed modal behavior
-import { Component, OnInit, inject, signal, PLATFORM_ID, Inject, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+// Updated src/app/experience/experience.ts - Performance Optimized
+import { 
+  Component, 
+  OnInit, 
+  inject, 
+  signal, 
+  PLATFORM_ID, 
+  Inject, 
+  ViewChild, 
+  ElementRef, 
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef
+} from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
 import { ExperienceService } from '../services/experience.service';
@@ -15,7 +27,8 @@ declare var Quill: any;
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, SafeHtmlPipe],
   templateUrl: './experience.html',
-  styleUrls: ['./experience.css']
+  styleUrls: ['./experience.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ExperienceComponent implements OnInit, AfterViewInit {
   @ViewChild('quillEditor', { static: false }) quillEditorRef!: ElementRef;
@@ -23,6 +36,7 @@ export class ExperienceComponent implements OnInit, AfterViewInit {
   private experienceService = inject(ExperienceService);
   private fb = inject(FormBuilder);
   private configService = inject(ConfigService);
+  private cdr = inject(ChangeDetectorRef);
 
   experiences = signal<Experience[]>([]);
   isLoading = signal(false);
@@ -32,6 +46,7 @@ export class ExperienceComponent implements OnInit, AfterViewInit {
   private isBrowser: boolean;
   private quillEditor: any = null;
   private quillLoaded = false;
+  private quillLoadPromise: Promise<void> | null = null;
 
   experienceForm: FormGroup;
 
@@ -53,7 +68,7 @@ export class ExperienceComponent implements OnInit, AfterViewInit {
 
   ngOnInit() {
     this.loadExperiences();
-    this.loadQuillEditor();
+    // Don't load Quill on init - wait for form to be opened
     this.checkAdminStatus();
   }
 
@@ -63,20 +78,98 @@ export class ExperienceComponent implements OnInit, AfterViewInit {
     }
   }
 
+  // Lazy load Quill editor only when needed
+  private async loadQuillEditor(): Promise<void> {
+    if (!this.isBrowser || this.quillLoaded) {
+      return;
+    }
+
+    // Return existing promise if already loading
+    if (this.quillLoadPromise) {
+      return this.quillLoadPromise;
+    }
+
+    this.quillLoadPromise = new Promise<void>((resolve, reject) => {
+      // Check if Quill is already loaded
+      if (typeof (window as any).Quill !== 'undefined') {
+        this.quillLoaded = true;
+        resolve();
+        return;
+      }
+
+      // Check if scripts are already in DOM
+      const existingQuillScript = document.querySelector('script[src*="quill.min.js"]');
+      if (existingQuillScript) {
+        // Wait for existing script to load
+        existingQuillScript.addEventListener('load', () => {
+          this.quillLoaded = true;
+          resolve();
+        });
+        return;
+      }
+
+      // Load Quill CSS with optimized loading
+      const existingQuillCSS = document.querySelector('link[href*="quill.snow.min.css"]');
+      if (!existingQuillCSS) {
+        const quillCSS = document.createElement('link');
+        quillCSS.rel = 'stylesheet';
+        quillCSS.href = 'https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.snow.min.css';
+        quillCSS.media = 'print'; // Load without blocking
+        quillCSS.onload = () => { 
+          quillCSS.media = 'all'; // Apply styles after load
+        };
+        document.head.appendChild(quillCSS);
+      }
+
+      // Load Quill JS asynchronously
+      const quillJS = document.createElement('script');
+      quillJS.src = 'https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.min.js';
+      quillJS.async = true;
+      quillJS.defer = true;
+      
+      quillJS.onload = () => {
+        this.quillLoaded = true;
+        resolve();
+      };
+      
+      quillJS.onerror = (error) => {
+        console.error('Failed to load Quill editor:', error);
+        this.quillLoadPromise = null; // Reset promise on error
+        reject(error);
+      };
+      
+      document.head.appendChild(quillJS);
+    });
+
+    return this.quillLoadPromise;
+  }
+
   // Public methods to be called from parent component
   enableAdminMode() {
     this.checkAdminStatus();
     this.isAdmin.set(true);
+    this.cdr.markForCheck();
   }
 
   disableAdminMode() {
     this.isAdmin.set(false);
     this.closeForm();
+    this.cdr.markForCheck();
   }
 
   // Public method to open form - can be called from parent
-  openForm(experience?: Experience) {
+  async openForm(experience?: Experience) {
     this.resetForm();
+    
+    // Load Quill only when form is opened
+    if (this.isBrowser && !this.quillLoaded) {
+      try {
+        await this.loadQuillEditor();
+      } catch (error) {
+        console.error('Failed to load Quill, using fallback textarea');
+        this.showQuillFallback();
+      }
+    }
     
     if (this.isBrowser) {
       document.body.style.overflow = 'hidden'; // Prevent background scrolling
@@ -110,6 +203,7 @@ export class ExperienceComponent implements OnInit, AfterViewInit {
     }
     
     this.showForm.set(true);
+    this.cdr.markForCheck();
     
     // Initialize Quill editor after form is shown
     if (this.quillLoaded) {
@@ -129,43 +223,13 @@ export class ExperienceComponent implements OnInit, AfterViewInit {
       const experiences = await this.experienceService.getAllExperiences();
       experiences.sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime());
       this.experiences.set(experiences);
+      this.cdr.markForCheck();
     } catch (error) {
       console.error('Error loading experiences:', error);
       this.experiences.set([]);
     } finally {
       this.isLoading.set(false);
-    }
-  }
-
-  private async loadQuillEditor() {
-    if (!this.isBrowser || this.quillLoaded) {
-      return;
-    }
-
-    try {
-      // Load Quill CSS
-      const quillCSS = document.createElement('link');
-      quillCSS.rel = 'stylesheet';
-      quillCSS.href = 'https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.snow.min.css';
-      document.head.appendChild(quillCSS);
-
-      // Load Quill JS
-      const quillJS = document.createElement('script');
-      quillJS.src = 'https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.min.js';
-      
-      return new Promise<void>((resolve, reject) => {
-        quillJS.onload = () => {
-          this.quillLoaded = true;
-          resolve();
-        };
-        quillJS.onerror = (error) => {
-          console.error('Failed to load Quill editor:', error);
-          reject(error);
-        };
-        document.head.appendChild(quillJS);
-      });
-    } catch (error) {
-      console.error('Failed to load Quill editor:', error);
+      this.cdr.markForCheck();
     }
   }
 
@@ -230,6 +294,7 @@ export class ExperienceComponent implements OnInit, AfterViewInit {
 
         // Force styling after each change
         setTimeout(() => this.forceWhiteBackgroundBlackText(), 10);
+        this.cdr.markForCheck();
       });
 
       // Also listen for selection changes
@@ -315,6 +380,7 @@ export class ExperienceComponent implements OnInit, AfterViewInit {
         endDateControl?.setValidators([Validators.required]);
       }
       endDateControl?.updateValueAndValidity();
+      this.cdr.markForCheck();
     });
   }
 
@@ -330,6 +396,7 @@ export class ExperienceComponent implements OnInit, AfterViewInit {
     const adminToken = localStorage.getItem('adminToken');
     const isAuthenticated = adminToken === this.configService.adminToken;
     this.isAdmin.set(isAuthenticated);
+    this.cdr.markForCheck();
   }
 
   get skillsArray(): FormArray {
@@ -338,11 +405,13 @@ export class ExperienceComponent implements OnInit, AfterViewInit {
 
   addSkill() {
     this.skillsArray.push(this.createSkillControl());
+    this.cdr.markForCheck();
   }
 
   removeSkill(index: number) {
     if (this.skillsArray.length > 1) {
       this.skillsArray.removeAt(index);
+      this.cdr.markForCheck();
     }
   }
 
@@ -369,6 +438,7 @@ export class ExperienceComponent implements OnInit, AfterViewInit {
 
   onCurrentChange() {
     this.experienceForm.updateValueAndValidity();
+    this.cdr.markForCheck();
   }
 
   closeForm() {
@@ -379,9 +449,8 @@ export class ExperienceComponent implements OnInit, AfterViewInit {
     if (this.isBrowser) {
       document.body.style.overflow = 'auto'; // Restore background scrolling
     }
+    this.cdr.markForCheck();
   }
-
-  // Removed closeFormOnBackdrop method - no longer needed
 
   resetForm() {
     this.experienceForm.reset();
@@ -446,6 +515,7 @@ export class ExperienceComponent implements OnInit, AfterViewInit {
       alert(error.message || 'An error occurred while saving');
     } finally {
       this.isLoading.set(false);
+      this.cdr.markForCheck();
     }
   }
 
@@ -460,6 +530,8 @@ export class ExperienceComponent implements OnInit, AfterViewInit {
     this.skillsArray.controls.forEach(control => {
       control.markAsTouched();
     });
+    
+    this.cdr.markForCheck();
   }
 
   async deleteExperience(id: number, companyName: string) {
@@ -474,6 +546,7 @@ export class ExperienceComponent implements OnInit, AfterViewInit {
         alert(error.message || 'Failed to delete experience');
       } finally {
         this.isLoading.set(false);
+        this.cdr.markForCheck();
       }
     }
   }

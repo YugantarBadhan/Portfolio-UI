@@ -1,4 +1,3 @@
-// Updated src/app/app.ts - Fixed modal behavior (no backdrop close, prevent background scroll)
 import {
   Component,
   OnInit,
@@ -6,17 +5,21 @@ import {
   Inject,
   PLATFORM_ID,
   signal,
-  ViewChild,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  inject,
+  OnDestroy,
+  ViewChild
 } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ExperienceComponent } from './experience/experience';
-import { ProjectsComponent } from './projects/projects';
 import { ConfigService } from './services/config.service';
 import { ExperienceService } from './services/experience.service';
 import { ProjectService } from './services/project.service';
 import { Experience } from './model/experience.model';
 import { Project } from './model/project.model';
+import { ExperienceComponent } from './experience/experience';
+import { ProjectsComponent } from './projects/projects';
 
 interface AdminSection {
   id: string;
@@ -36,15 +39,24 @@ interface AdminOperation {
   imports: [CommonModule, FormsModule, ExperienceComponent, ProjectsComponent],
   templateUrl: './app.html',
   styleUrls: ['./app.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class AppComponent implements OnInit {
-  @ViewChild(ExperienceComponent) experienceComponent!: ExperienceComponent;
-  @ViewChild(ProjectsComponent) projectsComponent!: ProjectsComponent;
+export class AppComponent implements OnInit, OnDestroy {
+  @ViewChild(ExperienceComponent) experienceComponentRef!: ExperienceComponent;
+  @ViewChild(ProjectsComponent) projectsComponentRef!: ProjectsComponent;
+  private cdr = inject(ChangeDetectorRef);
+  private configService = inject(ConfigService);
+  private experienceService = inject(ExperienceService);
+  private projectService = inject(ProjectService);
 
   title = 'Portfolio-UI';
   isDarkTheme = true;
   isScrolled = false;
   isMobileMenuOpen = false;
+  
+  // Lazy loading state
+  experienceComponentLoaded = signal(false);
+  projectsComponentLoaded = signal(false);
   
   // Admin-related properties
   showAdminDropdown = signal(false);
@@ -65,6 +77,10 @@ export class AppComponent implements OnInit {
   projects = signal<Project[]>([]);
   selectedProjectId = signal<number | null>(null);
 
+  // Intersection Observer for lazy loading
+  private sectionObserver?: IntersectionObserver;
+  private isBrowser: boolean;
+
   adminSections: AdminSection[] = [
     { id: 'experience', label: 'Experience', enabled: true },
     { id: 'projects', label: 'Projects', enabled: true },
@@ -79,17 +95,14 @@ export class AppComponent implements OnInit {
     { id: 'delete', label: 'Delete Existing', icon: 'fa-trash' }
   ];
 
-  constructor(
-    @Inject(PLATFORM_ID) private platformId: Object,
-    private configService: ConfigService,
-    private experienceService: ExperienceService,
-    private projectService: ProjectService
-  ) {}
+  constructor(@Inject(PLATFORM_ID) private platformId: Object) {
+    this.isBrowser = isPlatformBrowser(platformId);
+  }
 
   ngOnInit() {
     this.isDarkTheme = true;
 
-    if (isPlatformBrowser(this.platformId)) {
+    if (this.isBrowser) {
       const savedTheme = localStorage.getItem('theme');
       this.isDarkTheme = savedTheme === null || savedTheme === 'dark';
       
@@ -98,17 +111,91 @@ export class AppComponent implements OnInit {
       if (savedAdminToken === this.configService.adminToken) {
         this.isAdminAuthenticated.set(true);
       }
+
+      // Setup lazy loading observer
+      this.setupSectionObserver();
     }
 
     this.applyTheme();
-    this.loadExperiences();
-    this.loadProjects();
+    // Don't load data on init - wait for lazy loading
+  }
+
+  ngOnDestroy() {
+    if (this.sectionObserver) {
+      this.sectionObserver.disconnect();
+    }
+  }
+
+  // Lazy Loading Methods
+  private setupSectionObserver() {
+    if (!this.isBrowser) return;
+
+    this.sectionObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const sectionId = entry.target.id;
+            this.loadSection(sectionId);
+          }
+        });
+      },
+      {
+        root: null,
+        rootMargin: '200px', // Load 200px before visible
+        threshold: 0.01
+      }
+    );
+
+    // Observe section anchors - wait for DOM to be ready
+    setTimeout(() => {
+      const experienceSection = document.getElementById('experience');
+      const projectsSection = document.getElementById('projects');
+      
+      if (experienceSection) {
+        this.sectionObserver?.observe(experienceSection);
+      }
+      if (projectsSection) {
+        this.sectionObserver?.observe(projectsSection);
+      }
+    }, 100);
+  }
+
+  private async loadSection(sectionId: string) {
+    if (sectionId === 'experience' && !this.experienceComponentLoaded()) {
+      try {
+        // Load data first
+        await this.loadExperiences();
+        this.experienceComponentLoaded.set(true);
+        this.cdr.markForCheck();
+      } catch (error) {
+        console.error('Error loading experience section:', error);
+      }
+    } else if (sectionId === 'projects' && !this.projectsComponentLoaded()) {
+      try {
+        // Load data first
+        await this.loadProjects();
+        this.projectsComponentLoaded.set(true);
+        this.cdr.markForCheck();
+      } catch (error) {
+        console.error('Error loading projects section:', error);
+      }
+    }
+  }
+
+  // Check if section should be displayed
+  shouldShowExperience(): boolean {
+    return this.experienceComponentLoaded();
+  }
+
+  shouldShowProjects(): boolean {
+    return this.projectsComponentLoaded();
   }
 
   @HostListener('window:scroll')
   onWindowScroll() {
-    if (isPlatformBrowser(this.platformId)) {
+    if (this.isBrowser) {
       this.isScrolled = window.scrollY > 50;
+      this.cdr.markForCheck();
     }
   }
 
@@ -122,17 +209,19 @@ export class AppComponent implements OnInit {
         !adminDropdown.contains(target) && 
         !adminButton.contains(target)) {
       this.showAdminDropdown.set(false);
+      this.cdr.markForCheck();
     }
   }
 
   toggleTheme() {
     this.isDarkTheme = !this.isDarkTheme;
 
-    if (isPlatformBrowser(this.platformId)) {
+    if (this.isBrowser) {
       localStorage.setItem('theme', this.isDarkTheme ? 'dark' : 'light');
     }
 
     this.applyTheme();
+    this.cdr.markForCheck();
   }
 
   private applyTheme() {
@@ -142,7 +231,7 @@ export class AppComponent implements OnInit {
   }
 
   downloadResume() {
-    if (isPlatformBrowser(this.platformId)) {
+    if (this.isBrowser) {
       const resumePath = 'assets/resume/Resume_Yugantar_Badhan.pdf';
       const link = document.createElement('a');
       link.href = resumePath;
@@ -157,20 +246,24 @@ export class AppComponent implements OnInit {
   toggleMobileMenu() {
     this.isMobileMenuOpen = !this.isMobileMenuOpen;
     
-    if (isPlatformBrowser(this.platformId)) {
+    if (this.isBrowser) {
       document.body.style.overflow = this.isMobileMenuOpen ? 'hidden' : 'auto';
     }
+    this.cdr.markForCheck();
   }
 
   scrollToSection(sectionId: string, event: Event) {
     event.preventDefault();
 
     this.isMobileMenuOpen = false;
-    if (isPlatformBrowser(this.platformId)) {
+    if (this.isBrowser) {
       document.body.style.overflow = 'auto';
     }
 
-    if (isPlatformBrowser(this.platformId)) {
+    // Trigger loading of the section
+    this.loadSection(sectionId);
+
+    if (this.isBrowser) {
       const element = document.getElementById(sectionId);
       if (element) {
         const navbarHeight = 80;
@@ -182,12 +275,14 @@ export class AppComponent implements OnInit {
         });
       }
     }
+    this.cdr.markForCheck();
   }
 
   // Admin functionality methods
   toggleAdminDropdown(event: Event) {
     event.stopPropagation();
     this.showAdminDropdown.update(show => !show);
+    this.cdr.markForCheck();
   }
 
   selectAdminSection(sectionId: string, event: Event) {
@@ -199,12 +294,10 @@ export class AppComponent implements OnInit {
       this.showAdminDropdown.set(false);
       this.adminToken = '';
       
-      // Prevent background scrolling
-      if (isPlatformBrowser(this.platformId)) {
+      if (this.isBrowser) {
         document.body.style.overflow = 'hidden';
       }
       
-      // Focus the input after modal opens
       setTimeout(() => {
         const input = document.querySelector('.admin-token-input') as HTMLInputElement;
         if (input) {
@@ -212,16 +305,15 @@ export class AppComponent implements OnInit {
         }
       }, 100);
     } else {
-      // User is already authenticated, show operations modal
       this.selectedAdminSection.set(sectionId);
       this.showAdminOperationsModal.set(true);
       this.showAdminDropdown.set(false);
       
-      // Prevent background scrolling
-      if (isPlatformBrowser(this.platformId)) {
+      if (this.isBrowser) {
         document.body.style.overflow = 'hidden';
       }
     }
+    this.cdr.markForCheck();
   }
 
   closeAdminTokenModal() {
@@ -229,10 +321,10 @@ export class AppComponent implements OnInit {
     this.selectedAdminSection.set('');
     this.adminToken = '';
     
-    // Restore background scrolling
-    if (isPlatformBrowser(this.platformId)) {
+    if (this.isBrowser) {
       document.body.style.overflow = 'auto';
     }
+    this.cdr.markForCheck();
   }
 
   submitAdminToken() {
@@ -244,26 +336,24 @@ export class AppComponent implements OnInit {
     if (this.adminToken === this.configService.adminToken) {
       this.isAdminAuthenticated.set(true);
       
-      if (isPlatformBrowser(this.platformId)) {
+      if (this.isBrowser) {
         localStorage.setItem('adminToken', this.adminToken);
       }
       
       const sectionId = this.selectedAdminSection();
       this.closeAdminTokenModal();
       
-      // Show operations modal after successful authentication
       setTimeout(() => {
         this.showAdminOperationsModal.set(true);
-        // Prevent background scrolling for the next modal
-        if (isPlatformBrowser(this.platformId)) {
+        if (this.isBrowser) {
           document.body.style.overflow = 'hidden';
         }
+        this.cdr.markForCheck();
       }, 100);
     } else {
       alert('Invalid admin token');
       this.adminToken = '';
       
-      // Refocus the input
       setTimeout(() => {
         const input = document.querySelector('.admin-token-input') as HTMLInputElement;
         if (input) {
@@ -277,10 +367,10 @@ export class AppComponent implements OnInit {
     this.showAdminOperationsModal.set(false);
     this.selectedAdminSection.set('');
     
-    // Restore background scrolling
-    if (isPlatformBrowser(this.platformId)) {
+    if (this.isBrowser) {
       document.body.style.overflow = 'auto';
     }
+    this.cdr.markForCheck();
   }
 
   selectOperation(operationId: string) {
@@ -289,7 +379,6 @@ export class AppComponent implements OnInit {
     
     this.closeAdminOperationsModal();
     
-    // Handle the operation based on section
     if (sectionId === 'experience') {
       this.handleExperienceOperation(operationId);
     } else if (sectionId === 'projects') {
@@ -300,21 +389,21 @@ export class AppComponent implements OnInit {
   }
 
   private async handleExperienceOperation(operationId: string) {
+    // Ensure section is loaded first
+    if (!this.experienceComponentLoaded()) {
+      await this.loadSection('experience');
+      // Wait for component to be ready
+      await new Promise(resolve => setTimeout(resolve, 500));
+    }
+
     if (operationId === 'create') {
-      // Enable admin mode and open form for creating new experience
-      if (this.experienceComponent) {
-        this.experienceComponent.enableAdminMode();
-        
-        // Small delay to ensure admin mode is set
+      if (this.experienceComponentRef) {
+        this.experienceComponentRef.enableAdminMode();
         setTimeout(() => {
-          this.experienceComponent.openForm();
+          this.experienceComponentRef.openForm();
         }, 100);
-      } else {
-        console.error('Experience component not found via ViewChild');
-        alert('Error: Could not access experience component. Please refresh the page.');
       }
     } else if (operationId === 'update' || operationId === 'delete') {
-      // Load experiences and show selection modal
       try {
         await this.loadExperiences();
         
@@ -323,13 +412,12 @@ export class AppComponent implements OnInit {
           return;
         }
         
-        // Show experience selection modal
         this.showExperienceSelectionModal.set(true);
         
-        // Prevent background scrolling
-        if (isPlatformBrowser(this.platformId)) {
+        if (this.isBrowser) {
           document.body.style.overflow = 'hidden';
         }
+        this.cdr.markForCheck();
       } catch (error) {
         console.error('Error loading experiences:', error);
         alert('Failed to load experiences');
@@ -338,21 +426,21 @@ export class AppComponent implements OnInit {
   }
 
   private async handleProjectsOperation(operationId: string) {
+    // Ensure section is loaded first
+    if (!this.projectsComponentLoaded()) {
+      await this.loadSection('projects');
+      // Wait for component to be ready
+      await new Promise(resolve => setTimeout(resolve, 500));
+    }
+
     if (operationId === 'create') {
-      // Enable admin mode and open form for creating new project
-      if (this.projectsComponent) {
-        this.projectsComponent.enableAdminMode();
-        
-        // Small delay to ensure admin mode is set
+      if (this.projectsComponentRef) {
+        this.projectsComponentRef.enableAdminMode();
         setTimeout(() => {
-          this.projectsComponent.handleCreateOperation();
+          this.projectsComponentRef.handleCreateOperation();
         }, 100);
-      } else {
-        console.error('Projects component not found via ViewChild');
-        alert('Error: Could not access projects component. Please refresh the page.');
       }
     } else if (operationId === 'update' || operationId === 'delete') {
-      // Load projects and show selection modal
       try {
         await this.loadProjects();
         
@@ -361,13 +449,12 @@ export class AppComponent implements OnInit {
           return;
         }
         
-        // Show project selection modal
         this.showProjectSelectionModal.set(true);
         
-        // Prevent background scrolling
-        if (isPlatformBrowser(this.platformId)) {
+        if (this.isBrowser) {
           document.body.style.overflow = 'hidden';
         }
+        this.cdr.markForCheck();
       } catch (error) {
         console.error('Error loading projects:', error);
         alert('Failed to load projects');
@@ -380,10 +467,10 @@ export class AppComponent implements OnInit {
     this.selectedOperation.set('');
     this.selectedExperienceId.set(null);
     
-    // Restore background scrolling
-    if (isPlatformBrowser(this.platformId)) {
+    if (this.isBrowser) {
       document.body.style.overflow = 'auto';
     }
+    this.cdr.markForCheck();
   }
 
   closeProjectSelectionModal() {
@@ -391,10 +478,10 @@ export class AppComponent implements OnInit {
     this.selectedOperation.set('');
     this.selectedProjectId.set(null);
     
-    // Restore background scrolling
-    if (isPlatformBrowser(this.platformId)) {
+    if (this.isBrowser) {
       document.body.style.overflow = 'auto';
     }
+    this.cdr.markForCheck();
   }
 
   selectExperience(experienceId: number) {
@@ -403,7 +490,6 @@ export class AppComponent implements OnInit {
     
     this.closeExperienceSelectionModal();
     
-    // Execute the operation
     if (operation === 'update') {
       this.updateExperience(experienceId);
     } else if (operation === 'delete') {
@@ -417,7 +503,6 @@ export class AppComponent implements OnInit {
     
     this.closeProjectSelectionModal();
     
-    // Execute the operation
     if (operation === 'update') {
       this.updateProject(projectId);
     } else if (operation === 'delete') {
@@ -428,16 +513,13 @@ export class AppComponent implements OnInit {
   private updateExperience(experienceId: number) {
     const experience = this.experiences().find(exp => exp.id === experienceId);
     if (experience) {
-      if (this.experienceComponent) {
-        this.experienceComponent.enableAdminMode();
-        
-        // Small delay to ensure admin mode is set
+      if (this.experienceComponentRef) {
+        this.experienceComponentRef.enableAdminMode();
         setTimeout(() => {
-          this.experienceComponent.openForm(experience);
+          this.experienceComponentRef.openForm(experience);
         }, 100);
       } else {
-        console.error('Experience component not found via ViewChild');
-        alert('Error: Could not access experience component. Please refresh the page.');
+        alert('Experience component not loaded');
       }
     } else {
       alert('Experience not found');
@@ -447,16 +529,13 @@ export class AppComponent implements OnInit {
   private updateProject(projectId: number) {
     const project = this.projects().find(proj => proj.id === projectId);
     if (project) {
-      if (this.projectsComponent) {
-        this.projectsComponent.enableAdminMode();
-        
-        // Small delay to ensure admin mode is set
+      if (this.projectsComponentRef) {
+        this.projectsComponentRef.enableAdminMode();
         setTimeout(() => {
-          this.projectsComponent.handleProjectSelection(projectId, 'update');
+          this.projectsComponentRef.handleProjectSelection(projectId, 'update');
         }, 100);
       } else {
-        console.error('Projects component not found via ViewChild');
-        alert('Error: Could not access projects component. Please refresh the page.');
+        alert('Projects component not loaded');
       }
     } else {
       alert('Project not found');
@@ -473,12 +552,10 @@ export class AppComponent implements OnInit {
         try {
           await this.experienceService.deleteExperience(experienceId);
           
-          // Reload experiences in both parent and child components
           await this.loadExperiences();
           
-          // Refresh the experience component
-          if (this.experienceComponent) {
-            await this.experienceComponent.refreshExperiences();
+          if (this.experienceComponentRef) {
+            await this.experienceComponentRef.refreshExperiences();
           }
           
           alert('Experience deleted successfully!');
@@ -502,12 +579,10 @@ export class AppComponent implements OnInit {
         try {
           await this.projectService.deleteProject(projectId);
           
-          // Reload projects in both parent and child components
           await this.loadProjects();
           
-          // Refresh the projects component
-          if (this.projectsComponent) {
-            await this.projectsComponent.refreshProjects();
+          if (this.projectsComponentRef) {
+            await this.projectsComponentRef.refreshProjects();
           }
           
           alert('Project deleted successfully!');
@@ -526,9 +601,11 @@ export class AppComponent implements OnInit {
       const experiences = await this.experienceService.getAllExperiences();
       experiences.sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime());
       this.experiences.set(experiences);
+      this.cdr.markForCheck();
     } catch (error) {
       console.error('Error loading experiences in app component:', error);
       this.experiences.set([]);
+      this.cdr.markForCheck();
     }
   }
 
@@ -537,9 +614,11 @@ export class AppComponent implements OnInit {
       const projects = await this.projectService.getAllProjects();
       projects.sort((a, b) => b.id - a.id);
       this.projects.set(projects);
+      this.cdr.markForCheck();
     } catch (error) {
       console.error('Error loading projects in app component:', error);
       this.projects.set([]);
+      this.cdr.markForCheck();
     }
   }
 
@@ -547,38 +626,18 @@ export class AppComponent implements OnInit {
     this.isAdminAuthenticated.set(false);
     this.showAdminDropdown.set(false);
     
-    if (isPlatformBrowser(this.platformId)) {
+    if (this.isBrowser) {
       localStorage.removeItem('adminToken');
     }
     
-    // Disable admin mode in all components
-    if (this.experienceComponent) {
-      this.experienceComponent.disableAdminMode();
+    if (this.experienceComponentRef) {
+      this.experienceComponentRef.disableAdminMode();
     }
     
-    if (this.projectsComponent) {
-      this.projectsComponent.disableAdminMode();
+    if (this.projectsComponentRef) {
+      this.projectsComponentRef.disableAdminMode();
     }
-  }
-
-  // Helper methods for debugging
-  getDebugInfo() {
-    return {
-      isAdminAuthenticated: this.isAdminAuthenticated(),
-      selectedAdminSection: this.selectedAdminSection(),
-      selectedOperation: this.selectedOperation(),
-      experiencesCount: this.experiences().length,
-      projectsCount: this.projects().length,
-      showModals: {
-        adminToken: this.showAdminTokenModal(),
-        adminOperations: this.showAdminOperationsModal(),
-        experienceSelection: this.showExperienceSelectionModal(),
-        projectSelection: this.showProjectSelectionModal()
-      },
-      componentsAvailable: {
-        experience: !!this.experienceComponent,
-        projects: !!this.projectsComponent
-      }
-    };
+    
+    this.cdr.markForCheck();
   }
 }

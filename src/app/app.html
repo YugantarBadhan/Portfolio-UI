@@ -257,6 +257,18 @@
         </div>
       </div>
 
+      <!-- SUCCESS AND ERROR MESSAGES - MOVED HERE ABOVE RESUMES LIST -->
+      <div class="success-message-box" *ngIf="uploadSuccess()">
+        <i class="fas fa-check-circle"></i>
+        <p>{{ uploadSuccess() }}</p>
+      </div>
+
+      <!-- Error Message for general operations (separate from upload errors) -->
+      <div class="error-message-box" *ngIf="uploadError() && !selectedFile && !isUploading()">
+        <i class="fas fa-exclamation-circle"></i>
+        <p>{{ uploadError() }}</p>
+      </div>
+
       <!-- Existing Resumes List -->
       <div class="resumes-list-section" *ngIf="existingResumes().length > 0">
         <h4 class="section-title">
@@ -325,18 +337,12 @@
       <div
         class="empty-state"
         *ngIf="
-          existingResumes().length === 0 && !selectedFile && !isUploading()
+          existingResumes().length === 0 && !selectedFile && !isUploading() && !uploadSuccess() && !uploadError()
         "
       >
         <i class="fas fa-file-upload"></i>
         <p>No resumes uploaded yet</p>
         <p class="empty-hint">Upload your first resume to get started</p>
-      </div>
-
-      <!-- Success Message -->
-      <div class="success-message-box" *ngIf="uploadSuccess()">
-        <i class="fas fa-check-circle"></i>
-        <p>{{ uploadSuccess() }}</p>
       </div>
     </div>
   </div>

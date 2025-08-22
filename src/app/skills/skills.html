@@ -1,0 +1,206 @@
+<section id="skills" class="skills-section">
+  <div class="container">
+    <!-- Section Header -->
+    <div class="section-header">
+      <h2 class="section-title">Skills</h2>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="isLoading()" class="loading-spinner">
+      <div class="spinner"></div>
+      <p>Loading skills...</p>
+    </div>
+
+    <!-- Admin Actions - Only visible when admin mode is enabled -->
+    <div *ngIf="isAdmin() && !isLoading()" class="admin-actions">
+      <button class="btn-add" (click)="openForm()">
+        <i class="fas fa-plus"></i> Add New Skill
+      </button>
+    </div>
+
+    <!-- Skill Form Modal -->
+    <div *ngIf="showForm() && isAdmin()" class="modal-overlay">
+      <div class="skill-form-container" (click)="$event.stopPropagation()">
+        <div class="form-header">
+          <h3>{{ editingId() ? 'Edit Skill' : 'Add New Skill' }}</h3>
+          <button class="close-btn" (click)="closeForm()">×</button>
+        </div>
+
+        <form [formGroup]="skillForm" (ngSubmit)="onSubmit()" class="skill-form">
+          <div class="form-group">
+            <label for="name">Skill Name *</label>
+            <input 
+              type="text" 
+              id="name" 
+              formControlName="name"
+              placeholder="Enter skill name (e.g., Angular, Spring Boot)">
+            <div *ngIf="skillForm.get('name')?.invalid && skillForm.get('name')?.touched" class="error-message">
+              Skill name is required
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="category">Category (Optional)</label>
+            <select id="category" formControlName="category">
+              <option value="">Select Category</option>
+              <option value="Frontend">Frontend</option>
+              <option value="Backend">Backend</option>
+              <option value="Database">Database</option>
+              <option value="DevOps">DevOps</option>
+              <option value="Mobile">Mobile</option>
+              <option value="Cloud">Cloud</option>
+              <option value="Tools">Tools</option>
+              <option value="Other">Other</option>
+            </select>
+            <div class="help-text">
+              Choose a category to group similar skills together
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Proficiency *</label>
+            <div class="proficiency-container">
+              <div class="stars-input">
+                <button 
+                  *ngFor="let star of [1, 2, 3, 4, 5]" 
+                  type="button"
+                  class="star-btn"
+                  [class.filled]="currentProficiency >= star"
+                  (click)="setProficiency(star)"
+                  [attr.aria-label]="'Set proficiency to ' + star + ' out of 5'">
+                  <i class="fas fa-star"></i>
+                </button>
+              </div>
+              <span class="proficiency-label">
+                {{ currentProficiency > 0 ? currentProficiency + ' out of 5' : 'Select rating' }}
+              </span>
+            </div>
+            <div *ngIf="skillForm.get('proficiency')?.invalid && skillForm.get('proficiency')?.touched" class="error-message">
+              Please select a proficiency rating (1-5 stars)
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="button" class="btn-cancel" (click)="closeForm()">Cancel</button>
+            <button 
+              type="submit" 
+              class="btn-submit" 
+              [disabled]="!skillForm.valid || isLoading()">
+              {{ isLoading() ? 'Saving...' : (editingId() ? 'Update Skill' : 'Create Skill') }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Skill Selection Modal for Update/Delete -->
+    <div *ngIf="showSkillSelectionModal() && isAdmin()" class="modal-overlay">
+      <div class="skill-selection-container" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3>Select Skill to {{ selectedOperation() | titlecase }}</h3>
+          <button class="close-btn" (click)="closeSkillSelectionModal()">×</button>
+        </div>
+
+        <div class="modal-content">
+          <p *ngIf="skills().length === 0">No skills found.</p>
+          <div *ngIf="skills().length > 0" class="skill-selection-list">
+            <button
+              *ngFor="let skill of skills(); trackBy: trackBySkillId"
+              class="skill-selection-item"
+              [class.delete-mode]="selectedOperation() === 'delete'"
+              (click)="selectSkill(skill.id)">
+              <div class="skill-info">
+                <h4>{{ skill.name }}</h4>
+                <p>{{ skill.category || 'Uncategorized' }}</p>
+                <div class="skill-proficiency-preview">
+                  <span *ngFor="let star of getRatingStars(skill.proficiency); let i = index" 
+                        class="star-preview"
+                        [class.filled]="star === 1">
+                    <i class="fas fa-star"></i>
+                  </span>
+                </div>
+              </div>
+              <i 
+                class="fas action-icon"
+                [class.fa-edit]="selectedOperation() === 'update'"
+                [class.fa-trash-alt]="selectedOperation() === 'delete'">
+              </i>
+            </button>
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button class="btn-cancel" (click)="closeSkillSelectionModal()">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Skills Display Grid -->
+    <div *ngIf="!isLoading() && skills().length > 0" class="skills-display">
+      <!-- Display by Categories -->
+      <div *ngFor="let category of groupedSkills() | keyvalue; trackBy: trackByCategory" class="skill-category-section">
+        <div class="category-header">
+          <i [class]="getCategoryIcon(category.key)"></i>
+          <h3 class="category-title">{{ category.key }}</h3>
+        </div>
+        
+        <div class="skills-grid">
+          <div *ngFor="let skill of category.value; trackBy: trackBySkillId" class="skill-card">
+            <div class="skill-content">
+              <h4 class="skill-name">{{ skill.name }}</h4>
+              <div class="skill-rating">
+                <div class="stars">
+                  <span *ngFor="let star of getRatingStars(skill.proficiency); let i = index" 
+                        class="star"
+                        [class.filled]="star === 1">
+                    <i class="fas fa-star"></i>
+                  </span>
+                </div>
+                <span class="proficiency-text">{{ skill.proficiency }}/5</span>
+              </div>
+              
+              <!-- Admin controls on skill cards -->
+              <div *ngIf="isAdmin()" class="skill-admin-actions">
+                <button class="skill-action-btn edit-btn" 
+                        (click)="openForm(skill)" 
+                        title="Edit Skill">
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button class="skill-action-btn delete-btn" 
+                        (click)="deleteSkill(skill.id, skill.name)" 
+                        title="Delete Skill">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Display skills without categories -->
+      <div *ngIf="skills().length > 0 && groupedSkills().size === 0" class="skills-grid no-category">
+        <div *ngFor="let skill of skills(); trackBy: trackBySkillId" class="skill-card">
+          <div class="skill-content">
+            <h4 class="skill-name">{{ skill.name }}</h4>
+            <div class="skill-rating">
+              <div class="stars">
+                <span *ngFor="let star of getRatingStars(skill.proficiency); let i = index" 
+                      class="star"
+                      [class.filled]="star === 1">
+                  <i class="fas fa-star"></i>
+                </span>
+              </div>
+              <span class="proficiency-text">{{ skill.proficiency }}/5</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- No Skills Message -->
+    <div *ngIf="!isLoading() && skills().length === 0" class="no-skills">
+      <i class="fas fa-tools"></i>
+      <p>No skills added yet.</p>
+    </div>
+  </div>
+</section>

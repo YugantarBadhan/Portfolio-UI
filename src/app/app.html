@@ -22,6 +22,9 @@
       >
     </li>
     <li>
+      <a href="#skills" (click)="scrollToSection('skills', $event)">Skills</a>
+    </li>
+    <li>
       <a
         href="#certifications"
         (click)="scrollToSection('certifications', $event)"
@@ -135,6 +138,7 @@
               class="fas"
               [class.fa-briefcase]="section.id === 'experience'"
               [class.fa-code]="section.id === 'projects'"
+              [class.fa-code-branch]="section.id === 'skills'"
               [class.fa-certificate]="section.id === 'certifications'"
               [class.fa-graduation-cap]="section.id === 'educations'"
               [class.fa-trophy]="section.id === 'awards'"
@@ -264,7 +268,10 @@
       </div>
 
       <!-- Error Message for general operations (separate from upload errors) -->
-      <div class="error-message-box" *ngIf="uploadError() && !selectedFile && !isUploading()">
+      <div
+        class="error-message-box"
+        *ngIf="uploadError() && !selectedFile && !isUploading()"
+      >
         <i class="fas fa-exclamation-circle"></i>
         <p>{{ uploadError() }}</p>
       </div>
@@ -337,7 +344,11 @@
       <div
         class="empty-state"
         *ngIf="
-          existingResumes().length === 0 && !selectedFile && !isUploading() && !uploadSuccess() && !uploadError()
+          existingResumes().length === 0 &&
+          !selectedFile &&
+          !isUploading() &&
+          !uploadSuccess() &&
+          !uploadError()
         "
       >
         <i class="fas fa-file-upload"></i>
@@ -504,6 +515,45 @@
   </div>
 </div>
 
+<!-- Skill Selection Modal -->
+<div *ngIf="showSkillSelectionModal()" class="admin-modal-overlay">
+  <div class="admin-modal-container" (click)="$event.stopPropagation()">
+    <div class="admin-modal-header">
+      <h3>Select Skill to {{ selectedOperation() | titlecase }}</h3>
+      <button class="close-btn" (click)="closeSkillSelectionModal()">×</button>
+    </div>
+
+    <div class="admin-modal-content">
+      <p *ngIf="skills().length === 0">No skills found.</p>
+      <div *ngIf="skills().length > 0" class="experience-selection-list">
+        <button
+          *ngFor="let skill of skills()"
+          class="experience-selection-item"
+          [class.delete-mode]="selectedOperation() === 'delete'"
+          (click)="selectSkill(skill.id)"
+        >
+          <div class="experience-info">
+            <h4>{{ skill.name }}</h4>
+            <p>{{ skill.category || "Uncategorized" }}</p>
+            <small>Proficiency: {{ skill.proficiency }}/5</small>
+          </div>
+          <i
+            class="fas"
+            [class.fa-edit]="selectedOperation() === 'update'"
+            [class.fa-trash-alt]="selectedOperation() === 'delete'"
+          ></i>
+        </button>
+      </div>
+    </div>
+
+    <div class="admin-modal-actions">
+      <button class="btn-cancel" (click)="closeSkillSelectionModal()">
+        Cancel
+      </button>
+    </div>
+  </div>
+</div>
+
 <!-- Mobile Navigation Menu -->
 <div
   class="mobile-menu"
@@ -530,6 +580,13 @@
         href="#projects"
         (click)="scrollToSection('projects', $event); toggleMobileMenu()"
         >Projects</a
+      >
+    </li>
+    <li>
+      <a
+        href="#skills"
+        (click)="scrollToSection('skills', $event); toggleMobileMenu()"
+        >Skills</a
       >
     </li>
     <li>
@@ -609,6 +666,11 @@
 <!-- Projects Section -->
 <div id="projects" class="section-anchor">
   <app-projects *ngIf="shouldShowProjects()"></app-projects>
+</div>
+
+<!-- Skills Section -->
+<div id="skills" class="section-anchor">
+  <app-skills *ngIf="shouldShowSkills()"></app-skills>
 </div>
 
 <!-- Certifications Section - Placeholder -->

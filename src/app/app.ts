@@ -22,6 +22,9 @@ import { ExperienceComponent } from './experience/experience';
 import { ProjectsComponent } from './projects/projects';
 import { HttpEventType } from '@angular/common/http';
 import { ResumeService, ResumeResponse } from './services/resume.service';
+import { SkillsComponent } from './skills/skills';
+import { SkillService } from './services/skill.service';
+import { Skill } from './model/skill.model';
 
 interface AdminSection {
   id: string;
@@ -38,7 +41,13 @@ interface AdminOperation {
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, FormsModule, ExperienceComponent, ProjectsComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    ExperienceComponent,
+    ProjectsComponent,
+    SkillsComponent,
+  ],
   templateUrl: './app.html',
   styleUrls: ['./app.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -46,10 +55,12 @@ interface AdminOperation {
 export class AppComponent implements OnInit, OnDestroy {
   @ViewChild(ExperienceComponent) experienceComponentRef!: ExperienceComponent;
   @ViewChild(ProjectsComponent) projectsComponentRef!: ProjectsComponent;
+  @ViewChild(SkillsComponent) skillsComponentRef!: SkillsComponent;
   private cdr = inject(ChangeDetectorRef);
   private configService = inject(ConfigService);
   private experienceService = inject(ExperienceService);
   private projectService = inject(ProjectService);
+  private skillService = inject(SkillService);
 
   // Add ResumeService to the component's inject statements
   private resumeService = inject(ResumeService);
@@ -73,6 +84,7 @@ export class AppComponent implements OnInit, OnDestroy {
   // Lazy loading state
   experienceComponentLoaded = signal(false);
   projectsComponentLoaded = signal(false);
+  skillsComponentLoaded = signal(false);
 
   // Admin-related properties
   showAdminDropdown = signal(false);
@@ -81,6 +93,7 @@ export class AppComponent implements OnInit, OnDestroy {
   showAdminOperationsModal = signal(false);
   showExperienceSelectionModal = signal(false);
   showProjectSelectionModal = signal(false);
+  showSkillSelectionModal = signal(false);
   selectedAdminSection = signal<string>('');
   selectedOperation = signal<string>('');
   adminToken = '';
@@ -93,6 +106,10 @@ export class AppComponent implements OnInit, OnDestroy {
   projects = signal<Project[]>([]);
   selectedProjectId = signal<number | null>(null);
 
+  // Skills-related properties
+  skills = signal<Skill[]>([]);
+  selectedSkillId = signal<number | null>(null);
+
   // Intersection Observer for lazy loading
   private sectionObserver?: IntersectionObserver;
   private isBrowser: boolean;
@@ -100,6 +117,7 @@ export class AppComponent implements OnInit, OnDestroy {
   adminSections: AdminSection[] = [
     { id: 'experience', label: 'Experience', enabled: true },
     { id: 'projects', label: 'Projects', enabled: true },
+    { id: 'skills', label: 'Skills', enabled: true },
     { id: 'certifications', label: 'Certifications', enabled: false },
     { id: 'educations', label: 'Educations', enabled: false },
     { id: 'awards', label: 'Awards', enabled: false },
@@ -174,12 +192,16 @@ export class AppComponent implements OnInit, OnDestroy {
     setTimeout(() => {
       const experienceSection = document.getElementById('experience');
       const projectsSection = document.getElementById('projects');
+      const skillsSection = document.getElementById('skills');
 
       if (experienceSection) {
         this.sectionObserver?.observe(experienceSection);
       }
       if (projectsSection) {
         this.sectionObserver?.observe(projectsSection);
+      }
+      if (skillsSection) {
+        this.sectionObserver?.observe(skillsSection);
       }
     }, 100);
   }
@@ -203,6 +225,14 @@ export class AppComponent implements OnInit, OnDestroy {
       } catch (error) {
         console.error('Error loading projects section:', error);
       }
+    } else if (sectionId === 'skills' && !this.skillsComponentLoaded()) {
+      try {
+        await this.loadSkills();
+        this.skillsComponentLoaded.set(true);
+        this.cdr.markForCheck();
+      } catch (error) {
+        console.error('Error loading skills section:', error);
+      }
     }
   }
 
@@ -213,6 +243,10 @@ export class AppComponent implements OnInit, OnDestroy {
 
   shouldShowProjects(): boolean {
     return this.projectsComponentLoaded();
+  }
+
+  shouldShowSkills(): boolean {
+    return this.skillsComponentLoaded();
   }
 
   @HostListener('window:scroll')
@@ -726,6 +760,8 @@ export class AppComponent implements OnInit, OnDestroy {
       this.handleExperienceOperation(operationId);
     } else if (sectionId === 'projects') {
       this.handleProjectsOperation(operationId);
+    } else if (sectionId === 'skills') {
+      this.handleSkillsOperation(operationId);
     } else {
       alert(`${sectionId} operations are not yet implemented`);
     }
@@ -805,6 +841,43 @@ export class AppComponent implements OnInit, OnDestroy {
     }
   }
 
+  private async handleSkillsOperation(operationId: string) {
+    // Ensure section is loaded first
+    if (!this.skillsComponentLoaded()) {
+      await this.loadSection('skills');
+      await new Promise((resolve) => setTimeout(resolve, 500));
+    }
+
+    if (operationId === 'create') {
+      if (this.skillsComponentRef) {
+        this.skillsComponentRef.enableAdminMode();
+        setTimeout(() => {
+          this.skillsComponentRef.handleCreateOperation();
+        }, 100);
+      }
+    } else if (operationId === 'update' || operationId === 'delete') {
+      try {
+        await this.loadSkills();
+
+        if (this.skills().length === 0) {
+          alert('No skills available to ' + operationId);
+          return;
+        }
+
+        this.showSkillSelectionModal.set(true);
+        this.selectedOperation.set(operationId);
+
+        if (this.isBrowser) {
+          document.body.style.overflow = 'hidden';
+        }
+        this.cdr.markForCheck();
+      } catch (error) {
+        console.error('Error loading skills:', error);
+        alert('Failed to load skills');
+      }
+    }
+  }
+
   closeExperienceSelectionModal() {
     this.showExperienceSelectionModal.set(false);
     this.selectedOperation.set('');
@@ -820,6 +893,17 @@ export class AppComponent implements OnInit, OnDestroy {
     this.showProjectSelectionModal.set(false);
     this.selectedOperation.set('');
     this.selectedProjectId.set(null);
+
+    if (this.isBrowser) {
+      document.body.style.overflow = 'auto';
+    }
+    this.cdr.markForCheck();
+  }
+
+  closeSkillSelectionModal() {
+    this.showSkillSelectionModal.set(false);
+    this.selectedOperation.set('');
+    this.selectedSkillId.set(null);
 
     if (this.isBrowser) {
       document.body.style.overflow = 'auto';
@@ -850,6 +934,19 @@ export class AppComponent implements OnInit, OnDestroy {
       this.updateProject(projectId);
     } else if (operation === 'delete') {
       this.deleteProject(projectId);
+    }
+  }
+
+  selectSkill(skillId: number) {
+    this.selectedSkillId.set(skillId);
+    const operation = this.selectedOperation();
+
+    this.closeSkillSelectionModal();
+
+    if (operation === 'update') {
+      this.updateSkill(skillId);
+    } else if (operation === 'delete') {
+      this.deleteSkill(skillId);
     }
   }
 
@@ -884,6 +981,22 @@ export class AppComponent implements OnInit, OnDestroy {
       }
     } else {
       alert('Project not found');
+    }
+  }
+
+  private updateSkill(skillId: number) {
+    const skill = this.skills().find((s) => s.id === skillId);
+    if (skill) {
+      if (this.skillsComponentRef) {
+        this.skillsComponentRef.enableAdminMode();
+        setTimeout(() => {
+          this.skillsComponentRef.openForm(skill);
+        }, 100);
+      } else {
+        alert('Skills component not loaded');
+      }
+    } else {
+      alert('Skill not found');
     }
   }
 
@@ -943,6 +1056,33 @@ export class AppComponent implements OnInit, OnDestroy {
     }
   }
 
+  private async deleteSkill(skillId: number) {
+    const skill = this.skills().find((s) => s.id === skillId);
+    if (skill) {
+      const confirmMessage = `Are you sure you want to delete the skill "${skill.name}"?\n\nThis action cannot be undone.`;
+      const confirmDelete = confirm(confirmMessage);
+
+      if (confirmDelete) {
+        try {
+          await this.skillService.deleteSkill(skillId);
+
+          await this.loadSkills();
+
+          if (this.skillsComponentRef) {
+            await this.skillsComponentRef.refreshSkills();
+          }
+
+          alert('Skill deleted successfully!');
+        } catch (error: any) {
+          console.error('Delete skill error:', error);
+          alert(error.message || 'Failed to delete skill');
+        }
+      }
+    } else {
+      alert('Skill not found');
+    }
+  }
+
   private async loadExperiences() {
     try {
       const experiences = await this.experienceService.getAllExperiences();
@@ -972,6 +1112,19 @@ export class AppComponent implements OnInit, OnDestroy {
     }
   }
 
+  private async loadSkills() {
+    try {
+      const skills = await this.skillService.getAllSkills();
+      skills.sort((a, b) => b.proficiency - a.proficiency);
+      this.skills.set(skills);
+      this.cdr.markForCheck();
+    } catch (error) {
+      console.error('Error loading skills in app component:', error);
+      this.skills.set([]);
+      this.cdr.markForCheck();
+    }
+  }
+
   logoutAdmin() {
     this.isAdminAuthenticated.set(false);
     this.showAdminDropdown.set(false);
@@ -986,6 +1139,10 @@ export class AppComponent implements OnInit, OnDestroy {
 
     if (this.projectsComponentRef) {
       this.projectsComponentRef.disableAdminMode();
+    }
+
+    if (this.skillsComponentRef) {
+      this.skillsComponentRef.disableAdminMode();
     }
 
     this.cdr.markForCheck();

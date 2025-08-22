@@ -264,6 +264,36 @@ export class AppComponent implements OnInit, OnDestroy {
     }
   }
 
+  // FIXED: New method to handle resume upload request with authentication check
+  handleResumeUploadRequest(event: Event) {
+    event.stopPropagation();
+
+    if (!this.isAdminAuthenticated()) {
+      // User is not authenticated, show token modal first
+      this.selectedAdminSection.set('resume');
+      this.showAdminTokenModal.set(true);
+      this.showAdminDropdown.set(false);
+      this.adminToken = '';
+
+      if (this.isBrowser) {
+        document.body.style.overflow = 'hidden';
+      }
+
+      setTimeout(() => {
+        const input = document.querySelector(
+          '.admin-token-input'
+        ) as HTMLInputElement;
+        if (input) {
+          input.focus();
+        }
+      }, 100);
+    } else {
+      // User is already authenticated, open resume upload modal directly
+      this.openResumeUploadModal();
+    }
+    this.cdr.markForCheck();
+  }
+
   // Resume Upload Methods
   openResumeUploadModal() {
     this.showResumeUploadModal.set(true);
@@ -645,13 +675,22 @@ export class AppComponent implements OnInit, OnDestroy {
       const sectionId = this.selectedAdminSection();
       this.closeAdminTokenModal();
 
-      setTimeout(() => {
-        this.showAdminOperationsModal.set(true);
-        if (this.isBrowser) {
-          document.body.style.overflow = 'hidden';
-        }
-        this.cdr.markForCheck();
-      }, 100);
+      // FIXED: Handle resume upload authentication
+      if (sectionId === 'resume') {
+        // After successful authentication for resume upload, open the modal
+        setTimeout(() => {
+          this.openResumeUploadModal();
+        }, 100);
+      } else {
+        // For other sections, show operations modal
+        setTimeout(() => {
+          this.showAdminOperationsModal.set(true);
+          if (this.isBrowser) {
+            document.body.style.overflow = 'hidden';
+          }
+          this.cdr.markForCheck();
+        }, 100);
+      }
     } else {
       alert('Invalid admin token');
       this.adminToken = '';

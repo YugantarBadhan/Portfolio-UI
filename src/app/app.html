@@ -109,10 +109,10 @@
         </div>
 
         <div class="admin-dropdown-content">
-          <!-- Resume Upload Button -->
+          <!-- Resume Upload Button - FIXED: Now requires authentication -->
           <button
             class="admin-section-btn"
-            (click)="openResumeUploadModal()"
+            (click)="handleResumeUploadRequest($event)"
             title="Upload Resume"
           >
             <i class="fas fa-file-upload"></i>

@@ -109,6 +109,17 @@
         </div>
 
         <div class="admin-dropdown-content">
+          <!-- Resume Upload Button -->
+          <button
+            class="admin-section-btn"
+            (click)="openResumeUploadModal()"
+            title="Upload Resume"
+          >
+            <i class="fas fa-file-upload"></i>
+            Upload Resume
+          </button>
+
+          <!-- Other Admin Sections -->
           <button
             *ngFor="let section of adminSections"
             class="admin-section-btn"
@@ -154,6 +165,182 @@
     </button>
   </div>
 </nav>
+
+<!-- Resume Upload Modal -->
+<div *ngIf="showResumeUploadModal()" class="admin-modal-overlay">
+  <div class="resume-upload-container" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Resume Management</h3>
+      <button
+        class="close-btn"
+        (click)="closeResumeUploadModal()"
+        type="button"
+      >
+        ×
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <!-- Upload Section -->
+      <div class="upload-section" *ngIf="!resumeUploaded()">
+        <div
+          class="upload-area"
+          [class.drag-over]="isDragOver"
+          (dragover)="onDragOver($event)"
+          (dragleave)="onDragLeave($event)"
+          (drop)="onDrop($event)"
+        >
+          <div class="upload-icon">
+            <i class="fas fa-cloud-upload-alt"></i>
+          </div>
+
+          <h4>Upload Your Resume</h4>
+          <p class="upload-text">
+            Drag & drop your resume here or click to browse
+          </p>
+          <p class="file-types">Supported formats: PDF, DOC, DOCX (Max 10MB)</p>
+
+          <input
+            type="file"
+            id="resumeFileInput"
+            #fileInput
+            (change)="onFileSelected($event)"
+            accept=".pdf,.doc,.docx"
+            style="display: none"
+          />
+
+          <button class="btn-browse" (click)="fileInput.click()">
+            <i class="fas fa-folder-open"></i> Browse Files
+          </button>
+        </div>
+
+        <!-- File Preview Before Upload -->
+        <div class="file-preview" *ngIf="selectedFile">
+          <div class="preview-header">
+            <i class="fas fa-file-alt file-icon"></i>
+            <div class="file-info">
+              <p class="file-name">{{ selectedFile.name }}</p>
+              <p class="file-size">{{ formatFileSize(selectedFile.size) }}</p>
+            </div>
+            <button class="btn-remove" (click)="removeSelectedFile()">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+
+          <div class="upload-actions">
+            <button class="btn-cancel" (click)="removeSelectedFile()">
+              Cancel
+            </button>
+            <button
+              class="btn-upload"
+              (click)="uploadResume()"
+              [disabled]="isUploading()"
+            >
+              <i class="fas fa-upload"></i>
+              {{ isUploading() ? "Uploading..." : "Upload Resume" }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Upload Progress -->
+        <div class="upload-progress" *ngIf="isUploading()">
+          <div class="progress-bar">
+            <div class="progress-fill" [style.width.%]="uploadProgress()"></div>
+          </div>
+          <p class="progress-text">Uploading... {{ uploadProgress() }}%</p>
+        </div>
+
+        <!-- Error Message -->
+        <div class="error-message-box" *ngIf="uploadError()">
+          <i class="fas fa-exclamation-circle"></i>
+          <p>{{ uploadError() }}</p>
+        </div>
+      </div>
+
+      <!-- Existing Resumes List -->
+      <div class="resumes-list-section" *ngIf="existingResumes().length > 0">
+        <h4 class="section-title">
+          <i class="fas fa-history"></i> Uploaded Resumes
+        </h4>
+
+        <div class="resumes-list">
+          <div
+            *ngFor="let resume of existingResumes()"
+            class="resume-item"
+            [class.active]="resume.isActive"
+          >
+            <div class="resume-icon">
+              <i
+                class="fas fa-file-pdf"
+                *ngIf="resume.fileFormat === 'PDF'"
+              ></i>
+              <i
+                class="fas fa-file-word"
+                *ngIf="resume.fileFormat !== 'PDF'"
+              ></i>
+            </div>
+
+            <div class="resume-details">
+              <p class="resume-name">{{ resume.originalFileName }}</p>
+              <p class="resume-meta">
+                {{ resume.fileSizeFormatted }} • Uploaded
+                {{ formatUploadDate(resume.uploadedDate) }}
+              </p>
+              <span class="active-badge" *ngIf="resume.isActive">
+                <i class="fas fa-check-circle"></i> Active
+              </span>
+            </div>
+
+            <div class="resume-actions">
+              <button
+                class="btn-action"
+                (click)="previewResume(resume.id)"
+                title="Preview"
+              >
+                <i class="fas fa-eye"></i>
+              </button>
+
+              <button
+                class="btn-action"
+                *ngIf="!resume.isActive"
+                (click)="setActiveResume(resume.id)"
+                title="Set as Active"
+              >
+                <i class="fas fa-check"></i>
+              </button>
+
+              <button
+                class="btn-action btn-delete"
+                (click)="deleteResume(resume.id, resume.originalFileName)"
+                title="Delete"
+              >
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Empty State -->
+      <div
+        class="empty-state"
+        *ngIf="
+          existingResumes().length === 0 && !selectedFile && !isUploading()
+        "
+      >
+        <i class="fas fa-file-upload"></i>
+        <p>No resumes uploaded yet</p>
+        <p class="empty-hint">Upload your first resume to get started</p>
+      </div>
+
+      <!-- Success Message -->
+      <div class="success-message-box" *ngIf="uploadSuccess()">
+        <i class="fas fa-check-circle"></i>
+        <p>{{ uploadSuccess() }}</p>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- Admin Token Modal - FIXED: No backdrop close -->
 <div *ngIf="showAdminTokenModal()" class="admin-modal-overlay">

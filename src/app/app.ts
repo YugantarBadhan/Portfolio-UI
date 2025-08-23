@@ -25,6 +25,8 @@ import { ResumeService, ResumeResponse } from './services/resume.service';
 import { SkillsComponent } from './skills/skills';
 import { SkillService } from './services/skill.service';
 import { Skill } from './model/skill.model';
+import { Router, NavigationEnd } from '@angular/router';
+import { filter } from 'rxjs/operators';
 
 interface AdminSection {
   id: string;
@@ -64,6 +66,8 @@ export class AppComponent implements OnInit, OnDestroy {
 
   // Add ResumeService to the component's inject statements
   private resumeService = inject(ResumeService);
+
+  private router = inject(Router);
 
   title = 'Portfolio-UI';
   isDarkTheme = true;
@@ -153,6 +157,9 @@ export class AppComponent implements OnInit, OnDestroy {
         this.isAdminAuthenticated.set(true);
       }
 
+      // ADDED: Setup scroll restoration on page reload/refresh
+      this.setupScrollRestoration();
+
       // Setup lazy loading observer
       this.setupSectionObserver();
     }
@@ -160,6 +167,35 @@ export class AppComponent implements OnInit, OnDestroy {
     // Apply theme immediately
     this.applyTheme();
     // Don't load data on init - wait for lazy loading
+  }
+
+  private setupScrollRestoration() {
+    if (!this.isBrowser) return;
+
+    // Always scroll to top on page load/reload
+    window.scrollTo(0, 0);
+
+    // Listen to router navigation events
+    this.router.events
+      .pipe(filter((event) => event instanceof NavigationEnd))
+      .subscribe((event: NavigationEnd) => {
+        // Scroll to top on route changes
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+        }, 100);
+      });
+
+    // Handle browser refresh - scroll to top
+    window.addEventListener('beforeunload', () => {
+      window.scrollTo(0, 0);
+    });
+
+    // Additional fallback for scroll restoration
+    setTimeout(() => {
+      if (window.scrollY > 0) {
+        window.scrollTo(0, 0);
+      }
+    }, 500);
   }
 
   ngOnDestroy() {
@@ -624,6 +660,17 @@ export class AppComponent implements OnInit, OnDestroy {
       document.body.style.overflow = 'auto';
     }
 
+    // ADDED: If scrolling to home, just go to top
+    if (sectionId === 'home') {
+      if (this.isBrowser) {
+        window.scrollTo({
+          top: 0,
+          behavior: 'smooth',
+        });
+      }
+      return;
+    }
+
     // Trigger loading of the section
     this.loadSection(sectionId);
 
@@ -1066,6 +1113,7 @@ export class AppComponent implements OnInit, OnDestroy {
         try {
           await this.skillService.deleteSkill(skillId);
 
+          // FIXED: Force refresh skills data
           await this.loadSkills();
 
           if (this.skillsComponentRef) {

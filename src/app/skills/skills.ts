@@ -69,11 +69,8 @@ export class SkillsComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    // Only load skills if not already loaded (performance optimization)
-    if (!this.dataLoaded) {
-      this.loadSkills();
-      this.dataLoaded = true;
-    }
+    // Always load skills on init
+    this.loadSkills();
     this.checkAdminStatus();
   }
 
@@ -149,12 +146,34 @@ export class SkillsComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Refresh skills - optimized to check if already loading
+  // FIXED: Refresh skills method - Force reload data
   async refreshSkills() {
-    // Reset data loaded flag to force reload
-    this.dataLoaded = false;
-    await this.loadSkills();
-    this.dataLoaded = true;
+    console.log('Refreshing skills...');
+    try {
+      this.isLoading.set(true);
+      const skills = await this.skillService.getAllSkills();
+      
+      // Sort skills by proficiency (highest first) and then by name
+      skills.sort((a, b) => {
+        if (b.proficiency !== a.proficiency) {
+          return b.proficiency - a.proficiency;
+        }
+        return a.name.localeCompare(b.name);
+      });
+
+      this.skills.set(skills);
+      this.groupSkillsByCategory(skills);
+      
+      console.log('Skills refreshed:', skills.length, 'skills loaded');
+      this.cdr.markForCheck();
+    } catch (error) {
+      console.error('Error refreshing skills:', error);
+      this.skills.set([]);
+      this.groupedSkills.set(new Map());
+    } finally {
+      this.isLoading.set(false);
+      this.cdr.markForCheck();
+    }
   }
 
   // Track by function for ngFor performance
@@ -184,6 +203,7 @@ export class SkillsComponent implements OnInit, OnDestroy {
       return;
     }
 
+    console.log('Loading skills...');
     this.isLoading.set(true);
     try {
       const skills = await this.skillService.getAllSkills();
@@ -198,6 +218,8 @@ export class SkillsComponent implements OnInit, OnDestroy {
 
       this.skills.set(skills);
       this.groupSkillsByCategory(skills);
+      
+      console.log('Skills loaded:', skills.length, 'skills');
 
       // Use requestAnimationFrame for smooth rendering
       if (this.isBrowser) {
@@ -301,6 +323,7 @@ export class SkillsComponent implements OnInit, OnDestroy {
     return this.skillForm.get('proficiency')?.value || 0;
   }
 
+  // FIXED: Submit method with proper refresh after save
   async onSubmit() {
     if (!this.skillForm.valid) {
       this.markAllFieldsAsTouched();
@@ -318,15 +341,22 @@ export class SkillsComponent implements OnInit, OnDestroy {
         proficiency: formValue.proficiency,
       };
 
+      console.log('Submitting skill:', skillData);
+
       if (this.editingId()) {
         await this.skillService.updateSkill(this.editingId()!, skillData);
+        console.log('Skill updated successfully');
       } else {
         await this.skillService.createSkill(skillData);
+        console.log('Skill created successfully');
       }
 
-      await this.loadSkills();
-      this.closeForm();
-      alert('Skill saved successfully!');
+      // FIXED: Force refresh skills immediately after save
+      this.closeForm(); // Close form first
+      await this.refreshSkills(); // Then refresh data
+      
+      const message = this.editingId() ? 'Skill updated successfully!' : 'Skill created successfully!';
+      alert(message);
     } catch (error: any) {
       console.error('Submission error:', error);
       alert(error.message || 'An error occurred while saving');
@@ -384,13 +414,19 @@ export class SkillsComponent implements OnInit, OnDestroy {
     }
   }
 
+  // FIXED: Delete method with proper refresh
   async deleteSkill(id: number, name: string) {
     const confirmMessage = `Are you sure you want to delete the skill "${name}"?\n\nThis action cannot be undone.`;
     if (confirm(confirmMessage)) {
       this.isLoading.set(true);
       try {
+        console.log('Deleting skill:', name);
         await this.skillService.deleteSkill(id);
-        await this.loadSkills();
+        console.log('Skill deleted successfully');
+        
+        // FIXED: Force refresh skills immediately after delete
+        await this.refreshSkills();
+        
         alert('Skill deleted successfully!');
       } catch (error: any) {
         console.error('Delete error:', error);

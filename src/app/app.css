@@ -1062,7 +1062,7 @@ body.dark-theme .admin-modal-actions .btn-cancel {
   min-height: 85vh; /* Reduced from 100vh */
   display: flex;
   align-items: center;
-  padding: 7rem 2rem 1rem; /* Added more top padding for spacing from navbar */
+  padding: 6rem 2rem 2rem; /* Added more top padding for spacing from navbar */
   max-width: 1200px;
   margin: 0 auto;
   position: relative;

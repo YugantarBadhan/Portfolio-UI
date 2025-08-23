@@ -243,7 +243,7 @@ export class SkillsComponent implements OnInit, OnDestroy {
     this.groupedSkills.set(sortedGrouped);
   }
 
-  openForm(skill?: Skill) {
+openForm(skill?: Skill) {
     this.resetForm();
     
     if (this.isBrowser) {
@@ -259,8 +259,8 @@ export class SkillsComponent implements OnInit, OnDestroy {
       });
     } else {
       this.editingId.set(null);
-      // Set default proficiency to 3
-      this.skillForm.patchValue({ proficiency: 3 });
+      // Set default proficiency to 0 (no stars selected) instead of 3
+      this.skillForm.patchValue({ proficiency: 0 });
     }
     
     this.showForm.set(true);

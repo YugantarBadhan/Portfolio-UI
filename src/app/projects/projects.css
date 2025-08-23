@@ -1,7 +1,6 @@
 /* Projects Section - Full Screen Optimized */
 .projects-section {
-  padding: 2rem 0;
-  min-height: 100vh;
+  padding: 2rem 0; /* Consistent padding with all sections */
   color: inherit;
   display: flex;
   flex-direction: column;

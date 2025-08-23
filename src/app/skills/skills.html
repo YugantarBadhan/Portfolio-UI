@@ -1,3 +1,4 @@
+
 <section id="skills" class="skills-section">
   <div class="container">
     <!-- Section Header -->
@@ -9,13 +10,6 @@
     <div *ngIf="isLoading()" class="loading-spinner">
       <div class="spinner"></div>
       <p>Loading skills...</p>
-    </div>
-
-    <!-- Admin Actions - Only visible when admin mode is enabled -->
-    <div *ngIf="isAdmin() && !isLoading()" class="admin-actions">
-      <button class="btn-add" (click)="openForm()">
-        <i class="fas fa-plus"></i> Add New Skill
-      </button>
     </div>
 
     <!-- Skill Form Modal -->
@@ -135,50 +129,43 @@
       </div>
     </div>
 
-    <!-- Skills Display Grid -->
+   <!-- Skills Display Grid - Simplified without categories -->
     <div *ngIf="!isLoading() && skills().length > 0" class="skills-display">
-      <!-- Display by Categories -->
-      <div *ngFor="let category of groupedSkills() | keyvalue; trackBy: trackByCategory" class="skill-category-section">
-        <div class="category-header">
-          <i [class]="getCategoryIcon(category.key)"></i>
-          <h3 class="category-title">{{ category.key }}</h3>
-        </div>
-        
-        <div class="skills-grid">
-          <div *ngFor="let skill of category.value; trackBy: trackBySkillId" class="skill-card">
-            <div class="skill-content">
-              <h4 class="skill-name">{{ skill.name }}</h4>
-              <div class="skill-rating">
-                <div class="stars">
-                  <span *ngFor="let star of getRatingStars(skill.proficiency); let i = index" 
-                        class="star"
-                        [class.filled]="star === 1">
-                    <i class="fas fa-star"></i>
-                  </span>
-                </div>
-                <span class="proficiency-text">{{ skill.proficiency }}/5</span>
+      <div class="skills-grid">
+        <div *ngFor="let skill of skills(); trackBy: trackBySkillId" class="skill-card">
+          <div class="skill-content">
+            <h4 class="skill-name">{{ skill.name }}</h4>
+            <div class="skill-rating">
+              <div class="stars">
+                <span *ngFor="let star of getRatingStars(skill.proficiency); let i = index" 
+                      class="star"
+                      [class.filled]="star === 1">
+                  <i class="fas fa-star"></i>
+                </span>
               </div>
+              <span class="proficiency-text">{{ skill.proficiency }}/5</span>
+            </div>
               
               <!-- Admin controls on skill cards -->
-              <div *ngIf="isAdmin()" class="skill-admin-actions">
-                <button class="skill-action-btn edit-btn" 
-                        (click)="openForm(skill)" 
-                        title="Edit Skill">
-                  <i class="fas fa-edit"></i>
-                </button>
-                <button class="skill-action-btn delete-btn" 
-                        (click)="deleteSkill(skill.id, skill.name)" 
-                        title="Delete Skill">
-                  <i class="fas fa-trash"></i>
-                </button>
-              </div>
+            <div *ngIf="isAdmin()" class="skill-admin-actions">
+              <button class="skill-action-btn edit-btn" 
+                      (click)="openForm(skill)" 
+                      title="Edit Skill">
+                <i class="fas fa-edit"></i>
+              </button>
+              <button class="skill-action-btn delete-btn" 
+                      (click)="deleteSkill(skill.id, skill.name)" 
+                      title="Delete Skill">
+                <i class="fas fa-trash"></i>
+              </button>
             </div>
           </div>
         </div>
       </div>
+    </div>
 
       <!-- Display skills without categories -->
-      <div *ngIf="skills().length > 0 && groupedSkills().size === 0" class="skills-grid no-category">
+      <!-- <div *ngIf="skills().length > 0 && groupedSkills().size === 0" class="skills-grid no-category">
         <div *ngFor="let skill of skills(); trackBy: trackBySkillId" class="skill-card">
           <div class="skill-content">
             <h4 class="skill-name">{{ skill.name }}</h4>
@@ -195,9 +182,9 @@
           </div>
         </div>
       </div>
-    </div>
+    </div> -->
 
-    <!-- No Skills Message -->
+  <!-- No Skills Message -->
     <div *ngIf="!isLoading() && skills().length === 0" class="no-skills">
       <i class="fas fa-tools"></i>
       <p>No skills added yet.</p>

@@ -1,4 +1,3 @@
-
 <section id="skills" class="skills-section">
   <div class="container">
     <!-- Section Header -->
@@ -16,19 +15,29 @@
     <div *ngIf="showForm() && isAdmin()" class="modal-overlay">
       <div class="skill-form-container" (click)="$event.stopPropagation()">
         <div class="form-header">
-          <h3>{{ editingId() ? 'Edit Skill' : 'Add New Skill' }}</h3>
+          <h3>{{ editingId() ? "Edit Skill" : "Add New Skill" }}</h3>
           <button class="close-btn" (click)="closeForm()">×</button>
         </div>
 
-        <form [formGroup]="skillForm" (ngSubmit)="onSubmit()" class="skill-form">
+        <form
+          [formGroup]="skillForm"
+          (ngSubmit)="onSubmit()"
+          class="skill-form"
+        >
           <div class="form-group">
             <label for="name">Skill Name *</label>
-            <input 
-              type="text" 
-              id="name" 
+            <input
+              type="text"
+              id="name"
               formControlName="name"
-              placeholder="Enter skill name (e.g., Angular, Spring Boot)">
-            <div *ngIf="skillForm.get('name')?.invalid && skillForm.get('name')?.touched" class="error-message">
+              placeholder="Enter skill name (e.g., Angular, Spring Boot)"
+            />
+            <div
+              *ngIf="
+                skillForm.get('name')?.invalid && skillForm.get('name')?.touched
+              "
+              class="error-message"
+            >
               Skill name is required
             </div>
           </div>
@@ -55,32 +64,52 @@
             <label>Proficiency *</label>
             <div class="proficiency-container">
               <div class="stars-input">
-                <button 
-                  *ngFor="let star of [1, 2, 3, 4, 5]" 
+                <button
+                  *ngFor="let star of [1, 2, 3, 4, 5]"
                   type="button"
                   class="star-btn"
                   [class.filled]="currentProficiency >= star"
                   (click)="setProficiency(star)"
-                  [attr.aria-label]="'Set proficiency to ' + star + ' out of 5'">
+                  [attr.aria-label]="'Set proficiency to ' + star + ' out of 5'"
+                >
                   <i class="fas fa-star"></i>
                 </button>
               </div>
               <span class="proficiency-label">
-                {{ currentProficiency > 0 ? currentProficiency + ' out of 5' : 'Select rating' }}
+                {{
+                  currentProficiency > 0
+                    ? currentProficiency + " out of 5"
+                    : "Select rating"
+                }}
               </span>
             </div>
-            <div *ngIf="skillForm.get('proficiency')?.invalid && skillForm.get('proficiency')?.touched" class="error-message">
+            <div
+              *ngIf="
+                skillForm.get('proficiency')?.invalid &&
+                skillForm.get('proficiency')?.touched
+              "
+              class="error-message"
+            >
               Please select a proficiency rating (1-5 stars)
             </div>
           </div>
 
           <div class="form-actions">
-            <button type="button" class="btn-cancel" (click)="closeForm()">Cancel</button>
-            <button 
-              type="submit" 
-              class="btn-submit" 
-              [disabled]="!skillForm.valid || isLoading()">
-              {{ isLoading() ? 'Saving...' : (editingId() ? 'Update Skill' : 'Create Skill') }}
+            <button type="button" class="btn-cancel" (click)="closeForm()">
+              Cancel
+            </button>
+            <button
+              type="submit"
+              class="btn-submit"
+              [disabled]="!skillForm.valid || isLoading()"
+            >
+              {{
+                isLoading()
+                  ? "Saving..."
+                  : editingId()
+                  ? "Update Skill"
+                  : "Create Skill"
+              }}
             </button>
           </div>
         </form>
@@ -92,7 +121,9 @@
       <div class="skill-selection-container" (click)="$event.stopPropagation()">
         <div class="modal-header">
           <h3>Select Skill to {{ selectedOperation() | titlecase }}</h3>
-          <button class="close-btn" (click)="closeSkillSelectionModal()">×</button>
+          <button class="close-btn" (click)="closeSkillSelectionModal()">
+            ×
+          </button>
         </div>
 
         <div class="modal-content">
@@ -102,60 +133,75 @@
               *ngFor="let skill of skills(); trackBy: trackBySkillId"
               class="skill-selection-item"
               [class.delete-mode]="selectedOperation() === 'delete'"
-              (click)="selectSkill(skill.id)">
+              (click)="selectSkill(skill.id)"
+            >
               <div class="skill-info">
                 <h4>{{ skill.name }}</h4>
-                <p>{{ skill.category || 'Uncategorized' }}</p>
+                <p>{{ skill.category || "Uncategorized" }}</p>
+                <!-- Skills proficiency preview in selection modal -->
                 <div class="skill-proficiency-preview">
-                  <span *ngFor="let star of getRatingStars(skill.proficiency); let i = index" 
-                        class="star-preview"
-                        [class.filled]="star === 1">
+                  <span
+                    *ngFor="let star of getRatingStars(skill.proficiency)"
+                    class="star-preview"
+                  >
                     <i class="fas fa-star"></i>
                   </span>
                 </div>
               </div>
-              <i 
+              <i
                 class="fas action-icon"
                 [class.fa-edit]="selectedOperation() === 'update'"
-                [class.fa-trash-alt]="selectedOperation() === 'delete'">
+                [class.fa-trash-alt]="selectedOperation() === 'delete'"
+              >
               </i>
             </button>
           </div>
         </div>
 
         <div class="modal-actions">
-          <button class="btn-cancel" (click)="closeSkillSelectionModal()">Cancel</button>
+          <button class="btn-cancel" (click)="closeSkillSelectionModal()">
+            Cancel
+          </button>
         </div>
       </div>
     </div>
 
-   <!-- Skills Display Grid - Simplified without categories -->
+    <!-- Skills Display Grid - Simplified without categories -->
     <div *ngIf="!isLoading() && skills().length > 0" class="skills-display">
       <div class="skills-grid">
-        <div *ngFor="let skill of skills(); trackBy: trackBySkillId" class="skill-card">
+        <div
+          *ngFor="let skill of skills(); trackBy: trackBySkillId"
+          class="skill-card"
+        >
           <div class="skill-content">
             <h4 class="skill-name">{{ skill.name }}</h4>
+            <!-- Skills rating display -->
             <div class="skill-rating">
               <div class="stars">
-                <span *ngFor="let star of getRatingStars(skill.proficiency); let i = index" 
-                      class="star"
-                      [class.filled]="star === 1">
+                <span
+                  *ngFor="let star of getRatingStars(skill.proficiency)"
+                  class="star"
+                >
                   <i class="fas fa-star"></i>
                 </span>
               </div>
               <span class="proficiency-text">{{ skill.proficiency }}/5</span>
             </div>
-              
-              <!-- Admin controls on skill cards -->
+
+            <!-- Admin controls on skill cards -->
             <div *ngIf="isAdmin()" class="skill-admin-actions">
-              <button class="skill-action-btn edit-btn" 
-                      (click)="openForm(skill)" 
-                      title="Edit Skill">
+              <button
+                class="skill-action-btn edit-btn"
+                (click)="openForm(skill)"
+                title="Edit Skill"
+              >
                 <i class="fas fa-edit"></i>
               </button>
-              <button class="skill-action-btn delete-btn" 
-                      (click)="deleteSkill(skill.id, skill.name)" 
-                      title="Delete Skill">
+              <button
+                class="skill-action-btn delete-btn"
+                (click)="deleteSkill(skill.id, skill.name)"
+                title="Delete Skill"
+              >
                 <i class="fas fa-trash"></i>
               </button>
             </div>
@@ -164,8 +210,8 @@
       </div>
     </div>
 
-      <!-- Display skills without categories -->
-      <!-- <div *ngIf="skills().length > 0 && groupedSkills().size === 0" class="skills-grid no-category">
+    <!-- Display skills without categories -->
+    <!-- <div *ngIf="skills().length > 0 && groupedSkills().size === 0" class="skills-grid no-category">
         <div *ngFor="let skill of skills(); trackBy: trackBySkillId" class="skill-card">
           <div class="skill-content">
             <h4 class="skill-name">{{ skill.name }}</h4>
@@ -184,7 +230,7 @@
       </div>
     </div> -->
 
-  <!-- No Skills Message -->
+    <!-- No Skills Message -->
     <div *ngIf="!isLoading() && skills().length === 0" class="no-skills">
       <i class="fas fa-tools"></i>
       <p>No skills added yet.</p>

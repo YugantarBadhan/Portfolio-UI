@@ -9,7 +9,7 @@ import {
   ElementRef,
   ChangeDetectionStrategy,
   ChangeDetectorRef,
-  OnDestroy
+  OnDestroy,
 } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import {
@@ -28,7 +28,7 @@ import { ConfigService } from '../services/config.service';
   imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './skills.html',
   styleUrls: ['./skills.css'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SkillsComponent implements OnInit, OnDestroy {
   private skillService = inject(SkillService);
@@ -45,7 +45,7 @@ export class SkillsComponent implements OnInit, OnDestroy {
   selectedOperation = signal<string>('');
   selectedSkillId = signal<number | null>(null);
   private isBrowser: boolean;
-  
+
   // Performance optimization: Track if data has been loaded
   private dataLoaded = false;
   private animationFrameId?: number;
@@ -57,11 +57,14 @@ export class SkillsComponent implements OnInit, OnDestroy {
 
   constructor(@Inject(PLATFORM_ID) platformId: Object) {
     this.isBrowser = isPlatformBrowser(platformId);
-    
+
     this.skillForm = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(1)]],
       category: [''],
-      proficiency: [0, [Validators.required, Validators.min(1), Validators.max(5)]]
+      proficiency: [
+        0,
+        [Validators.required, Validators.min(1), Validators.max(5)],
+      ],
     });
   }
 
@@ -168,7 +171,7 @@ export class SkillsComponent implements OnInit, OnDestroy {
     if (!this.isBrowser) {
       return;
     }
-    
+
     const adminToken = localStorage.getItem('adminToken');
     const isAuthenticated = adminToken === this.configService.adminToken;
     this.isAdmin.set(isAuthenticated);
@@ -180,11 +183,11 @@ export class SkillsComponent implements OnInit, OnDestroy {
     if (this.isLoading()) {
       return;
     }
-    
+
     this.isLoading.set(true);
     try {
       const skills = await this.skillService.getAllSkills();
-      
+
       // Sort skills by proficiency (highest first) and then by name
       skills.sort((a, b) => {
         if (b.proficiency !== a.proficiency) {
@@ -192,10 +195,10 @@ export class SkillsComponent implements OnInit, OnDestroy {
         }
         return a.name.localeCompare(b.name);
       });
-      
+
       this.skills.set(skills);
       this.groupSkillsByCategory(skills);
-      
+
       // Use requestAnimationFrame for smooth rendering
       if (this.isBrowser) {
         this.animationFrameId = requestAnimationFrame(() => {
@@ -216,53 +219,55 @@ export class SkillsComponent implements OnInit, OnDestroy {
 
   private groupSkillsByCategory(skills: Skill[]) {
     const grouped = new Map<string, Skill[]>();
-    
-    skills.forEach(skill => {
+
+    skills.forEach((skill) => {
       const category = skill.category || 'Other';
       if (!grouped.has(category)) {
         grouped.set(category, []);
       }
       grouped.get(category)!.push(skill);
     });
-    
+
     // Sort categories
-    const sortedGrouped = new Map([...grouped.entries()].sort((a, b) => {
-      // Put 'Frontend' and 'Backend' first, then other categories, 'Other' last
-      const order = ['Frontend', 'Backend'];
-      const aIndex = order.indexOf(a[0]);
-      const bIndex = order.indexOf(b[0]);
-      
-      if (a[0] === 'Other') return 1;
-      if (b[0] === 'Other') return -1;
-      if (aIndex !== -1 && bIndex !== -1) return aIndex - bIndex;
-      if (aIndex !== -1) return -1;
-      if (bIndex !== -1) return 1;
-      return a[0].localeCompare(b[0]);
-    }));
-    
+    const sortedGrouped = new Map(
+      [...grouped.entries()].sort((a, b) => {
+        // Put 'Frontend' and 'Backend' first, then other categories, 'Other' last
+        const order = ['Frontend', 'Backend'];
+        const aIndex = order.indexOf(a[0]);
+        const bIndex = order.indexOf(b[0]);
+
+        if (a[0] === 'Other') return 1;
+        if (b[0] === 'Other') return -1;
+        if (aIndex !== -1 && bIndex !== -1) return aIndex - bIndex;
+        if (aIndex !== -1) return -1;
+        if (bIndex !== -1) return 1;
+        return a[0].localeCompare(b[0]);
+      })
+    );
+
     this.groupedSkills.set(sortedGrouped);
   }
 
-openForm(skill?: Skill) {
+  openForm(skill?: Skill) {
     this.resetForm();
-    
+
     if (this.isBrowser) {
       document.body.style.overflow = 'hidden';
     }
-    
+
     if (skill) {
       this.editingId.set(skill.id);
       this.skillForm.patchValue({
         name: skill.name,
         category: skill.category || '',
-        proficiency: skill.proficiency
+        proficiency: skill.proficiency,
       });
     } else {
       this.editingId.set(null);
       // Set default proficiency to 0 (no stars selected) instead of 3
       this.skillForm.patchValue({ proficiency: 0 });
     }
-    
+
     this.showForm.set(true);
     this.cdr.markForCheck();
   }
@@ -270,7 +275,7 @@ openForm(skill?: Skill) {
   closeForm() {
     this.showForm.set(false);
     this.resetForm();
-    
+
     if (this.isBrowser) {
       document.body.style.overflow = 'auto';
     }
@@ -279,10 +284,10 @@ openForm(skill?: Skill) {
 
   resetForm() {
     this.skillForm.reset();
-    this.skillForm.patchValue({ 
+    this.skillForm.patchValue({
       name: '',
       category: '',
-      proficiency: 0 
+      proficiency: 0,
     });
     this.editingId.set(null);
   }
@@ -306,11 +311,11 @@ openForm(skill?: Skill) {
     this.isLoading.set(true);
     try {
       const formValue = this.skillForm.value;
-      
+
       const skillData = {
         name: formValue.name.trim(),
         category: formValue.category?.trim() || null,
-        proficiency: formValue.proficiency
+        proficiency: formValue.proficiency,
       };
 
       if (this.editingId()) {
@@ -318,7 +323,7 @@ openForm(skill?: Skill) {
       } else {
         await this.skillService.createSkill(skillData);
       }
-      
+
       await this.loadSkills();
       this.closeForm();
       alert('Skill saved successfully!');
@@ -332,7 +337,7 @@ openForm(skill?: Skill) {
   }
 
   private markAllFieldsAsTouched() {
-    Object.keys(this.skillForm.controls).forEach(key => {
+    Object.keys(this.skillForm.controls).forEach((key) => {
       const control = this.skillForm.get(key);
       if (control) {
         control.markAsTouched();
@@ -353,7 +358,7 @@ openForm(skill?: Skill) {
     this.showSkillSelectionModal.set(false);
     this.selectedOperation.set('');
     this.selectedSkillId.set(null);
-    
+
     if (this.isBrowser) {
       document.body.style.overflow = 'auto';
     }
@@ -363,15 +368,15 @@ openForm(skill?: Skill) {
   selectSkill(skillId: number) {
     this.selectedSkillId.set(skillId);
     const operation = this.selectedOperation();
-    
+
     this.closeSkillSelectionModal();
-    
-    const skill = this.skills().find(s => s.id === skillId);
+
+    const skill = this.skills().find((s) => s.id === skillId);
     if (!skill) {
       alert('Skill not found');
       return;
     }
-    
+
     if (operation === 'update') {
       this.openForm(skill);
     } else if (operation === 'delete') {
@@ -397,13 +402,15 @@ openForm(skill?: Skill) {
     }
   }
 
+  // FIXED: Updated rating stars method to show only the number of stars equal to proficiency
   getRatingStars(proficiency: number): number[] {
-    return Array(5).fill(0).map((_, index) => index < proficiency ? 1 : 0);
+    // Return array with length equal to proficiency, all filled (1)
+    return Array(proficiency).fill(1);
   }
 
   getCategoryIcon(category: string | null): string {
     if (!category) return 'fas fa-code';
-    
+
     const categoryLower = category.toLowerCase();
     if (categoryLower.includes('frontend')) return 'fas fa-laptop-code';
     if (categoryLower.includes('backend')) return 'fas fa-server';

@@ -1292,17 +1292,13 @@ body:not(.dark-theme) .profile-image-placeholder {
   color: #e74de7;
 }
 
-/* Content sections - Optimized spacing */
+/* FIXED: Content sections - Minimal spacing to reduce gaps */
 .section {
-  padding: 2rem 2rem; /* Reduced from 3rem to minimize gaps between sections */
+  padding: 1rem 2rem; /* Reduced from 2rem to minimize gaps */
   max-width: 1200px;
   margin: 0 auto;
   color: inherit;
-  /* Removed min-height to eliminate unnecessary spacing */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
+  /* Removed min-height and display properties that were causing extra spacing */
   background: inherit !important;
 }
 
@@ -1310,12 +1306,14 @@ body:not(.dark-theme) .profile-image-placeholder {
   max-width: 1200px;
   width: 100%;
   text-align: center;
+  margin: 0; /* Removed auto margin */
+  padding: 0; /* Removed padding */
 }
 
 .section h2 {
   color: inherit;
   text-align: center;
-  margin-bottom: 1.5rem; /* Reduced margin */
+  margin-bottom: 1rem; /* Reduced from 1.5rem */
   font-size: 2.5rem;
   font-weight: 700;
 }
@@ -1323,7 +1321,7 @@ body:not(.dark-theme) .profile-image-placeholder {
 .section p {
   font-size: 1.2rem;
   opacity: 0.8;
-  margin-bottom: 1.5rem; /* Reduced margin */
+  margin-bottom: 0.5rem; /* Reduced from 1.5rem */
   color: inherit;
 }
 
@@ -1519,7 +1517,7 @@ body:not(.dark-theme) .profile-image-placeholder {
   }
 
   .section {
-    padding: 1.5rem 1rem; /* Further reduced mobile padding */
+    padding: 1rem 1rem; /* Further reduced mobile padding */
   }
 }
 
@@ -1630,7 +1628,7 @@ body:not(.dark-theme) .profile-image-placeholder {
   }
 
   .section {
-    padding: 1.5rem 1rem; /* Further reduced for small screens */
+    padding: 1rem 1rem; /* Further reduced for small screens */
   }
 }
 
@@ -1752,16 +1750,11 @@ body:not(.dark-theme) .profile-image-placeholder {
   box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
 }
 
+/* FIXED: Section anchors - Remove min-height that was causing extra spacing */
 .section-anchor {
-  min-height: 100vh;
   position: relative;
-}
-
-.section-anchor:empty::before {
-  content: "";
-  display: block;
-  height: 100vh;
-  background: transparent;
+  /* Removed min-height: 100vh; which was causing excessive spacing */
+  /* Removed empty::before rule that was adding unnecessary height */
 }
 
 /* Reduced motion preferences */
@@ -1876,8 +1869,13 @@ body.dark-theme .resume-upload-container {
 }
 
 @keyframes bounce {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
 }
 
 .upload-area h4 {
@@ -2270,4 +2268,31 @@ body.dark-theme .resume-upload-container {
   .btn-upload {
     width: 100%;
   }
+}
+
+/* Specific section spacing fixes */
+#skills {
+  margin-bottom: 0; /* Remove any bottom margin */
+  padding-bottom: 1rem; /* Minimal bottom padding */
+}
+
+#certifications {
+  margin-top: 0; /* Remove any top margin */
+  padding-top: 1rem; /* Minimal top padding */
+}
+
+/* Ensure consistent section spacing throughout */
+.hero,
+.experience-section,
+.projects-section,
+.skills-section {
+  margin-bottom: 0 !important; /* Force remove bottom margins */
+  padding-bottom: 1rem !important; /* Consistent bottom padding */
+}
+
+.section:not(.hero):not(.experience-section):not(.projects-section):not(
+    .skills-section
+  ) {
+  margin-top: 0 !important; /* Force remove top margins */
+  padding-top: 1rem !important; /* Consistent top padding */
 }

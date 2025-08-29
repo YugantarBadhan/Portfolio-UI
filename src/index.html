@@ -7,32 +7,183 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" type="image/x-icon" href="favicon.ico" />
     
-    <!-- FIXED: Proper session management - don't auto-logout on refresh -->
+    <!-- CRITICAL: Inline theme detection script - MUST run before any CSS -->
     <script>
       (function() {
-        // FIXED: Don't automatically clear sessions on page load
-        // Let the AdminSessionService handle session validation properly
-        console.log('Index HTML: Initializing page...');
+        // Get theme preference SYNCHRONOUSLY before any rendering
+        let theme = 'dark'; // Default
         
-        // Apply theme immediately to prevent flash
         try {
           const savedTheme = localStorage.getItem('theme');
-          
           if (savedTheme === 'light') {
-            document.documentElement.classList.add('light-theme');
-            document.body?.classList.add('light-theme');
-          } else {
-            // Default to dark theme
-            document.documentElement.classList.add('dark-theme');
-            document.body?.classList.add('dark-theme');
+            theme = 'light';
           }
         } catch (e) {
-          // Fallback to dark theme if localStorage is not available
-          document.documentElement.classList.add('dark-theme');
-          document.body?.classList.add('dark-theme');
+          // localStorage not available, use default
         }
-
-        // FIXED: Only clean up truly expired sessions, not all sessions
+        
+        // Apply theme class to HTML element IMMEDIATELY
+        if (theme === 'light') {
+          document.documentElement.className = 'light-theme';
+        } else {
+          document.documentElement.className = 'dark-theme';
+        }
+      })();
+    </script>
+    
+    <!-- CRITICAL: Inline CSS for immediate navbar theming -->
+    <style>
+      /* Prevent any flash by applying theme styles immediately */
+      html.light-theme {
+        color: #333;
+        background: #EAEAEA;
+      }
+      
+      html.dark-theme {
+        color: #ffffff;
+        background: #2c3e50;
+      }
+      
+      /* Body inherits from html */
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        color: inherit;
+        background: inherit;
+        margin: 0;
+        padding: 0;
+        min-height: 100vh;
+        /* NO transition on initial load - only when toggling */
+      }
+      
+      /* CRITICAL: Navbar theme styles to prevent flash */
+      .navbar {
+        position: fixed;
+        top: 0;
+        width: 100%;
+        padding: 1rem 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        z-index: 1000;
+        height: 80px;
+        backdrop-filter: blur(15px);
+        /* NO transition initially */
+      }
+      
+      /* Light theme navbar */
+      html.light-theme .navbar {
+        background: #eaeaea !important;
+        box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1) !important;
+      }
+      
+      /* Dark theme navbar */
+      html.dark-theme .navbar {
+        background: rgba(44, 62, 80, 0.95) !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+        box-shadow: 0 2px 20px rgba(0, 0, 0, 0.3) !important;
+      }
+      
+      /* Logo colors */
+      html.light-theme .logo {
+        color: #0f0f0f !important;
+      }
+      
+      html.dark-theme .logo {
+        color: #ffffff !important;
+      }
+      
+      /* Nav links */
+      html.light-theme .nav-links a {
+        color: #1a1818 !important;
+      }
+      
+      html.dark-theme .nav-links a {
+        color: #ffffff !important;
+      }
+      
+      /* Mobile menu button */
+      html.light-theme .mobile-menu-btn {
+        color: #252424 !important;
+      }
+      
+      html.dark-theme .mobile-menu-btn {
+        color: #ffffff !important;
+      }
+      
+      /* Theme toggle button */
+      html.light-theme .theme-toggle {
+        border-color: #333333 !important;
+        color: #333333 !important;
+      }
+      
+      html.dark-theme .theme-toggle {
+        border-color: #ffffff !important;
+        color: #ffffff !important;
+      }
+      
+      /* Admin toggle button */
+      html.light-theme .admin-toggle {
+        border: 2px solid #333333 !important;
+      }
+      
+      html.dark-theme .admin-toggle {
+        border: 2px solid rgb(156, 68, 68) !important;
+      }
+      
+      /* Admin icon */
+      html.light-theme .admin-icon {
+        filter: brightness(0) invert(0) !important;
+      }
+      
+      html.dark-theme .admin-icon {
+        filter: brightness(0) invert(1) !important;
+      }
+      
+      /* Social buttons - keep original colors */
+      .social-btn {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        color: white;
+        font-size: 1.2rem;
+      }
+      
+      /* Remove any default styling that could cause flash */
+      * {
+        box-sizing: border-box;
+      }
+      
+      /* Hide content until Angular loads to prevent unstyled flash */
+      app-root:empty {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+      }
+      
+      app-root:empty::before {
+        content: "Loading...";
+        color: inherit;
+        font-size: 1.2rem;
+      }
+    </style>
+    
+    <!-- External CSS loads after theme is set -->
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    
+    <!-- Session management script -->
+    <script>
+      (function() {
+        // Session management (unchanged from your original)
+        console.log('Index HTML: Initializing page...');
+        
         try {
           const savedSession = localStorage.getItem('adminSession');
           
@@ -42,10 +193,9 @@
             const PAGE_REFRESH_GRACE_PERIOD = 2 * 60 * 1000; // 2 minutes grace
             const now = Date.now();
             
-            // Only clear if session is REALLY expired (including grace period)
             if ((now - session.timestamp) > (SESSION_TIMEOUT + PAGE_REFRESH_GRACE_PERIOD)) {
               localStorage.removeItem('adminSession');
-              localStorage.removeItem('adminToken'); // Remove old token storage
+              localStorage.removeItem('adminToken');
               console.log('Index HTML: Expired admin session cleared');
             } else {
               console.log('Index HTML: Valid admin session preserved');
@@ -53,15 +203,66 @@
           }
         } catch (e) {
           console.error('Index HTML: Error checking session:', e);
-          // Don't clear session on error - let the service handle it
         }
       })();
     </script>
     
-    <link
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-      rel="stylesheet"
-    />
+    <!-- Add transitions AFTER page loads for smooth toggling -->
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        // Add transition classes after DOM is ready for smooth theme toggling
+        const style = document.createElement('style');
+        style.textContent = `
+          /* Add smooth transitions only after initial load */
+          body {
+            transition: background-color 0.2s ease, color 0.2s ease !important;
+          }
+          
+          .navbar {
+            transition: all 0.2s ease !important;
+          }
+          
+          .logo {
+            transition: color 0.2s ease !important;
+          }
+          
+          .nav-links a {
+            transition: all 0.2s ease !important;
+          }
+          
+          .mobile-menu-btn {
+            transition: all 0.2s ease !important;
+          }
+          
+          .theme-toggle {
+            transition: all 0.2s ease !important;
+          }
+          
+          .admin-toggle {
+            transition: all 0.2s ease !important;
+          }
+          
+          .admin-icon {
+            transition: all 0.2s ease !important;
+          }
+          
+          .mobile-menu {
+            transition: transform 0.2s ease !important;
+          }
+          
+          /* Speed up all other transitions for snappy feel */
+          * {
+            transition-duration: 0.2s !important;
+          }
+          
+          /* Exception: Keep hover effects quick */
+          *:hover {
+            transition-duration: 0.1s !important;
+          }
+        `;
+        document.head.appendChild(style);
+      });
+    </script>
   </head>
   <body>
     <app-root></app-root>

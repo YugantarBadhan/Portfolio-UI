@@ -113,7 +113,8 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   adminToken = '';
 
   // FIXED: Pending operation tracking
-  private pendingOperation: { section: string; operation: string } | null = null;
+  private pendingOperation: { section: string; operation: string } | null =
+    null;
 
   // Data properties
   experiences = signal<Experience[]>([]);
@@ -146,46 +147,51 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   ngOnInit() {
-    // Set dark theme as default immediately
-    this.isDarkTheme = true;
-
     if (this.isBrowser) {
-      // Check saved theme preference
-      const savedTheme = localStorage.getItem('theme');
-      if (savedTheme === 'light') {
-        this.isDarkTheme = false;
+      // CRITICAL: Sync with the theme already applied in index.html
+      // Don't set a default - read what's already been applied
+      try {
+        const savedTheme = localStorage.getItem('theme');
+        this.isDarkTheme = savedTheme !== 'light'; // true unless explicitly light
+
+        // Theme is already applied in index.html, just sync the state
+        // NO need to call applyTheme() here - it's already applied
+        console.log('Theme synced:', this.isDarkTheme ? 'dark' : 'light');
+
+        // Add fast transitions after initial load for smooth toggling
+        setTimeout(() => {
+          this.enableFastTransitions();
+        }, 100); // Small delay to ensure everything is rendered
+      } catch (error) {
+        console.error('Error reading theme preference:', error);
+        // Fallback to dark theme
+        this.isDarkTheme = true;
       }
 
-      // FIXED: Subscribe to admin authentication state from AdminSessionService
+      // Rest of your ngOnInit code...
       this.adminSessionService.isAuthenticated$
         .pipe(takeUntil(this.destroy$))
-        .subscribe(isAuth => {
+        .subscribe((isAuth) => {
           console.log('Admin authentication state changed:', isAuth);
           this.isAdminAuthenticated.set(isAuth);
-          
-          // FIXED: Handle pending operations after authentication
+
           if (isAuth && this.pendingOperation) {
             console.log('Executing pending operation:', this.pendingOperation);
             setTimeout(() => {
               this.executePendingOperation();
             }, 100);
           }
-          
-          // Update component admin modes based on auth state
+
           this.updateComponentAdminModes(isAuth);
-          
           this.cdr.markForCheck();
         });
 
-      // Setup scroll restoration
       this.setupScrollRestoration();
-      
-      // Setup lazy loading observer
       this.setupSectionObserver();
+    } else {
+      // Server-side: default to dark theme
+      this.isDarkTheme = true;
     }
-
-    // Apply theme immediately
-    this.applyTheme();
   }
 
   ngAfterViewInit() {
@@ -203,7 +209,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
         this.skillsComponentReady.set(true);
         console.log('Skills component ready');
       }
-      
+
       // Apply admin mode if already authenticated
       if (this.isAdminAuthenticated()) {
         this.updateComponentAdminModes(true);
@@ -214,7 +220,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
-    
+
     if (this.sectionObserver) {
       this.sectionObserver.disconnect();
     }
@@ -246,7 +252,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
    */
   private updateComponentAdminModes(isAuthenticated: boolean) {
     console.log('Updating component admin modes:', isAuthenticated);
-    
+
     if (isAuthenticated) {
       // Enable admin mode in ready components
       if (this.experienceComponentReady() && this.experienceComponentRef) {
@@ -275,11 +281,15 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     }
   }
 
+  // Add property for scroll optimization
+  private scrollTimeout: number | null = null;
+
+  // UPDATED: Optimized scroll restoration with fast transitions
   private setupScrollRestoration() {
     if (!this.isBrowser) return;
 
-    // Always scroll to top on page load/reload
-    window.scrollTo(0, 0);
+    // Always scroll to top on page load/reload with fast smooth behavior
+    window.scrollTo({ top: 0, behavior: 'auto' }); // Use 'auto' for instant scroll on load
 
     // Listen to router navigation events
     this.router.events
@@ -288,28 +298,69 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
         takeUntil(this.destroy$)
       )
       .subscribe(() => {
-        // Scroll to top on route changes
+        // Scroll to top on route changes with smooth behavior
         setTimeout(() => {
-          window.scrollTo(0, 0);
-        }, 100);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }, 50); // Faster timeout for snappy navigation
       });
 
-    // FIXED: Force logout on page refresh for security
+    // Force logout on page refresh for security
     window.addEventListener('beforeunload', () => {
-      // Always logout on page refresh for security
       if (this.isAdminAuthenticated()) {
         console.log('Page refresh detected - logging out for security');
         this.adminSessionService.logout();
       }
+      // Instant scroll to top on page unload
       window.scrollTo(0, 0);
     });
 
-    // Additional fallback for scroll restoration
+    // Additional fallback for scroll restoration with shorter timeout
     setTimeout(() => {
       if (window.scrollY > 0) {
-        window.scrollTo(0, 0);
+        window.scrollTo({ top: 0, behavior: 'auto' });
       }
-    }, 500);
+    }, 200); // Reduced from 500ms for faster feel
+  }
+
+  // NEW: Optimized scroll to section with fast smooth scrolling
+  scrollToSection(sectionId: string, event: Event) {
+    event.preventDefault();
+
+    this.isMobileMenuOpen = false;
+    if (this.isBrowser) {
+      document.body.style.overflow = 'auto';
+    }
+
+    // If scrolling to home, just go to top with fast smooth scroll
+    if (sectionId === 'home') {
+      if (this.isBrowser) {
+        window.scrollTo({
+          top: 0,
+          behavior: 'smooth',
+        });
+      }
+      return;
+    }
+
+    // Trigger loading of the section
+    this.loadSection(sectionId);
+
+    if (this.isBrowser) {
+      // Use requestAnimationFrame for optimized scrolling
+      requestAnimationFrame(() => {
+        const element = document.getElementById(sectionId);
+        if (element) {
+          const navbarHeight = 80;
+          const elementPosition = element.offsetTop - navbarHeight;
+
+          window.scrollTo({
+            top: elementPosition,
+            behavior: 'smooth',
+          });
+        }
+      });
+    }
+    this.cdr.markForCheck();
   }
 
   // Lazy Loading Methods
@@ -355,7 +406,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
       try {
         await this.loadExperiences();
         this.experienceComponentLoaded.set(true);
-        
+
         // FIXED: Wait for component to be ready before setting admin mode
         setTimeout(() => {
           this.experienceComponentReady.set(true);
@@ -363,7 +414,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
             this.experienceComponentRef.enableAdminMode();
           }
         }, 100);
-        
+
         this.cdr.markForCheck();
       } catch (error) {
         console.error('Error loading experience section:', error);
@@ -372,7 +423,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
       try {
         await this.loadProjects();
         this.projectsComponentLoaded.set(true);
-        
+
         // FIXED: Wait for component to be ready before setting admin mode
         setTimeout(() => {
           this.projectsComponentReady.set(true);
@@ -380,7 +431,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
             this.projectsComponentRef.enableAdminMode();
           }
         }, 100);
-        
+
         this.cdr.markForCheck();
       } catch (error) {
         console.error('Error loading projects section:', error);
@@ -389,7 +440,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
       try {
         await this.loadSkills();
         this.skillsComponentLoaded.set(true);
-        
+
         // FIXED: Wait for component to be ready before setting admin mode
         setTimeout(() => {
           this.skillsComponentReady.set(true);
@@ -397,7 +448,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
             this.skillsComponentRef.enableAdminMode();
           }
         }, 100);
-        
+
         this.cdr.markForCheck();
       } catch (error) {
         console.error('Error loading skills section:', error);
@@ -421,8 +472,14 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   @HostListener('window:scroll')
   onWindowScroll() {
     if (this.isBrowser) {
-      this.isScrolled = window.scrollY > 50;
-      this.cdr.markForCheck();
+      // Use requestAnimationFrame for smooth scrolling performance
+      if (!this.scrollTimeout) {
+        this.scrollTimeout = requestAnimationFrame(() => {
+          this.isScrolled = window.scrollY > 50;
+          this.cdr.markForCheck();
+          this.scrollTimeout = null;
+        });
+      }
     }
   }
 
@@ -447,22 +504,86 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     this.isDarkTheme = !this.isDarkTheme;
 
     if (this.isBrowser) {
+      // Save preference
       localStorage.setItem('theme', this.isDarkTheme ? 'dark' : 'light');
     }
 
-    this.applyTheme();
+    // Apply theme with fast smooth transition
+    this.applyThemeFast();
     this.cdr.markForCheck();
   }
 
   private applyTheme() {
     if (typeof document !== 'undefined') {
+      const htmlElement = document.documentElement;
+
       if (this.isDarkTheme) {
+        htmlElement.className = 'dark-theme';
+        // Also update body classes for backward compatibility
         document.body.classList.remove('light-theme');
         document.body.classList.add('dark-theme');
       } else {
+        htmlElement.className = 'light-theme';
+        // Also update body classes for backward compatibility
         document.body.classList.remove('dark-theme');
         document.body.classList.add('light-theme');
       }
+    }
+  }
+
+  // NEW: Fast theme application for smooth toggling
+  private applyThemeFast() {
+    if (typeof document !== 'undefined') {
+      const htmlElement = document.documentElement;
+
+      // Add transition class for smooth toggle
+      document.body.classList.add('theme-transitioning');
+
+      if (this.isDarkTheme) {
+        htmlElement.className = 'dark-theme theme-transitioning';
+        document.body.classList.remove('light-theme');
+        document.body.classList.add('dark-theme');
+      } else {
+        htmlElement.className = 'light-theme theme-transitioning';
+        document.body.classList.remove('dark-theme');
+        document.body.classList.add('light-theme');
+      }
+
+      // Remove transition class after animation completes
+      setTimeout(() => {
+        document.body.classList.remove('theme-transitioning');
+        htmlElement.classList.remove('theme-transitioning');
+      }, 200); // Match transition duration
+    }
+  }
+
+  // NEW: Enable fast transitions after initial load
+  private enableFastTransitions() {
+    if (typeof document !== 'undefined') {
+      // Add transition classes to body for global fast transitions
+      document.body.classList.add('fast-transitions');
+
+      // Also add to specific elements that need fast transitions
+      const elementsToSpeedUp = [
+        '.navbar',
+        '.logo',
+        '.nav-links a',
+        '.mobile-menu-btn',
+        '.theme-toggle',
+        '.admin-toggle',
+        '.admin-icon',
+        '.mobile-menu',
+        '.mobile-nav-links a',
+      ];
+
+      elementsToSpeedUp.forEach((selector) => {
+        const elements = document.querySelectorAll(selector);
+        elements.forEach((element) => {
+          (element as HTMLElement).style.transition = 'all 0.2s ease';
+        });
+      });
+
+      console.log('Fast transitions enabled for smooth UI');
     }
   }
 
@@ -485,7 +606,9 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
       }
 
       setTimeout(() => {
-        const input = document.querySelector('.admin-token-input') as HTMLInputElement;
+        const input = document.querySelector(
+          '.admin-token-input'
+        ) as HTMLInputElement;
         if (input) {
           input.focus();
         }
@@ -506,14 +629,14 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     console.log('Attempting admin authentication...');
-    
+
     // Use AdminSessionService for authentication
     const success = this.adminSessionService.authenticate(this.adminToken);
-    
+
     if (success) {
       console.log('Admin authentication successful');
       this.closeAdminTokenModal();
-      
+
       // The pending operation will be executed automatically via the subscription
       // in the ngOnInit method when isAuthenticated$ emits true
     } else {
@@ -522,7 +645,9 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
       this.adminToken = '';
 
       setTimeout(() => {
-        const input = document.querySelector('.admin-token-input') as HTMLInputElement;
+        const input = document.querySelector(
+          '.admin-token-input'
+        ) as HTMLInputElement;
         if (input) {
           input.focus();
         }
@@ -536,7 +661,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   private async ensureSectionLoadedThenShowOperations(sectionId: string) {
     try {
       console.log('Ensuring section is loaded:', sectionId);
-      
+
       // Load the section if not already loaded
       if (sectionId === 'experience' && !this.experienceComponentLoaded()) {
         await this.loadSection('experience');
@@ -557,7 +682,6 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
         }
         this.cdr.markForCheck();
       }, 200);
-      
     } catch (error) {
       console.error('Error ensuring section is loaded:', error);
       alert(`Failed to load ${sectionId} section. Please try again.`);
@@ -571,12 +695,12 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     return new Promise((resolve) => {
       let attempts = 0;
       const maxAttempts = 30; // 3 seconds max wait
-      
+
       const checkComponent = () => {
         attempts++;
-        
+
         let componentReady = false;
-        
+
         if (sectionId === 'experience' && this.experienceComponentReady()) {
           componentReady = true;
         } else if (sectionId === 'projects' && this.projectsComponentReady()) {
@@ -584,15 +708,17 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
         } else if (sectionId === 'skills' && this.skillsComponentReady()) {
           componentReady = true;
         }
-        
+
         if (componentReady || attempts >= maxAttempts) {
-          console.log(`Component ${sectionId} ready after ${attempts} attempts`);
+          console.log(
+            `Component ${sectionId} ready after ${attempts} attempts`
+          );
           resolve();
         } else {
           setTimeout(checkComponent, 100);
         }
       };
-      
+
       checkComponent();
     });
   }
@@ -899,42 +1025,42 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     this.cdr.markForCheck();
   }
 
-  scrollToSection(sectionId: string, event: Event) {
-    event.preventDefault();
+  // scrollToSection(sectionId: string, event: Event) {
+  //   event.preventDefault();
 
-    this.isMobileMenuOpen = false;
-    if (this.isBrowser) {
-      document.body.style.overflow = 'auto';
-    }
+  //   this.isMobileMenuOpen = false;
+  //   if (this.isBrowser) {
+  //     document.body.style.overflow = 'auto';
+  //   }
 
-    // If scrolling to home, just go to top
-    if (sectionId === 'home') {
-      if (this.isBrowser) {
-        window.scrollTo({
-          top: 0,
-          behavior: 'smooth',
-        });
-      }
-      return;
-    }
+  //   // If scrolling to home, just go to top
+  //   if (sectionId === 'home') {
+  //     if (this.isBrowser) {
+  //       window.scrollTo({
+  //         top: 0,
+  //         behavior: 'smooth',
+  //       });
+  //     }
+  //     return;
+  //   }
 
-    // Trigger loading of the section
-    this.loadSection(sectionId);
+  //   // Trigger loading of the section
+  //   this.loadSection(sectionId);
 
-    if (this.isBrowser) {
-      const element = document.getElementById(sectionId);
-      if (element) {
-        const navbarHeight = 80;
-        const elementPosition = element.offsetTop - navbarHeight;
+  //   if (this.isBrowser) {
+  //     const element = document.getElementById(sectionId);
+  //     if (element) {
+  //       const navbarHeight = 80;
+  //       const elementPosition = element.offsetTop - navbarHeight;
 
-        window.scrollTo({
-          top: elementPosition,
-          behavior: 'smooth',
-        });
-      }
-    }
-    this.cdr.markForCheck();
-  }
+  //       window.scrollTo({
+  //         top: elementPosition,
+  //         behavior: 'smooth',
+  //       });
+  //     }
+  //   }
+  //   this.cdr.markForCheck();
+  // }
 
   // Admin functionality methods
   toggleAdminDropdown(event: Event) {
@@ -964,7 +1090,9 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
       }
 
       setTimeout(() => {
-        const input = document.querySelector('.admin-token-input') as HTMLInputElement;
+        const input = document.querySelector(
+          '.admin-token-input'
+        ) as HTMLInputElement;
         if (input) {
           input.focus();
         }
@@ -973,7 +1101,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
       // User is authenticated - ensure section is loaded and show operations
       this.selectedAdminSection.set(sectionId);
       this.showAdminDropdown.set(false);
-      
+
       // Ensure section is loaded before showing operations
       this.ensureSectionLoadedThenShowOperations(sectionId);
     }
@@ -1008,7 +1136,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
    */
   selectOperation(operationId: string) {
     console.log('Operation selected:', operationId);
-    
+
     this.selectedOperation.set(operationId);
     const sectionId = this.selectedAdminSection();
 
@@ -1046,13 +1174,13 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
    */
   private async handleExperienceOperation(operationId: string) {
     console.log('Handling experience operation:', operationId);
-    
+
     // Ensure section is loaded first
     if (!this.experienceComponentLoaded()) {
       console.log('Loading experience section...');
       await this.loadSection('experience');
     }
-    
+
     // Wait for component to be ready
     await this.waitForComponent('experience');
 
@@ -1098,13 +1226,13 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
    */
   private async handleProjectsOperation(operationId: string) {
     console.log('Handling projects operation:', operationId);
-    
+
     // Ensure section is loaded first
     if (!this.projectsComponentLoaded()) {
       console.log('Loading projects section...');
       await this.loadSection('projects');
     }
-    
+
     // Wait for component to be ready
     await this.waitForComponent('projects');
 
@@ -1150,13 +1278,13 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
    */
   private async handleSkillsOperation(operationId: string) {
     console.log('Handling skills operation:', operationId);
-    
+
     // Ensure section is loaded first
     if (!this.skillsComponentLoaded()) {
       console.log('Loading skills section...');
       await this.loadSection('skills');
     }
-    
+
     // Wait for component to be ready
     await this.waitForComponent('skills');
 

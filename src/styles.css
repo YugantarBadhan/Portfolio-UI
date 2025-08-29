@@ -1,3 +1,5 @@
+/* Updated src/styles.css - FIXED to prevent theme flash */
+
 /* Global styles */
 html,
 body {
@@ -6,27 +8,24 @@ body {
   padding: 0;
 }
 
-/* FIXED: Default to dark theme immediately - no flash */
-body {
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-  /* REMOVED: transition from body to prevent flash */
-  /* Default to dark theme IMMEDIATELY */
-  color: #ffffff !important;
-  background: #2c3e50 !important;
-}
-
-/* Light theme override - ONLY when class is present */
-body.light-theme {
+/* CRITICAL: Theme styles on HTML element to prevent flash */
+html.light-theme {
   color: #333 !important;
   background: #EAEAEA !important;
-  transition: background-color 0.3s ease, color 0.3s ease !important;
 }
 
-/* Dark theme with smooth transition when toggling */
-body.dark-theme {
+html.dark-theme {
   color: #ffffff !important;
   background: #2c3e50 !important;
-  transition: background-color 0.3s ease, color 0.3s ease !important;
+}
+
+/* Body inherits from html - no default theme colors */
+body {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  color: inherit !important;
+  background: inherit !important;
+  /* Only add transition for smooth toggling, not initial load */
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 * {
@@ -38,7 +37,7 @@ html {
   scroll-behavior: smooth;
 }
 
-/* Force text colors to inherit from body */
+/* Force text colors to inherit properly */
 h1,
 h2,
 h3,
@@ -61,12 +60,6 @@ app-root {
   background: inherit !important;
   color: inherit !important;
 }
-
-/* REMOVED: This was causing conflicts */
-/* body * {
-  background: inherit;
-  color: inherit;
-} */
 
 /* Exception for specific UI elements that need their own colors */
 button,

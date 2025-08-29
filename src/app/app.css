@@ -7,7 +7,6 @@
 body {
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   line-height: 1.6;
-  transition: all 0.3s ease;
   min-height: 100vh;
 }
 
@@ -30,12 +29,11 @@ body:not(.dark-theme) {
   background: inherit !important;
 }
 
-/* Navigation Bar */
+/* Navigation Bar - NO initial transitions to prevent flash */
 .navbar {
   position: fixed;
   top: 0;
   width: 100%;
-  background: #eaeaea; /* Light theme - matches body background */
   backdrop-filter: blur(15px);
   padding: 1rem 2rem;
   display: flex;
@@ -43,14 +41,22 @@ body:not(.dark-theme) {
   align-items: center;
   z-index: 1000;
   box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
   height: 80px; /* Fixed navbar height */
+  /* REMOVED: transition - will be added via JavaScript after load */
 }
 
-.navbar.dark-theme {
-  background: rgba(44, 62, 80, 0.95); /* Dark theme - matches body background */
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
+/* Light theme navbar - use HTML-level selectors for immediate application */
+html.light-theme .navbar {
+  background: #eaeaea !important; /* Light theme - matches body background */
+  border-bottom: none !important;
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Dark theme navbar - use HTML-level selectors for immediate application */
+html.dark-theme .navbar {
+  background: rgba(44, 62, 80, 0.95) !important; /* Dark theme - matches body background */
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.3) !important;
 }
 
 .navbar.scrolled {
@@ -58,23 +64,27 @@ body:not(.dark-theme) {
   box-shadow: 0 2px 25px rgba(0, 0, 0, 0.15);
 }
 
-.navbar.dark-theme.scrolled {
-  background: rgba(44, 62, 80, 0.98); /* Dark theme scrolled */
-  box-shadow: 0 2px 25px rgba(0, 0, 0, 0.4);
+html.dark-theme .navbar.scrolled {
+  background: rgba(44, 62, 80, 0.98) !important; /* Dark theme scrolled */
+  box-shadow: 0 2px 25px rgba(0, 0, 0, 0.4) !important;
 }
 
-/* Fixed Portfolio Logo */
+/* Logo - NO initial transition */
 .logo {
   font-size: 1.5rem;
   font-weight: bold;
-  color: #0f0f0f !important; /* Black for light theme (since bg is gray) */
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  transition: color 0.3s ease;
+  /* REMOVED: transition - will be added via JavaScript after load */
 }
 
-.navbar.dark-theme .logo {
+/* Use HTML-level selectors for immediate theme application */
+html.light-theme .logo {
+  color: #0f0f0f !important; /* Black for light theme */
+}
+
+html.dark-theme .logo {
   color: #ffffff !important; /* White for dark theme */
 }
 
@@ -88,42 +98,81 @@ body:not(.dark-theme) {
   display: flex;
 }
 
+/* Navigation links - NO initial transition */
+.nav-links a {
+  text-decoration: none;
+  font-weight: 500;
+  position: relative;
+  padding: 0.5rem 1rem;
+  border-radius: 25px;
+  cursor: pointer;
+  /* REMOVED: transition - will be added via JavaScript after load */
+}
+
+/* Use HTML-level selectors for immediate theme application */
+html.light-theme .nav-links a {
+  color: #1a1818 !important; /* Black for light theme */
+}
+
+html.dark-theme .nav-links a {
+  color: #ffffff !important; /* White for dark theme */
+}
+
+.nav-links a:hover {
+  color: #0a90fd; /* Blue on hover for light theme */
+  background: rgba(172, 157, 157, 0.1);
+}
+
+html.dark-theme .nav-links a:hover {
+  color: #64b5f6 !important; /* Blue on hover for dark theme */
+  background: rgba(100, 181, 246, 0.1);
+}
+
+/* Mobile menu button - NO initial transition */
 .mobile-menu-btn {
   display: none;
   background: transparent;
   border: none;
-  color: #252424; /* Black for light theme (since navbar bg is gray) */
   font-size: 1.5rem;
   cursor: pointer;
   padding: 0.5rem;
-  transition: all 0.3s ease;
+  /* REMOVED: transition - will be added via JavaScript after load */
 }
 
-.navbar.dark-theme .mobile-menu-btn {
-  color: #ffffff; /* White for dark theme */
+/* Use HTML-level selectors for immediate theme application */
+html.light-theme .mobile-menu-btn {
+  color: #252424 !important; /* Black for light theme */
+}
+
+html.dark-theme .mobile-menu-btn {
+  color: #ffffff !important; /* White for dark theme */
 }
 
 .mobile-menu-btn:hover {
   transform: scale(1.1);
 }
 
-/* Mobile Menu */
+/* Mobile Menu - NO initial transition */
 .mobile-menu {
   position: fixed;
   top: 80px;
   left: 0;
   width: 100%;
   height: calc(100vh - 80px);
-  background: #eaeaea; /* Light theme - matches navbar */
   backdrop-filter: blur(10px);
   transform: translateX(-100%);
-  transition: transform 0.3s ease;
   z-index: 999;
   padding: 2rem;
+  /* REMOVED: transition - will be added via JavaScript after load */
 }
 
-.mobile-menu.dark-theme {
-  background: rgba(44, 62, 80, 0.98); /* Dark theme - matches navbar */
+/* Use HTML-level selectors for immediate theme application */
+html.light-theme .mobile-menu {
+  background: #eaeaea !important; /* Light theme - matches navbar */
+}
+
+html.dark-theme .mobile-menu {
+  background: rgba(44, 62, 80, 0.98) !important; /* Dark theme - matches navbar */
 }
 
 .mobile-menu.open {
@@ -143,50 +192,33 @@ body:not(.dark-theme) {
   display: block;
   padding: 1rem 0;
   text-decoration: none;
-  color: #1d1c1c; /* Black for light theme (since mobile menu bg is gray) */
   font-weight: 500;
   font-size: 1.2rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  transition: all 0.3s ease;
+  /* REMOVED: transition - will be added via JavaScript after load */
 }
 
-.mobile-menu.dark-theme .mobile-nav-links a {
-  color: #ffffff; /* White for dark theme */
-  border-bottom-color: rgba(255, 255, 255, 0.1);
+/* Use HTML-level selectors for immediate theme application */
+html.light-theme .mobile-nav-links a {
+  color: #1d1c1c !important; /* Black for light theme */
+  border-bottom-color: rgba(0, 0, 0, 0.1) !important;
+}
+
+html.dark-theme .mobile-nav-links a {
+  color: #ffffff !important; /* White for dark theme */
+  border-bottom-color: rgba(255, 255, 255, 0.1) !important;
 }
 
 .mobile-nav-links a:hover {
-  color: #303d46;
   padding-left: 1rem;
 }
 
-.mobile-menu.dark-theme .mobile-nav-links a:hover {
-  color: #64b5f6; /* Blue on hover for dark theme */
+html.light-theme .mobile-nav-links a:hover {
+  color: #303d46 !important;
 }
 
-.nav-links a {
-  text-decoration: none;
-  color: #1a1818; /* Black for light theme (since navbar bg is gray) */
-  font-weight: 500;
-  transition: all 0.3s ease;
-  position: relative;
-  padding: 0.5rem 1rem;
-  border-radius: 25px;
-  cursor: pointer;
-}
-
-.navbar.dark-theme .nav-links a {
-  color: #ffffff; /* White for dark theme */
-}
-
-.nav-links a:hover {
-  color: #0a90fd; /* Blue on hover for light theme */
-  background: rgba(172, 157, 157, 0.1);
-}
-
-.navbar.dark-theme .nav-links a:hover {
-  color: #64b5f6; /* Blue on hover for dark theme */
-  background: rgba(100, 181, 246, 0.1);
+html.dark-theme .mobile-nav-links a:hover {
+  color: #64b5f6 !important; /* Blue on hover for dark theme */
 }
 
 .nav-actions {
@@ -261,23 +293,20 @@ body:not(.dark-theme) {
   display: inline-block;
 }
 
-/* Admin Toggle Button */
+/* Admin toggle button - NO initial transition */
 .admin-toggle {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  border: 2px solid #333333 !important; /* Dark border for light theme */
   background: transparent !important;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.3s ease;
   margin-right: 0.5rem;
   padding: 6px;
   position: relative;
   z-index: 10;
-  /* Remove any default button styling */
   outline: none !important;
   -webkit-tap-highlight-color: transparent !important;
   -webkit-touch-callout: none !important;
@@ -286,11 +315,16 @@ body:not(.dark-theme) {
   -moz-user-select: none !important;
   -ms-user-select: none !important;
   user-select: none !important;
+  /* REMOVED: transition - will be added via JavaScript after load */
 }
 
-/* Dark theme specific styling for admin toggle */
-.navbar.dark-theme .admin-toggle {
-  border: 2px solid rgb(156, 68, 68) !important; /* Keep red border for dark theme */
+/* Use HTML-level selectors for immediate theme application */
+html.light-theme .admin-toggle {
+  border: 2px solid #333333 !important; /* Dark border for light theme */
+}
+
+html.dark-theme .admin-toggle {
+  border: 2px solid rgb(156, 68, 68) !important; /* Red border for dark theme */
 }
 
 .admin-toggle:focus {
@@ -299,54 +333,55 @@ body:not(.dark-theme) {
 }
 
 .admin-toggle:hover {
-  border-color: #000000 !important; /* Black border on hover for light theme */
   transform: scale(1.05);
 }
 
-.admin-toggle.active {
-  border-color: #000000 !important; /* Black border when active for light theme */
-  transform: scale(1.02);
+html.light-theme .admin-toggle:hover {
+  border-color: #000000 !important; /* Black border on hover for light theme */
 }
 
-/* Dark theme hover and active states */
-.navbar.dark-theme .admin-toggle:hover {
+html.dark-theme .admin-toggle:hover {
   border-color: rgb(66, 3, 3) !important; /* Dark red on hover for dark theme */
 }
 
-.navbar.dark-theme .admin-toggle.active {
-  border-color: rgb(
-    10,
-    10,
-    10
-  ) !important; /* Very dark border when active for dark theme */
+.admin-toggle.active {
+  transform: scale(1.02);
 }
 
+html.light-theme .admin-toggle.active {
+  border-color: #000000 !important; /* Black border when active for light theme */
+}
+
+html.dark-theme .admin-toggle.active {
+  border-color: rgb(10, 10, 10) !important; /* Very dark border when active for dark theme */
+}
+
+/* Admin icon - NO initial transition */
 .admin-icon {
   width: 24px !important;
   height: 24px !important;
   object-fit: contain;
-  filter: brightness(0) invert(0) !important; /* Black for light theme */
   opacity: 1 !important;
   visibility: visible !important;
-  pointer-events: none; /* Prevent icon from interfering with button clicks */
+  pointer-events: none;
+  /* REMOVED: transition - will be added via JavaScript after load */
 }
 
-/* Dark theme admin icon */
-.navbar.dark-theme .admin-icon,
-.navbar.dark-theme .admin-toggle .admin-icon,
-.navbar.dark-theme .admin-toggle:hover .admin-icon,
-.navbar.dark-theme .admin-toggle.active .admin-icon,
-.navbar.dark-theme .admin-toggle:focus .admin-icon {
+/* Use HTML-level selectors for immediate theme application */
+html.light-theme .admin-icon,
+html.light-theme .admin-toggle .admin-icon,
+html.light-theme .admin-toggle:hover .admin-icon,
+html.light-theme .admin-toggle.active .admin-icon,
+html.light-theme .admin-toggle:focus .admin-icon {
+  filter: brightness(0) invert(0) !important; /* Black for light theme */
+}
+
+html.dark-theme .admin-icon,
+html.dark-theme .admin-toggle .admin-icon,
+html.dark-theme .admin-toggle:hover .admin-icon,
+html.dark-theme .admin-toggle.active .admin-icon,
+html.dark-theme .admin-toggle:focus .admin-icon {
   filter: brightness(0) invert(1) !important; /* White for dark theme */
-}
-
-.admin-toggle .admin-icon,
-.admin-toggle:hover .admin-icon,
-.admin-toggle.active .admin-icon,
-.admin-toggle:focus .admin-icon {
-  filter: brightness(0) invert(0) !important; /* Black for light theme */
-  opacity: 1 !important;
-  visibility: visible !important;
 }
 
 /* Remove any button focus outlines that might cause boxes */
@@ -357,7 +392,6 @@ body:not(.dark-theme) {
 
 /* Additional fixes for button appearance */
 .admin-toggle:active {
-  /* background: rgba(255, 255, 255, 0.25) !important; */
   transform: scale(0.98);
 }
 
@@ -1025,36 +1059,44 @@ body.dark-theme .admin-modal-actions .btn-cancel {
   cursor: not-allowed;
 }
 
+/* Theme toggle button - NO initial transition */
 .theme-toggle {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  border: 2px solid #333333; /* Dark border for light theme */
   background: transparent;
-  color: #333333; /* Dark icon for light theme */
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.3s ease;
   font-size: 1rem;
   margin-left: 0.5rem;
+  /* REMOVED: transition - will be added via JavaScript after load */
 }
 
-.navbar.dark-theme .theme-toggle {
-  border-color: #ffffff; /* White border for dark theme */
-  color: #ffffff; /* White icon for dark theme */
+/* Use HTML-level selectors for immediate theme application */
+html.light-theme .theme-toggle {
+  border: 2px solid #333333 !important; /* Dark border for light theme */
+  color: #333333 !important; /* Dark icon for light theme */
+}
+
+html.dark-theme .theme-toggle {
+  border: 2px solid #ffffff !important; /* White border for dark theme */
+  color: #ffffff !important; /* White icon for dark theme */
 }
 
 .theme-toggle:hover {
-  background: #333333; /* Dark background on hover for light theme */
-  color: #ffffff; /* White icon on hover for light theme */
   transform: scale(1.1);
 }
 
-.navbar.dark-theme .theme-toggle:hover {
-  background: #ffffff; /* White background on hover for dark theme */
-  color: #2c3e50; /* Dark icon on hover for dark theme */
+html.light-theme .theme-toggle:hover {
+  background: #333333 !important; /* Dark background on hover for light theme */
+  color: #ffffff !important; /* White icon on hover for light theme */
+}
+
+html.dark-theme .theme-toggle:hover {
+  background: #ffffff !important; /* White background on hover for dark theme */
+  color: #2c3e50 !important; /* Dark icon on hover for dark theme */
 }
 
 /* Hero Section - Optimized spacing */
@@ -1377,414 +1419,6 @@ body:not(.dark-theme) .profile-image-placeholder {
     transform: scale(1) translateY(0);
   }
 }
-
-/* Responsive Design */
-@media (max-width: 768px) {
-  .navbar {
-    padding: 1rem;
-  }
-
-  .desktop-nav {
-    display: none;
-  }
-
-  .mobile-menu-btn {
-    display: block;
-  }
-
-  .social-buttons {
-    gap: 0.3rem;
-  }
-
-  .social-btn {
-    width: 35px;
-    height: 35px;
-    font-size: 1rem;
-  }
-
-  .admin-toggle {
-    width: 35px;
-    height: 35px;
-    margin-right: 0.3rem;
-    -webkit-tap-highlight-color: transparent !important;
-  }
-
-  .admin-icon {
-    width: 20px;
-    height: 20px;
-  }
-
-  .admin-dropdown {
-    right: -10px;
-    min-width: 200px;
-  }
-
-  .admin-dropdown::before {
-    right: 25px;
-  }
-
-  .admin-modal-container {
-    padding: 20px;
-    width: 95%;
-    max-width: 450px;
-  }
-
-  .admin-modal-actions {
-    flex-direction: column;
-  }
-
-  .admin-modal-actions .btn-cancel,
-  .admin-modal-actions .btn-submit {
-    width: 100%;
-  }
-
-  .admin-operations-grid {
-    grid-template-columns: 1fr;
-    gap: 10px;
-  }
-
-  .admin-operation-btn {
-    flex-direction: row;
-    justify-content: flex-start;
-    padding: 15px;
-  }
-
-  .admin-operation-btn i {
-    font-size: 1.2rem;
-  }
-
-  .experience-selection-list {
-    max-height: 300px;
-  }
-
-  .experience-selection-item {
-    padding: 12px 15px;
-  }
-
-  .experience-info h4 {
-    font-size: 1rem;
-  }
-
-  .experience-info p {
-    font-size: 0.9rem;
-  }
-
-  .experience-info small {
-    font-size: 0.75rem;
-  }
-
-  .theme-toggle {
-    width: 35px;
-    height: 35px;
-    font-size: 0.9rem;
-  }
-
-  .hero {
-    padding: 6rem 1rem 1rem; /* Increased top padding for mobile */
-    min-height: 80vh; /* Reduced for mobile */
-  }
-
-  .hero-content {
-    grid-template-columns: 1fr;
-    text-align: center;
-    gap: 2rem;
-  }
-
-  .hero-image {
-    order: 1;
-  }
-
-  .hero-text {
-    order: 2;
-  }
-
-  .hero-text h1 {
-    font-size: 2.5rem;
-  }
-
-  .hero-text .title {
-    font-size: 2rem;
-  }
-
-  .profile-card {
-    width: 300px;
-    height: 350px;
-  }
-
-  .profile-image,
-  .profile-image-placeholder {
-    height: 250px;
-  }
-
-  .section {
-    padding: 1rem 1rem; /* Further reduced mobile padding */
-  }
-}
-
-@media (max-width: 480px) {
-  .navbar {
-    padding: 0.8rem;
-  }
-
-  .logo {
-    font-size: 1.3rem;
-  }
-
-  .social-buttons {
-    gap: 0.2rem;
-  }
-
-  .social-btn {
-    width: 30px;
-    height: 30px;
-    font-size: 0.9rem;
-  }
-
-  .admin-toggle {
-    width: 30px;
-    height: 30px;
-    margin-right: 0.2rem;
-  }
-
-  .admin-icon {
-    width: 18px;
-    height: 18px;
-  }
-
-  .admin-dropdown {
-    right: -20px;
-    min-width: 180px;
-  }
-
-  .admin-section-btn,
-  .admin-logout-btn {
-    padding: 10px 15px;
-    font-size: 0.85rem;
-  }
-
-  .admin-modal-container {
-    padding: 15px;
-    width: 98%;
-    max-width: 380px;
-  }
-
-  .admin-modal-header h3 {
-    font-size: 1.3rem;
-  }
-
-  .admin-token-input {
-    padding: 10px 12px;
-    font-size: 0.9rem;
-  }
-
-  .admin-operations-grid {
-    gap: 8px;
-  }
-
-  .admin-operation-btn {
-    padding: 12px;
-    font-size: 0.8rem;
-  }
-
-  .admin-operation-btn i {
-    font-size: 1rem;
-  }
-
-  .experience-selection-list {
-    max-height: 250px;
-  }
-
-  .experience-selection-item {
-    padding: 10px 12px;
-  }
-
-  .theme-toggle {
-    width: 30px;
-    height: 30px;
-    font-size: 0.8rem;
-  }
-
-  .hero-text h1 {
-    font-size: 2rem;
-  }
-
-  .hero-text .title {
-    font-size: 1.8rem;
-  }
-
-  .hero-text p {
-    font-size: 1rem;
-  }
-
-  .profile-card {
-    width: 280px;
-    height: 320px;
-    padding: 1.5rem;
-  }
-
-  .profile-image,
-  .profile-image-placeholder {
-    height: 220px;
-  }
-
-  .section {
-    padding: 1rem 1rem; /* Further reduced for small screens */
-  }
-}
-
-/* Additional mobile-specific adjustments */
-@media (max-width: 360px) {
-  .navbar {
-    padding: 0.5rem;
-  }
-
-  .logo {
-    font-size: 1.2rem;
-  }
-
-  .nav-actions {
-    gap: 0.3rem;
-  }
-
-  .social-btn {
-    width: 28px;
-    height: 28px;
-    font-size: 0.8rem;
-  }
-
-  .admin-toggle {
-    width: 28px;
-    height: 28px;
-  }
-
-  .admin-icon {
-    width: 16px;
-    height: 16px;
-  }
-
-  .theme-toggle {
-    width: 28px;
-    height: 28px;
-    font-size: 0.7rem;
-  }
-
-  .admin-modal-container {
-    padding: 12px;
-    width: 100%;
-    max-width: 340px;
-  }
-
-  .hero-text h1 {
-    font-size: 1.8rem;
-  }
-
-  .hero-text .title {
-    font-size: 1.6rem;
-  }
-
-  .profile-card {
-    width: 260px;
-    height: 300px;
-  }
-
-  .profile-image,
-  .profile-image-placeholder {
-    height: 200px;
-  }
-}
-
-/* High-resolution display adjustments */
-@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
-  .admin-icon {
-    image-rendering: -webkit-optimize-contrast;
-    image-rendering: crisp-edges;
-  }
-}
-
-/* Dark mode specific admin dropdown adjustments */
-@media (prefers-color-scheme: dark) {
-  body:not(.light-theme) .admin-dropdown {
-    background: #2c3e50;
-    border-color: rgba(255, 255, 255, 0.1);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-  }
-
-  body:not(.light-theme) .admin-dropdown::before {
-    background: #2c3e50;
-    border-color: rgba(255, 255, 255, 0.1);
-  }
-}
-
-/* Print styles - Hide admin controls when printing */
-@media print {
-  .admin-dropdown-container,
-  .admin-modal-overlay,
-  .theme-toggle {
-    display: none !important;
-  }
-
-  .navbar {
-    position: relative;
-    background: transparent !important;
-    box-shadow: none !important;
-    padding: 1rem 0;
-  }
-
-  .nav-actions {
-    display: none;
-  }
-}
-
-/* Focus styles for accessibility */
-.admin-toggle:focus,
-.theme-toggle:focus,
-.admin-section-btn:focus,
-.admin-logout-btn:focus,
-.admin-operation-btn:focus,
-.experience-selection-item:focus {
-  outline: 2px solid #007bff;
-  outline-offset: 2px;
-}
-
-.admin-token-input:focus {
-  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
-}
-
-/* FIXED: Section anchors - Remove min-height that was causing extra spacing */
-.section-anchor {
-  position: relative;
-  /* Removed min-height: 100vh; which was causing excessive spacing */
-  /* Removed empty::before rule that was adding unnecessary height */
-}
-
-/* Reduced motion preferences */
-@media (prefers-reduced-motion: reduce) {
-  .admin-dropdown,
-  .admin-toggle,
-  .theme-toggle,
-  .admin-modal-container,
-  .admin-operation-btn,
-  .experience-selection-item {
-    transition: none;
-  }
-
-  .admin-section-btn,
-  .admin-logout-btn {
-    transition: none;
-  }
-
-  .hero-text,
-  .hero-image {
-    animation: none;
-  }
-
-  .admin-modal-overlay,
-  .admin-modal-container {
-    animation: none;
-  }
-}
-
-/* Add these styles to src/app/app.css */
 
 /* Resume Upload Modal Styles */
 .resume-upload-container {
@@ -2208,68 +1842,6 @@ body.dark-theme .resume-upload-container {
   color: inherit !important;
 }
 
-/* Responsive Design */
-@media (max-width: 768px) {
-  .resume-upload-container {
-    width: 95%;
-    max-width: none;
-  }
-
-  .upload-area {
-    padding: 30px 20px;
-  }
-
-  .upload-icon {
-    font-size: 3rem;
-  }
-
-  .resume-item {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .resume-actions {
-    width: 100%;
-    justify-content: flex-end;
-    margin-top: 10px;
-  }
-}
-
-@media (max-width: 480px) {
-  .resume-upload-container {
-    width: 98%;
-  }
-
-  .resume-upload-container .modal-header {
-    padding: 20px;
-  }
-
-  .resume-upload-container .modal-body {
-    padding: 20px;
-  }
-
-  .upload-area {
-    padding: 25px 15px;
-  }
-
-  .upload-area h4 {
-    font-size: 1.1rem;
-  }
-
-  .file-preview {
-    padding: 15px;
-  }
-
-  .upload-actions {
-    flex-direction: column;
-  }
-
-  .btn-cancel,
-  .btn-upload {
-    width: 100%;
-  }
-}
-
 /* Specific section spacing fixes */
 #skills {
   margin-bottom: 0; /* Remove any bottom margin */
@@ -2295,4 +1867,450 @@ body.dark-theme .resume-upload-container {
   ) {
   margin-top: 0 !important; /* Force remove top margins */
   padding-top: 1rem !important; /* Consistent top padding */
+}
+
+/* FIXED: Section anchors - Remove min-height that was causing extra spacing */
+.section-anchor {
+  position: relative;
+  /* Removed min-height: 100vh; which was causing excessive spacing */
+  /* Removed empty::before rule that was adding unnecessary height */
+}
+
+/* Speed up all animations after load for snappy feel */
+.fast-transitions * {
+  transition-duration: 0.2s !important;
+}
+
+.fast-transitions *:hover {
+  transition-duration: 0.1s !important;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .navbar {
+    padding: 1rem;
+  }
+
+  .desktop-nav {
+    display: none;
+  }
+
+  .mobile-menu-btn {
+    display: block;
+  }
+
+  .social-buttons {
+    gap: 0.3rem;
+  }
+
+  .social-btn {
+    width: 35px;
+    height: 35px;
+    font-size: 1rem;
+  }
+
+  .admin-toggle {
+    width: 35px;
+    height: 35px;
+    margin-right: 0.3rem;
+    -webkit-tap-highlight-color: transparent !important;
+  }
+
+  .admin-icon {
+    width: 20px;
+    height: 20px;
+  }
+
+  .admin-dropdown {
+    right: -10px;
+    min-width: 200px;
+  }
+
+  .admin-dropdown::before {
+    right: 25px;
+  }
+
+  .admin-modal-container {
+    padding: 20px;
+    width: 95%;
+    max-width: 450px;
+  }
+
+  .admin-modal-actions {
+    flex-direction: column;
+  }
+
+  .admin-modal-actions .btn-cancel,
+  .admin-modal-actions .btn-submit {
+    width: 100%;
+  }
+
+  .admin-operations-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .admin-operation-btn {
+    flex-direction: row;
+    justify-content: flex-start;
+    padding: 15px;
+  }
+
+  .admin-operation-btn i {
+    font-size: 1.2rem;
+  }
+
+  .experience-selection-list {
+    max-height: 300px;
+  }
+
+  .experience-selection-item {
+    padding: 12px 15px;
+  }
+
+  .experience-info h4 {
+    font-size: 1rem;
+  }
+
+  .experience-info p {
+    font-size: 0.9rem;
+  }
+
+  .experience-info small {
+    font-size: 0.75rem;
+  }
+
+  .theme-toggle {
+    width: 35px;
+    height: 35px;
+    font-size: 0.9rem;
+  }
+
+  .hero {
+    padding: 6rem 1rem 1rem; /* Increased top padding for mobile */
+    min-height: 80vh; /* Reduced for mobile */
+  }
+
+  .hero-content {
+    grid-template-columns: 1fr;
+    text-align: center;
+    gap: 2rem;
+  }
+
+  .hero-image {
+    order: 1;
+  }
+
+  .hero-text {
+    order: 2;
+  }
+
+  .hero-text h1 {
+    font-size: 2.5rem;
+  }
+
+  .hero-text .title {
+    font-size: 2rem;
+  }
+
+  .profile-card {
+    width: 300px;
+    height: 350px;
+  }
+
+  .profile-image,
+  .profile-image-placeholder {
+    height: 250px;
+  }
+
+  .section {
+    padding: 1rem 1rem; /* Further reduced mobile padding */
+  }
+}
+
+@media (max-width: 480px) {
+  .navbar {
+    padding: 0.8rem;
+  }
+
+  .logo {
+    font-size: 1.3rem;
+  }
+
+  .social-buttons {
+    gap: 0.2rem;
+  }
+
+  .social-btn {
+    width: 30px;
+    height: 30px;
+    font-size: 0.9rem;
+  }
+
+  .admin-toggle {
+    width: 30px;
+    height: 30px;
+    margin-right: 0.2rem;
+  }
+
+  .admin-icon {
+    width: 18px;
+    height: 18px;
+  }
+
+  .admin-dropdown {
+    right: -20px;
+    min-width: 180px;
+  }
+
+  .admin-section-btn,
+  .admin-logout-btn {
+    padding: 10px 15px;
+    font-size: 0.85rem;
+  }
+
+  .admin-modal-container {
+    padding: 15px;
+    width: 98%;
+    max-width: 380px;
+  }
+
+  .admin-modal-header h3 {
+    font-size: 1.3rem;
+  }
+
+  .admin-token-input {
+    padding: 10px 12px;
+    font-size: 0.9rem;
+  }
+
+  .admin-operations-grid {
+    gap: 8px;
+  }
+
+  .admin-operation-btn {
+    padding: 12px;
+    font-size: 0.8rem;
+  }
+
+  .admin-operation-btn i {
+    font-size: 1rem;
+  }
+
+  .experience-selection-list {
+    max-height: 250px;
+  }
+
+  .experience-selection-item {
+    padding: 10px 12px;
+  }
+
+  .theme-toggle {
+    width: 30px;
+    height: 30px;
+    font-size: 0.8rem;
+  }
+
+  .hero-text h1 {
+    font-size: 2rem;
+  }
+
+  .hero-text .title {
+    font-size: 1.8rem;
+  }
+
+  .hero-text p {
+    font-size: 1rem;
+  }
+
+  .profile-card {
+    width: 280px;
+    height: 320px;
+    padding: 1.5rem;
+  }
+
+  .profile-image,
+  .profile-image-placeholder {
+    height: 220px;
+  }
+
+  .section {
+    padding: 1rem 1rem; /* Further reduced for small screens */
+  }
+}
+
+/* Additional mobile-specific adjustments */
+@media (max-width: 360px) {
+  .navbar {
+    padding: 0.5rem;
+  }
+
+  .logo {
+    font-size: 1.2rem;
+  }
+
+  .nav-actions {
+    gap: 0.3rem;
+  }
+
+  .social-btn {
+    width: 28px;
+    height: 28px;
+    font-size: 0.8rem;
+  }
+
+  .admin-toggle {
+    width: 28px;
+    height: 28px;
+  }
+
+  .admin-icon {
+    width: 16px;
+    height: 16px;
+  }
+
+  .theme-toggle {
+    width: 28px;
+    height: 28px;
+    font-size: 0.7rem;
+  }
+
+  .admin-modal-container {
+    padding: 12px;
+    width: 100%;
+    max-width: 340px;
+  }
+
+  .hero-text h1 {
+    font-size: 1.8rem;
+  }
+
+  .hero-text .title {
+    font-size: 1.6rem;
+  }
+
+  .profile-card {
+    width: 260px;
+    height: 300px;
+  }
+
+  .profile-image,
+  .profile-image-placeholder {
+    height: 200px;
+  }
+}
+
+/* High-resolution display adjustments */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .admin-icon {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+  }
+}
+
+/* Dark mode specific admin dropdown adjustments */
+@media (prefers-color-scheme: dark) {
+  body:not(.light-theme) .admin-dropdown {
+    background: #2c3e50;
+    border-color: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  }
+
+  body:not(.light-theme) .admin-dropdown::before {
+    background: #2c3e50;
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+}
+
+/* Print styles - Hide admin controls when printing */
+@media print {
+  .admin-dropdown-container,
+  .admin-modal-overlay,
+  .theme-toggle {
+    display: none !important;
+  }
+
+  .navbar {
+    position: relative;
+    background: transparent !important;
+    box-shadow: none !important;
+    padding: 1rem 0;
+  }
+
+  .nav-actions {
+    display: none;
+  }
+}
+
+/* Focus styles for accessibility */
+.admin-toggle:focus,
+.theme-toggle:focus,
+.admin-section-btn:focus,
+.admin-logout-btn:focus,
+.admin-operation-btn:focus,
+.experience-selection-item:focus {
+  outline: 2px solid #007bff;
+  outline-offset: 2px;
+}
+
+.admin-token-input:focus {
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+}
+
+/* Reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .admin-dropdown,
+  .admin-toggle,
+  .theme-toggle,
+  .admin-modal-container,
+  .admin-operation-btn,
+  .experience-selection-item {
+    transition: none;
+  }
+
+  .admin-section-btn,
+  .admin-logout-btn {
+    transition: none;
+  }
+
+  .hero-text,
+  .hero-image {
+    animation: none;
+  }
+
+  .admin-modal-overlay,
+  .admin-modal-container {
+    animation: none;
+  }
+
+  .fast-transitions,
+  .fast-transitions * {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+/* Performance optimizations for fast transitions */
+.fast-transitions {
+  /* Enable GPU acceleration for smooth transitions */
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+/* Ultra-fast for buttons and interactive elements */
+.fast-transitions button,
+.fast-transitions .btn,
+.fast-transitions a,
+.fast-transitions .social-btn {
+  transition-duration: 0.15s !important;
+  transition-timing-function: ease-out !important;
+}
+
+/* Instant feedback for critical UI elements */
+.fast-transitions .navbar,
+.fast-transitions .theme-toggle,
+.fast-transitions .admin-toggle,
+.fast-transitions .mobile-menu-btn {
+  transition-duration: 0.1s !important;
 }

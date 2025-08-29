@@ -1,3 +1,5 @@
+// src/app/app.ts - FIXED VERSION addressing authentication and component lifecycle issues
+
 import {
   Component,
   OnInit,
@@ -10,10 +12,12 @@ import {
   inject,
   OnDestroy,
   ViewChild,
+  AfterViewInit,
 } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ConfigService } from './services/config.service';
+import { AdminSessionService } from './services/admin-session.service';
 import { ExperienceService } from './services/experience.service';
 import { ProjectService } from './services/project.service';
 import { Experience } from './model/experience.model';
@@ -26,7 +30,8 @@ import { SkillsComponent } from './skills/skills';
 import { SkillService } from './services/skill.service';
 import { Skill } from './model/skill.model';
 import { Router, NavigationEnd } from '@angular/router';
-import { filter } from 'rxjs/operators';
+import { filter, takeUntil } from 'rxjs/operators';
+import { Subject } from 'rxjs';
 
 interface AdminSection {
   id: string;
@@ -54,19 +59,19 @@ interface AdminOperation {
   styleUrls: ['./app.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AppComponent implements OnInit, OnDestroy {
+export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild(ExperienceComponent) experienceComponentRef!: ExperienceComponent;
   @ViewChild(ProjectsComponent) projectsComponentRef!: ProjectsComponent;
   @ViewChild(SkillsComponent) skillsComponentRef!: SkillsComponent;
+
+  private destroy$ = new Subject<void>();
   private cdr = inject(ChangeDetectorRef);
   private configService = inject(ConfigService);
+  private adminSessionService = inject(AdminSessionService);
   private experienceService = inject(ExperienceService);
   private projectService = inject(ProjectService);
   private skillService = inject(SkillService);
-
-  // Add ResumeService to the component's inject statements
   private resumeService = inject(ResumeService);
-
   private router = inject(Router);
 
   title = 'Portfolio-UI';
@@ -90,7 +95,12 @@ export class AppComponent implements OnInit, OnDestroy {
   projectsComponentLoaded = signal(false);
   skillsComponentLoaded = signal(false);
 
-  // Admin-related properties
+  // FIXED: Component readiness tracking
+  experienceComponentReady = signal(false);
+  projectsComponentReady = signal(false);
+  skillsComponentReady = signal(false);
+
+  // Admin-related properties - USING AdminSessionService
   showAdminDropdown = signal(false);
   isAdminAuthenticated = signal(false);
   showAdminTokenModal = signal(false);
@@ -102,19 +112,17 @@ export class AppComponent implements OnInit, OnDestroy {
   selectedOperation = signal<string>('');
   adminToken = '';
 
-  // Experience-related properties
+  // FIXED: Pending operation tracking
+  private pendingOperation: { section: string; operation: string } | null = null;
+
+  // Data properties
   experiences = signal<Experience[]>([]);
   selectedExperienceId = signal<number | null>(null);
-
-  // Project-related properties
   projects = signal<Project[]>([]);
   selectedProjectId = signal<number | null>(null);
-
-  // Skills-related properties
   skills = signal<Skill[]>([]);
   selectedSkillId = signal<number | null>(null);
 
-  // Intersection Observer for lazy loading
   private sectionObserver?: IntersectionObserver;
   private isBrowser: boolean;
 
@@ -138,35 +146,133 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    // FIXED: Set dark theme as default immediately
+    // Set dark theme as default immediately
     this.isDarkTheme = true;
 
     if (this.isBrowser) {
       // Check saved theme preference
       const savedTheme = localStorage.getItem('theme');
-
-      // If user previously selected light theme, switch to it
       if (savedTheme === 'light') {
         this.isDarkTheme = false;
       }
-      // Otherwise keep dark theme (default)
 
-      // Check if user is already authenticated as admin
-      const savedAdminToken = localStorage.getItem('adminToken');
-      if (savedAdminToken === this.configService.adminToken) {
-        this.isAdminAuthenticated.set(true);
-      }
+      // FIXED: Subscribe to admin authentication state from AdminSessionService
+      this.adminSessionService.isAuthenticated$
+        .pipe(takeUntil(this.destroy$))
+        .subscribe(isAuth => {
+          console.log('Admin authentication state changed:', isAuth);
+          this.isAdminAuthenticated.set(isAuth);
+          
+          // FIXED: Handle pending operations after authentication
+          if (isAuth && this.pendingOperation) {
+            console.log('Executing pending operation:', this.pendingOperation);
+            setTimeout(() => {
+              this.executePendingOperation();
+            }, 100);
+          }
+          
+          // Update component admin modes based on auth state
+          this.updateComponentAdminModes(isAuth);
+          
+          this.cdr.markForCheck();
+        });
 
-      // ADDED: Setup scroll restoration on page reload/refresh
+      // Setup scroll restoration
       this.setupScrollRestoration();
-
+      
       // Setup lazy loading observer
       this.setupSectionObserver();
     }
 
     // Apply theme immediately
     this.applyTheme();
-    // Don't load data on init - wait for lazy loading
+  }
+
+  ngAfterViewInit() {
+    // FIXED: Mark components as ready after view init
+    setTimeout(() => {
+      if (this.experienceComponentRef) {
+        this.experienceComponentReady.set(true);
+        console.log('Experience component ready');
+      }
+      if (this.projectsComponentRef) {
+        this.projectsComponentReady.set(true);
+        console.log('Projects component ready');
+      }
+      if (this.skillsComponentRef) {
+        this.skillsComponentReady.set(true);
+        console.log('Skills component ready');
+      }
+      
+      // Apply admin mode if already authenticated
+      if (this.isAdminAuthenticated()) {
+        this.updateComponentAdminModes(true);
+      }
+    }, 100);
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
+    
+    if (this.sectionObserver) {
+      this.sectionObserver.disconnect();
+    }
+  }
+
+  /**
+   * FIXED: Execute pending operation after authentication
+   */
+  private executePendingOperation() {
+    if (!this.pendingOperation) return;
+
+    const { section, operation } = this.pendingOperation;
+    this.pendingOperation = null;
+
+    console.log(`Executing pending operation: ${operation} on ${section}`);
+
+    if (section === 'resume') {
+      this.openResumeUploadModal();
+      return;
+    }
+
+    // For other sections, ensure they're loaded and show operations
+    this.selectedAdminSection.set(section);
+    this.ensureSectionLoadedThenShowOperations(section);
+  }
+
+  /**
+   * FIXED: Update admin modes in child components based on auth state
+   */
+  private updateComponentAdminModes(isAuthenticated: boolean) {
+    console.log('Updating component admin modes:', isAuthenticated);
+    
+    if (isAuthenticated) {
+      // Enable admin mode in ready components
+      if (this.experienceComponentReady() && this.experienceComponentRef) {
+        console.log('Enabling admin mode for experience component');
+        this.experienceComponentRef.enableAdminMode();
+      }
+      if (this.projectsComponentReady() && this.projectsComponentRef) {
+        console.log('Enabling admin mode for projects component');
+        this.projectsComponentRef.enableAdminMode();
+      }
+      if (this.skillsComponentReady() && this.skillsComponentRef) {
+        console.log('Enabling admin mode for skills component');
+        this.skillsComponentRef.enableAdminMode();
+      }
+    } else {
+      // Disable admin mode in all components immediately
+      if (this.experienceComponentRef) {
+        this.experienceComponentRef.disableAdminMode();
+      }
+      if (this.projectsComponentRef) {
+        this.projectsComponentRef.disableAdminMode();
+      }
+      if (this.skillsComponentRef) {
+        this.skillsComponentRef.disableAdminMode();
+      }
+    }
   }
 
   private setupScrollRestoration() {
@@ -177,16 +283,24 @@ export class AppComponent implements OnInit, OnDestroy {
 
     // Listen to router navigation events
     this.router.events
-      .pipe(filter((event) => event instanceof NavigationEnd))
-      .subscribe((event: NavigationEnd) => {
+      .pipe(
+        filter((event) => event instanceof NavigationEnd),
+        takeUntil(this.destroy$)
+      )
+      .subscribe(() => {
         // Scroll to top on route changes
         setTimeout(() => {
           window.scrollTo(0, 0);
         }, 100);
       });
 
-    // Handle browser refresh - scroll to top
+    // FIXED: Force logout on page refresh for security
     window.addEventListener('beforeunload', () => {
+      // Always logout on page refresh for security
+      if (this.isAdminAuthenticated()) {
+        console.log('Page refresh detected - logging out for security');
+        this.adminSessionService.logout();
+      }
       window.scrollTo(0, 0);
     });
 
@@ -196,12 +310,6 @@ export class AppComponent implements OnInit, OnDestroy {
         window.scrollTo(0, 0);
       }
     }, 500);
-  }
-
-  ngOnDestroy() {
-    if (this.sectionObserver) {
-      this.sectionObserver.disconnect();
-    }
   }
 
   // Lazy Loading Methods
@@ -245,18 +353,34 @@ export class AppComponent implements OnInit, OnDestroy {
   private async loadSection(sectionId: string) {
     if (sectionId === 'experience' && !this.experienceComponentLoaded()) {
       try {
-        // Load data first
         await this.loadExperiences();
         this.experienceComponentLoaded.set(true);
+        
+        // FIXED: Wait for component to be ready before setting admin mode
+        setTimeout(() => {
+          this.experienceComponentReady.set(true);
+          if (this.isAdminAuthenticated() && this.experienceComponentRef) {
+            this.experienceComponentRef.enableAdminMode();
+          }
+        }, 100);
+        
         this.cdr.markForCheck();
       } catch (error) {
         console.error('Error loading experience section:', error);
       }
     } else if (sectionId === 'projects' && !this.projectsComponentLoaded()) {
       try {
-        // Load data first
         await this.loadProjects();
         this.projectsComponentLoaded.set(true);
+        
+        // FIXED: Wait for component to be ready before setting admin mode
+        setTimeout(() => {
+          this.projectsComponentReady.set(true);
+          if (this.isAdminAuthenticated() && this.projectsComponentRef) {
+            this.projectsComponentRef.enableAdminMode();
+          }
+        }, 100);
+        
         this.cdr.markForCheck();
       } catch (error) {
         console.error('Error loading projects section:', error);
@@ -265,6 +389,15 @@ export class AppComponent implements OnInit, OnDestroy {
       try {
         await this.loadSkills();
         this.skillsComponentLoaded.set(true);
+        
+        // FIXED: Wait for component to be ready before setting admin mode
+        setTimeout(() => {
+          this.skillsComponentReady.set(true);
+          if (this.isAdminAuthenticated() && this.skillsComponentRef) {
+            this.skillsComponentRef.enableAdminMode();
+          }
+        }, 100);
+        
         this.cdr.markForCheck();
       } catch (error) {
         console.error('Error loading skills section:', error);
@@ -323,7 +456,6 @@ export class AppComponent implements OnInit, OnDestroy {
 
   private applyTheme() {
     if (typeof document !== 'undefined') {
-      // FIXED: Use specific theme classes for smooth transitions
       if (this.isDarkTheme) {
         document.body.classList.remove('light-theme');
         document.body.classList.add('dark-theme');
@@ -334,12 +466,15 @@ export class AppComponent implements OnInit, OnDestroy {
     }
   }
 
-  // FIXED: New method to handle resume upload request with authentication check
+  /**
+   * Handle resume upload request with session check
+   */
   handleResumeUploadRequest(event: Event) {
     event.stopPropagation();
 
     if (!this.isAdminAuthenticated()) {
-      // User is not authenticated, show token modal first
+      // FIXED: Set pending operation
+      this.pendingOperation = { section: 'resume', operation: 'upload' };
       this.selectedAdminSection.set('resume');
       this.showAdminTokenModal.set(true);
       this.showAdminDropdown.set(false);
@@ -350,21 +485,131 @@ export class AppComponent implements OnInit, OnDestroy {
       }
 
       setTimeout(() => {
-        const input = document.querySelector(
-          '.admin-token-input'
-        ) as HTMLInputElement;
+        const input = document.querySelector('.admin-token-input') as HTMLInputElement;
         if (input) {
           input.focus();
         }
       }, 100);
     } else {
-      // User is already authenticated, open resume upload modal directly
       this.openResumeUploadModal();
     }
     this.cdr.markForCheck();
   }
 
-  // Resume Upload Methods
+  /**
+   * FIXED: Submit admin token using AdminSessionService with proper error handling
+   */
+  submitAdminToken() {
+    if (this.adminToken.trim() === '') {
+      alert('Please enter a token');
+      return;
+    }
+
+    console.log('Attempting admin authentication...');
+    
+    // Use AdminSessionService for authentication
+    const success = this.adminSessionService.authenticate(this.adminToken);
+    
+    if (success) {
+      console.log('Admin authentication successful');
+      this.closeAdminTokenModal();
+      
+      // The pending operation will be executed automatically via the subscription
+      // in the ngOnInit method when isAuthenticated$ emits true
+    } else {
+      console.log('Admin authentication failed');
+      alert('Invalid admin token');
+      this.adminToken = '';
+
+      setTimeout(() => {
+        const input = document.querySelector('.admin-token-input') as HTMLInputElement;
+        if (input) {
+          input.focus();
+        }
+      }, 100);
+    }
+  }
+
+  /**
+   * FIXED: Ensure section is loaded before showing operations modal
+   */
+  private async ensureSectionLoadedThenShowOperations(sectionId: string) {
+    try {
+      console.log('Ensuring section is loaded:', sectionId);
+      
+      // Load the section if not already loaded
+      if (sectionId === 'experience' && !this.experienceComponentLoaded()) {
+        await this.loadSection('experience');
+        await this.waitForComponent('experience');
+      } else if (sectionId === 'projects' && !this.projectsComponentLoaded()) {
+        await this.loadSection('projects');
+        await this.waitForComponent('projects');
+      } else if (sectionId === 'skills' && !this.skillsComponentLoaded()) {
+        await this.loadSection('skills');
+        await this.waitForComponent('skills');
+      }
+
+      // Now show the operations modal
+      setTimeout(() => {
+        this.showAdminOperationsModal.set(true);
+        if (this.isBrowser) {
+          document.body.style.overflow = 'hidden';
+        }
+        this.cdr.markForCheck();
+      }, 200);
+      
+    } catch (error) {
+      console.error('Error ensuring section is loaded:', error);
+      alert(`Failed to load ${sectionId} section. Please try again.`);
+    }
+  }
+
+  /**
+   * FIXED: Wait for component to be properly initialized with admin mode
+   */
+  private async waitForComponent(sectionId: string): Promise<void> {
+    return new Promise((resolve) => {
+      let attempts = 0;
+      const maxAttempts = 30; // 3 seconds max wait
+      
+      const checkComponent = () => {
+        attempts++;
+        
+        let componentReady = false;
+        
+        if (sectionId === 'experience' && this.experienceComponentReady()) {
+          componentReady = true;
+        } else if (sectionId === 'projects' && this.projectsComponentReady()) {
+          componentReady = true;
+        } else if (sectionId === 'skills' && this.skillsComponentReady()) {
+          componentReady = true;
+        }
+        
+        if (componentReady || attempts >= maxAttempts) {
+          console.log(`Component ${sectionId} ready after ${attempts} attempts`);
+          resolve();
+        } else {
+          setTimeout(checkComponent, 100);
+        }
+      };
+      
+      checkComponent();
+    });
+  }
+
+  /**
+   * FIXED: Logout admin using AdminSessionService
+   */
+  logoutAdmin() {
+    console.log('Logging out admin...');
+    this.adminSessionService.logout();
+    this.showAdminDropdown.set(false);
+    // Clear any pending operations
+    this.pendingOperation = null;
+    this.cdr.markForCheck();
+  }
+
+  // Resume Upload Methods (unchanged)
   openResumeUploadModal() {
     this.showResumeUploadModal.set(true);
     this.showAdminDropdown.set(false);
@@ -406,11 +651,13 @@ export class AppComponent implements OnInit, OnDestroy {
       console.error('Error loading resumes:', error);
       if (error.message.includes('Unauthorized')) {
         this.uploadError.set('Unauthorized access. Please re-authenticate.');
+        // Force logout if unauthorized
+        this.adminSessionService.forceLogout('Authentication expired');
       }
     }
   }
 
-  // Drag and Drop handlers
+  // Drag and Drop handlers (unchanged)
   onDragOver(event: DragEvent) {
     event.preventDefault();
     event.stopPropagation();
@@ -660,7 +907,7 @@ export class AppComponent implements OnInit, OnDestroy {
       document.body.style.overflow = 'auto';
     }
 
-    // ADDED: If scrolling to home, just go to top
+    // If scrolling to home, just go to top
     if (sectionId === 'home') {
       if (this.isBrowser) {
         window.scrollTo({
@@ -696,10 +943,17 @@ export class AppComponent implements OnInit, OnDestroy {
     this.cdr.markForCheck();
   }
 
+  /**
+   * FIXED: Handle admin section selection with proper loading and pending operation tracking
+   */
   selectAdminSection(sectionId: string, event: Event) {
     event.stopPropagation();
 
+    console.log('Admin section selected:', sectionId);
+
     if (!this.isAdminAuthenticated()) {
+      // FIXED: User not authenticated - set pending operation and show token modal
+      this.pendingOperation = { section: sectionId, operation: 'select' };
       this.selectedAdminSection.set(sectionId);
       this.showAdminTokenModal.set(true);
       this.showAdminDropdown.set(false);
@@ -710,21 +964,18 @@ export class AppComponent implements OnInit, OnDestroy {
       }
 
       setTimeout(() => {
-        const input = document.querySelector(
-          '.admin-token-input'
-        ) as HTMLInputElement;
+        const input = document.querySelector('.admin-token-input') as HTMLInputElement;
         if (input) {
           input.focus();
         }
       }, 100);
     } else {
+      // User is authenticated - ensure section is loaded and show operations
       this.selectedAdminSection.set(sectionId);
-      this.showAdminOperationsModal.set(true);
       this.showAdminDropdown.set(false);
-
-      if (this.isBrowser) {
-        document.body.style.overflow = 'hidden';
-      }
+      
+      // Ensure section is loaded before showing operations
+      this.ensureSectionLoadedThenShowOperations(sectionId);
     }
     this.cdr.markForCheck();
   }
@@ -733,58 +984,13 @@ export class AppComponent implements OnInit, OnDestroy {
     this.showAdminTokenModal.set(false);
     this.selectedAdminSection.set('');
     this.adminToken = '';
+    // FIXED: Clear pending operation if modal is closed
+    this.pendingOperation = null;
 
     if (this.isBrowser) {
       document.body.style.overflow = 'auto';
     }
     this.cdr.markForCheck();
-  }
-
-  submitAdminToken() {
-    if (this.adminToken.trim() === '') {
-      alert('Please enter a token');
-      return;
-    }
-
-    if (this.adminToken === this.configService.adminToken) {
-      this.isAdminAuthenticated.set(true);
-
-      if (this.isBrowser) {
-        localStorage.setItem('adminToken', this.adminToken);
-      }
-
-      const sectionId = this.selectedAdminSection();
-      this.closeAdminTokenModal();
-
-      // FIXED: Handle resume upload authentication
-      if (sectionId === 'resume') {
-        // After successful authentication for resume upload, open the modal
-        setTimeout(() => {
-          this.openResumeUploadModal();
-        }, 100);
-      } else {
-        // For other sections, show operations modal
-        setTimeout(() => {
-          this.showAdminOperationsModal.set(true);
-          if (this.isBrowser) {
-            document.body.style.overflow = 'hidden';
-          }
-          this.cdr.markForCheck();
-        }, 100);
-      }
-    } else {
-      alert('Invalid admin token');
-      this.adminToken = '';
-
-      setTimeout(() => {
-        const input = document.querySelector(
-          '.admin-token-input'
-        ) as HTMLInputElement;
-        if (input) {
-          input.focus();
-        }
-      }, 100);
-    }
   }
 
   closeAdminOperationsModal() {
@@ -797,38 +1003,74 @@ export class AppComponent implements OnInit, OnDestroy {
     this.cdr.markForCheck();
   }
 
+  /**
+   * FIXED: Handle operation selection with proper component initialization and better error handling
+   */
   selectOperation(operationId: string) {
+    console.log('Operation selected:', operationId);
+    
     this.selectedOperation.set(operationId);
     const sectionId = this.selectedAdminSection();
 
     this.closeAdminOperationsModal();
 
-    if (sectionId === 'experience') {
-      this.handleExperienceOperation(operationId);
-    } else if (sectionId === 'projects') {
-      this.handleProjectsOperation(operationId);
-    } else if (sectionId === 'skills') {
-      this.handleSkillsOperation(operationId);
-    } else {
-      alert(`${sectionId} operations are not yet implemented`);
+    // FIXED: Validate section ID
+    if (!sectionId) {
+      console.error('No section selected for operation');
+      alert('No section selected. Please try again.');
+      return;
     }
+
+    // FIXED: Add proper delay and error handling for component readiness
+    setTimeout(async () => {
+      try {
+        if (sectionId === 'experience') {
+          await this.handleExperienceOperation(operationId);
+        } else if (sectionId === 'projects') {
+          await this.handleProjectsOperation(operationId);
+        } else if (sectionId === 'skills') {
+          await this.handleSkillsOperation(operationId);
+        } else {
+          console.warn(`Unknown section: ${sectionId}`);
+          alert(`${sectionId} operations are not yet implemented`);
+        }
+      } catch (error) {
+        console.error(`Error handling ${sectionId} operation:`, error);
+        alert(`Failed to ${operationId} ${sectionId}. Please try again.`);
+      }
+    }, 150);
   }
 
+  /**
+   * FIXED: Handle experience operations with proper component checking and error handling
+   */
   private async handleExperienceOperation(operationId: string) {
+    console.log('Handling experience operation:', operationId);
+    
     // Ensure section is loaded first
     if (!this.experienceComponentLoaded()) {
+      console.log('Loading experience section...');
       await this.loadSection('experience');
-      // Wait for component to be ready
-      await new Promise((resolve) => setTimeout(resolve, 500));
+    }
+    
+    // Wait for component to be ready
+    await this.waitForComponent('experience');
+
+    // FIXED: Ensure component reference exists and is ready
+    if (!this.experienceComponentRef) {
+      console.error('Experience component reference not available');
+      alert('Experience component is not ready. Please try again.');
+      return;
     }
 
+    // Ensure admin mode is enabled
+    this.experienceComponentRef.enableAdminMode();
+
     if (operationId === 'create') {
-      if (this.experienceComponentRef) {
-        this.experienceComponentRef.enableAdminMode();
-        setTimeout(() => {
-          this.experienceComponentRef.openForm();
-        }, 100);
-      }
+      console.log('Opening experience create form');
+      setTimeout(() => {
+        this.experienceComponentRef.openForm();
+      }, 100);
     } else if (operationId === 'update' || operationId === 'delete') {
       try {
         await this.loadExperiences();
@@ -851,21 +1093,36 @@ export class AppComponent implements OnInit, OnDestroy {
     }
   }
 
+  /**
+   * FIXED: Handle projects operations with proper component checking and error handling
+   */
   private async handleProjectsOperation(operationId: string) {
+    console.log('Handling projects operation:', operationId);
+    
     // Ensure section is loaded first
     if (!this.projectsComponentLoaded()) {
+      console.log('Loading projects section...');
       await this.loadSection('projects');
-      // Wait for component to be ready
-      await new Promise((resolve) => setTimeout(resolve, 500));
+    }
+    
+    // Wait for component to be ready
+    await this.waitForComponent('projects');
+
+    // FIXED: Ensure component reference exists and is ready
+    if (!this.projectsComponentRef) {
+      console.error('Projects component reference not available');
+      alert('Projects component is not ready. Please try again.');
+      return;
     }
 
+    // Ensure admin mode is enabled
+    this.projectsComponentRef.enableAdminMode();
+
     if (operationId === 'create') {
-      if (this.projectsComponentRef) {
-        this.projectsComponentRef.enableAdminMode();
-        setTimeout(() => {
-          this.projectsComponentRef.handleCreateOperation();
-        }, 100);
-      }
+      console.log('Opening projects create form');
+      setTimeout(() => {
+        this.projectsComponentRef.handleCreateOperation();
+      }, 100);
     } else if (operationId === 'update' || operationId === 'delete') {
       try {
         await this.loadProjects();
@@ -888,20 +1145,36 @@ export class AppComponent implements OnInit, OnDestroy {
     }
   }
 
+  /**
+   * FIXED: Handle skills operations with proper component checking and error handling
+   */
   private async handleSkillsOperation(operationId: string) {
+    console.log('Handling skills operation:', operationId);
+    
     // Ensure section is loaded first
     if (!this.skillsComponentLoaded()) {
+      console.log('Loading skills section...');
       await this.loadSection('skills');
-      await new Promise((resolve) => setTimeout(resolve, 500));
+    }
+    
+    // Wait for component to be ready
+    await this.waitForComponent('skills');
+
+    // FIXED: Ensure component reference exists and is ready
+    if (!this.skillsComponentRef) {
+      console.error('Skills component reference not available');
+      alert('Skills component is not ready. Please try again.');
+      return;
     }
 
+    // Ensure admin mode is enabled
+    this.skillsComponentRef.enableAdminMode();
+
     if (operationId === 'create') {
-      if (this.skillsComponentRef) {
-        this.skillsComponentRef.enableAdminMode();
-        setTimeout(() => {
-          this.skillsComponentRef.handleCreateOperation();
-        }, 100);
-      }
+      console.log('Opening skills create form');
+      setTimeout(() => {
+        this.skillsComponentRef.handleCreateOperation();
+      }, 100);
     } else if (operationId === 'update' || operationId === 'delete') {
       try {
         await this.loadSkills();
@@ -964,6 +1237,14 @@ export class AppComponent implements OnInit, OnDestroy {
 
     this.closeExperienceSelectionModal();
 
+    const experience = this.experiences().find(
+      (exp) => exp.id === experienceId
+    );
+    if (!experience) {
+      alert('Experience not found');
+      return;
+    }
+
     if (operation === 'update') {
       this.updateExperience(experienceId);
     } else if (operation === 'delete') {
@@ -977,6 +1258,12 @@ export class AppComponent implements OnInit, OnDestroy {
 
     this.closeProjectSelectionModal();
 
+    const project = this.projects().find((proj) => proj.id === projectId);
+    if (!project) {
+      alert('Project not found');
+      return;
+    }
+
     if (operation === 'update') {
       this.updateProject(projectId);
     } else if (operation === 'delete') {
@@ -989,6 +1276,12 @@ export class AppComponent implements OnInit, OnDestroy {
     const operation = this.selectedOperation();
 
     this.closeSkillSelectionModal();
+
+    const skill = this.skills().find((s) => s.id === skillId);
+    if (!skill) {
+      alert('Skill not found');
+      return;
+    }
 
     if (operation === 'update') {
       this.updateSkill(skillId);
@@ -1113,7 +1406,6 @@ export class AppComponent implements OnInit, OnDestroy {
         try {
           await this.skillService.deleteSkill(skillId);
 
-          // FIXED: Force refresh skills data
           await this.loadSkills();
 
           if (this.skillsComponentRef) {
@@ -1171,28 +1463,5 @@ export class AppComponent implements OnInit, OnDestroy {
       this.skills.set([]);
       this.cdr.markForCheck();
     }
-  }
-
-  logoutAdmin() {
-    this.isAdminAuthenticated.set(false);
-    this.showAdminDropdown.set(false);
-
-    if (this.isBrowser) {
-      localStorage.removeItem('adminToken');
-    }
-
-    if (this.experienceComponentRef) {
-      this.experienceComponentRef.disableAdminMode();
-    }
-
-    if (this.projectsComponentRef) {
-      this.projectsComponentRef.disableAdminMode();
-    }
-
-    if (this.skillsComponentRef) {
-      this.skillsComponentRef.disableAdminMode();
-    }
-
-    this.cdr.markForCheck();
   }
 }

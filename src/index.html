@@ -7,20 +7,53 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" type="image/x-icon" href="favicon.ico" />
     
-    <!-- ADDED: Prevent theme flash by applying dark theme immediately -->
+    <!-- FIXED: Proper session management - don't auto-logout on refresh -->
     <script>
       (function() {
-        // Check if user has a saved theme preference
-        const savedTheme = localStorage.getItem('theme');
+        // FIXED: Don't automatically clear sessions on page load
+        // Let the AdminSessionService handle session validation properly
+        console.log('Index HTML: Initializing page...');
         
-        // Apply theme class immediately to prevent flash
-        if (savedTheme === 'light') {
-          document.documentElement.classList.add('light-theme');
-          document.body?.classList.add('light-theme');
-        } else {
-          // Default to dark theme
+        // Apply theme immediately to prevent flash
+        try {
+          const savedTheme = localStorage.getItem('theme');
+          
+          if (savedTheme === 'light') {
+            document.documentElement.classList.add('light-theme');
+            document.body?.classList.add('light-theme');
+          } else {
+            // Default to dark theme
+            document.documentElement.classList.add('dark-theme');
+            document.body?.classList.add('dark-theme');
+          }
+        } catch (e) {
+          // Fallback to dark theme if localStorage is not available
           document.documentElement.classList.add('dark-theme');
           document.body?.classList.add('dark-theme');
+        }
+
+        // FIXED: Only clean up truly expired sessions, not all sessions
+        try {
+          const savedSession = localStorage.getItem('adminSession');
+          
+          if (savedSession) {
+            const session = JSON.parse(savedSession);
+            const SESSION_TIMEOUT = 30 * 60 * 1000; // 30 minutes
+            const PAGE_REFRESH_GRACE_PERIOD = 2 * 60 * 1000; // 2 minutes grace
+            const now = Date.now();
+            
+            // Only clear if session is REALLY expired (including grace period)
+            if ((now - session.timestamp) > (SESSION_TIMEOUT + PAGE_REFRESH_GRACE_PERIOD)) {
+              localStorage.removeItem('adminSession');
+              localStorage.removeItem('adminToken'); // Remove old token storage
+              console.log('Index HTML: Expired admin session cleared');
+            } else {
+              console.log('Index HTML: Valid admin session preserved');
+            }
+          }
+        } catch (e) {
+          console.error('Index HTML: Error checking session:', e);
+          // Don't clear session on error - let the service handle it
         }
       })();
     </script>

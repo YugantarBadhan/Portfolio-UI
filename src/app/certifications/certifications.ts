@@ -37,9 +37,12 @@ declare var Quill: any;
   styleUrls: ['./certifications.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CertificationsComponent implements OnInit, AfterViewInit, OnDestroy {
+export class CertificationsComponent
+  implements OnInit, AfterViewInit, OnDestroy
+{
   @ViewChild('quillEditor', { static: false }) quillEditorRef!: ElementRef;
-  @ViewChild('certificationsGrid', { static: false }) certificationsGridRef!: ElementRef;
+  @ViewChild('certificationsGrid', { static: false })
+  certificationsGridRef!: ElementRef;
 
   private certificationService = inject(CertificationService);
   private fb = inject(FormBuilder);
@@ -194,10 +197,19 @@ export class CertificationsComponent implements OnInit, AfterViewInit, OnDestroy
     return true;
   }
 
-  async handleCertificationSelection(certificationId: number, operation: 'update' | 'delete') {
-    console.log('CertificationsComponent: Handle certification selection', certificationId, operation);
+  async handleCertificationSelection(
+    certificationId: number,
+    operation: 'update' | 'delete'
+  ) {
+    console.log(
+      'CertificationsComponent: Handle certification selection',
+      certificationId,
+      operation
+    );
 
-    const certification = this.certifications().find((c) => c.id === certificationId);
+    const certification = this.certifications().find(
+      (c) => c.id === certificationId
+    );
     if (!certification) {
       alert('Certification not found');
       return;
@@ -284,7 +296,10 @@ export class CertificationsComponent implements OnInit, AfterViewInit, OnDestroy
         isAuthenticated = true;
       }
 
-      console.log('CertificationsComponent: Admin authentication status:', isAuthenticated);
+      console.log(
+        'CertificationsComponent: Admin authentication status:',
+        isAuthenticated
+      );
       this.isAdmin.set(isAuthenticated);
       this.cdr.markForCheck();
     } catch (error) {
@@ -295,7 +310,10 @@ export class CertificationsComponent implements OnInit, AfterViewInit, OnDestroy
 
   // Form Management
   async openForm(certification?: Certification) {
-    console.log('CertificationsComponent: Opening form', certification ? 'for editing' : 'for creation');
+    console.log(
+      'CertificationsComponent: Opening form',
+      certification ? 'for editing' : 'for creation'
+    );
 
     try {
       this.resetForm();
@@ -379,7 +397,8 @@ export class CertificationsComponent implements OnInit, AfterViewInit, OnDestroy
     console.log('CertificationsComponent: Loading certifications...');
     this.isLoading.set(true);
     try {
-      const certifications = await this.certificationService.getAllCertifications();
+      const certifications =
+        await this.certificationService.getAllCertifications();
       certifications.sort((a, b) => b.id - a.id);
       this.certifications.set(certifications);
 
@@ -394,7 +413,11 @@ export class CertificationsComponent implements OnInit, AfterViewInit, OnDestroy
           this.applyOptimizedStyles();
         }, 300);
       }
-      console.log('CertificationsComponent: Certifications loaded successfully', certifications.length, 'certifications');
+      console.log(
+        'CertificationsComponent: Certifications loaded successfully',
+        certifications.length,
+        'certifications'
+      );
       this.cdr.markForCheck();
     } catch (error) {
       console.error('Error loading certifications:', error);
@@ -446,17 +469,22 @@ export class CertificationsComponent implements OnInit, AfterViewInit, OnDestroy
     try {
       const formValue = this.certificationForm.value;
 
+      // FIXED: Handle certification link properly - convert null/undefined to empty string
       const certificationData = {
         title: formValue.title.trim(),
         description: formValue.description,
         monthYear: formValue.monthYear.trim(),
-        certificationLink: formValue.certificationLink?.trim() || null,
+        // FIXED: Ensure certificationLink is always a string (empty if not provided)
+        certificationLink: formValue.certificationLink?.trim() || '',
       };
 
       console.log('Submitting certification data:', certificationData);
 
       if (this.editingId()) {
-        await this.certificationService.updateCertification(this.editingId()!, certificationData);
+        await this.certificationService.updateCertification(
+          this.editingId()!,
+          certificationData
+        );
         console.log('Certification updated successfully');
       } else {
         await this.certificationService.createCertification(certificationData);
@@ -466,11 +494,15 @@ export class CertificationsComponent implements OnInit, AfterViewInit, OnDestroy
       await this.loadCertifications();
       this.closeForm();
 
-      const message = this.editingId() ? 'Certification updated successfully!' : 'Certification created successfully!';
+      const message = this.editingId()
+        ? 'Certification updated successfully!'
+        : 'Certification created successfully!';
       alert(message);
     } catch (error: any) {
       console.error('Submission error:', error);
-      const errorMessage = error.message || 'An error occurred while saving the certification. Please try again.';
+      const errorMessage =
+        error.message ||
+        'An error occurred while saving the certification. Please try again.';
       alert(errorMessage);
     } finally {
       this.isLoading.set(false);
@@ -488,7 +520,8 @@ export class CertificationsComponent implements OnInit, AfterViewInit, OnDestroy
         alert('Certification deleted successfully!');
       } catch (error: any) {
         console.error('Delete error:', error);
-        const errorMessage = error.message || 'Failed to delete certification. Please try again.';
+        const errorMessage =
+          error.message || 'Failed to delete certification. Please try again.';
         alert(errorMessage);
       } finally {
         this.isLoading.set(false);
@@ -543,7 +576,9 @@ export class CertificationsComponent implements OnInit, AfterViewInit, OnDestroy
 
     this.closeCertificationSelectionModal();
 
-    const certification = this.certifications().find((c) => c.id === certificationId);
+    const certification = this.certifications().find(
+      (c) => c.id === certificationId
+    );
     if (!certification) {
       alert('Certification not found');
       return;
@@ -565,7 +600,9 @@ export class CertificationsComponent implements OnInit, AfterViewInit, OnDestroy
       document.body.style.overflow = 'hidden';
 
       setTimeout(() => {
-        const closeButton = document.querySelector('.modal-close-btn') as HTMLElement;
+        const closeButton = document.querySelector(
+          '.modal-close-btn'
+        ) as HTMLElement;
         if (closeButton) {
           closeButton.focus();
         }
@@ -664,7 +701,9 @@ export class CertificationsComponent implements OnInit, AfterViewInit, OnDestroy
         return;
       }
 
-      const existingQuillScript = document.querySelector('script[src*="quill.min.js"]');
+      const existingQuillScript = document.querySelector(
+        'script[src*="quill.min.js"]'
+      );
       if (existingQuillScript) {
         existingQuillScript.addEventListener('load', () => {
           this.quillLoaded = true;
@@ -673,18 +712,24 @@ export class CertificationsComponent implements OnInit, AfterViewInit, OnDestroy
         return;
       }
 
-      const existingQuillCSS = document.querySelector('link[href*="quill.snow.min.css"]');
+      const existingQuillCSS = document.querySelector(
+        'link[href*="quill.snow.min.css"]'
+      );
       if (!existingQuillCSS) {
         const quillCSS = document.createElement('link');
         quillCSS.rel = 'stylesheet';
-        quillCSS.href = 'https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.snow.min.css';
+        quillCSS.href =
+          'https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.snow.min.css';
         quillCSS.media = 'print';
-        quillCSS.onload = () => { quillCSS.media = 'all'; };
+        quillCSS.onload = () => {
+          quillCSS.media = 'all';
+        };
         document.head.appendChild(quillCSS);
       }
 
       const quillJS = document.createElement('script');
-      quillJS.src = 'https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.min.js';
+      quillJS.src =
+        'https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.min.js';
       quillJS.async = true;
       quillJS.defer = true;
 
@@ -706,7 +751,11 @@ export class CertificationsComponent implements OnInit, AfterViewInit, OnDestroy
   }
 
   private initializeQuillEditor() {
-    if (!this.quillLoaded || !this.quillEditorRef?.nativeElement || this.quillEditor) {
+    if (
+      !this.quillLoaded ||
+      !this.quillEditorRef?.nativeElement ||
+      this.quillEditor
+    ) {
       return;
     }
 
@@ -733,11 +782,21 @@ export class CertificationsComponent implements OnInit, AfterViewInit, OnDestroy
         modules: {
           toolbar: toolbarOptions,
         },
-        placeholder: 'Describe your certification, its significance, and what you learned...',
+        placeholder:
+          'Describe your certification, its significance, and what you learned...',
         formats: [
-          'header', 'bold', 'italic', 'underline', 'strike',
-          'list', 'bullet', 'indent', 'color', 'background',
-          'align', 'link'
+          'header',
+          'bold',
+          'italic',
+          'underline',
+          'strike',
+          'list',
+          'bullet',
+          'indent',
+          'color',
+          'background',
+          'align',
+          'link',
         ],
       });
 
@@ -748,7 +807,8 @@ export class CertificationsComponent implements OnInit, AfterViewInit, OnDestroy
 
       setTimeout(forceStyles, 50);
 
-      const currentDescription = this.certificationForm.get('description')?.value;
+      const currentDescription =
+        this.certificationForm.get('description')?.value;
       if (currentDescription) {
         this.quillEditor.root.innerHTML = currentDescription;
         setTimeout(forceStyles, 100);
@@ -761,7 +821,9 @@ export class CertificationsComponent implements OnInit, AfterViewInit, OnDestroy
         this.certificationForm.get('description')?.setValue(html);
 
         if (text.length === 0 || html === '<p><br></p>') {
-          this.certificationForm.get('description')?.setErrors({ required: true });
+          this.certificationForm
+            .get('description')
+            ?.setErrors({ required: true });
         } else {
           this.certificationForm.get('description')?.setErrors(null);
         }
@@ -772,13 +834,17 @@ export class CertificationsComponent implements OnInit, AfterViewInit, OnDestroy
 
       this.quillEditor.on('selection-change', (range: any) => {
         if (range) {
-          const container = this.quillEditorRef.nativeElement.closest('.quill-editor-container');
+          const container = this.quillEditorRef.nativeElement.closest(
+            '.quill-editor-container'
+          );
           if (container) {
             container.style.borderColor = '#6c757d';
             container.style.boxShadow = '0 0 0 2px rgba(108, 117, 125, 0.25)';
           }
         } else {
-          const container = this.quillEditorRef.nativeElement.closest('.quill-editor-container');
+          const container = this.quillEditorRef.nativeElement.closest(
+            '.quill-editor-container'
+          );
           if (container) {
             container.style.borderColor = '#ddd';
             container.style.boxShadow = 'none';
@@ -799,7 +865,10 @@ export class CertificationsComponent implements OnInit, AfterViewInit, OnDestroy
 
     const editorElement = this.quillEditor.root;
 
-    const forceStyle = (element: HTMLElement, styles: Record<string, string>) => {
+    const forceStyle = (
+      element: HTMLElement,
+      styles: Record<string, string>
+    ) => {
       Object.entries(styles).forEach(([property, value]) => {
         element.style.setProperty(property, value, 'important');
       });
@@ -881,13 +950,27 @@ export class CertificationsComponent implements OnInit, AfterViewInit, OnDestroy
   private applyOptimizedStyles() {
     if (!this.isBrowser) return;
 
-    const cards = document.querySelectorAll('.certification-card') as NodeListOf<HTMLElement>;
+    const cards = document.querySelectorAll(
+      '.certification-card'
+    ) as NodeListOf<HTMLElement>;
     cards.forEach((card) => {
       card.style.setProperty('-webkit-transform', 'translateZ(0)', 'important');
       card.style.setProperty('transform', 'translateZ(0)', 'important');
-      card.style.setProperty('-webkit-font-smoothing', 'antialiased', 'important');
-      card.style.setProperty('-moz-osx-font-smoothing', 'grayscale', 'important');
-      card.style.setProperty('text-rendering', 'optimizeLegibility', 'important');
+      card.style.setProperty(
+        '-webkit-font-smoothing',
+        'antialiased',
+        'important'
+      );
+      card.style.setProperty(
+        '-moz-osx-font-smoothing',
+        'grayscale',
+        'important'
+      );
+      card.style.setProperty(
+        'text-rendering',
+        'optimizeLegibility',
+        'important'
+      );
       card.style.setProperty('backface-visibility', 'hidden', 'important');
     });
   }
@@ -920,7 +1003,11 @@ export class CertificationsComponent implements OnInit, AfterViewInit, OnDestroy
   private optimizeCardForAnimation(card: HTMLElement) {
     card.style.setProperty('-webkit-transform', 'translateZ(0)', 'important');
     card.style.setProperty('transform', 'translateZ(0)', 'important');
-    card.style.setProperty('-webkit-font-smoothing', 'antialiased', 'important');
+    card.style.setProperty(
+      '-webkit-font-smoothing',
+      'antialiased',
+      'important'
+    );
     card.style.setProperty('-moz-osx-font-smoothing', 'grayscale', 'important');
     card.style.setProperty('text-rendering', 'optimizeLegibility', 'important');
     card.style.setProperty('backface-visibility', 'hidden', 'important');
@@ -967,7 +1054,9 @@ export class CertificationsComponent implements OnInit, AfterViewInit, OnDestroy
   private updateCardStyles() {
     if (!this.isBrowser) return;
 
-    const cards = document.querySelectorAll('.certification-card') as NodeListOf<HTMLElement>;
+    const cards = document.querySelectorAll(
+      '.certification-card'
+    ) as NodeListOf<HTMLElement>;
     const cardSize = this.cardWidth();
 
     cards.forEach((card) => {
@@ -1008,7 +1097,8 @@ export class CertificationsComponent implements OnInit, AfterViewInit, OnDestroy
       const cardWidth = this.cardWidth();
       const gap = 32;
       const scrollDistance = cardWidth + gap;
-      const validPosition = Math.ceil(Math.abs(currentTranslate) / scrollDistance) * scrollDistance;
+      const validPosition =
+        Math.ceil(Math.abs(currentTranslate) / scrollDistance) * scrollDistance;
       const newPosition = Math.max(maxTranslate, -validPosition);
 
       this.currentTranslateX.set(newPosition);
@@ -1037,7 +1127,10 @@ export class CertificationsComponent implements OnInit, AfterViewInit, OnDestroy
     if (direction === 'left' && this.canScrollLeft()) {
       newTranslate = Math.min(0, currentTranslate + scrollAmount);
     } else if (direction === 'right' && this.canScrollRight()) {
-      newTranslate = Math.max(this.maxTranslateX(), currentTranslate - scrollAmount);
+      newTranslate = Math.max(
+        this.maxTranslateX(),
+        currentTranslate - scrollAmount
+      );
     }
 
     this.animateCarousel(newTranslate);
@@ -1056,7 +1149,9 @@ export class CertificationsComponent implements OnInit, AfterViewInit, OnDestroy
     if (totalCertifications <= cardsPerView) return [];
 
     const totalIndicators = totalCertifications - cardsPerView + 1;
-    return Array(totalIndicators).fill(0).map((_, index) => index);
+    return Array(totalIndicators)
+      .fill(0)
+      .map((_, index) => index);
   }
 
   scrollToIndicator(indicatorIndex: number) {
@@ -1066,7 +1161,10 @@ export class CertificationsComponent implements OnInit, AfterViewInit, OnDestroy
     const gap = 32;
     const scrollDistance = cardWidth + gap;
     const newTranslate = -indicatorIndex * scrollDistance;
-    const clampedTranslate = Math.max(this.maxTranslateX(), Math.min(0, newTranslate));
+    const clampedTranslate = Math.max(
+      this.maxTranslateX(),
+      Math.min(0, newTranslate)
+    );
 
     this.animateCarousel(clampedTranslate);
   }
@@ -1086,10 +1184,13 @@ export class CertificationsComponent implements OnInit, AfterViewInit, OnDestroy
 
       const easeOutCubic = 1 - Math.pow(1 - progress, 3);
 
-      const currentTranslate = startTranslate + (targetTranslate - startTranslate) * easeOutCubic;
+      const currentTranslate =
+        startTranslate + (targetTranslate - startTranslate) * easeOutCubic;
       this.currentTranslateX.set(currentTranslate);
 
-      const grid = document.querySelector('.certifications-grid') as HTMLElement;
+      const grid = document.querySelector(
+        '.certifications-grid'
+      ) as HTMLElement;
       if (grid) {
         grid.style.transform = `translate3d(${currentTranslate}px, 0, 0)`;
         grid.style.webkitTransform = `translate3d(${currentTranslate}px, 0, 0)`;

@@ -412,7 +412,7 @@ body:not(.dark-theme) .certification-card .card-body .description-preview {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  /* gap: 8px; */
 }
 
 .know-more-btn * {

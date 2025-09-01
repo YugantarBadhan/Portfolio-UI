@@ -1,4 +1,4 @@
-// src/app/services/certification.service.ts
+// src/app/services/certification.service.ts - FIXED
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
@@ -50,16 +50,21 @@ export class CertificationService {
 
   async createCertification(certificationData: CertificationRequest): Promise<string> {
     try {
-      console.log('Creating certification with data:', certificationData);
+      console.log('Creating certification with data (before processing):', certificationData);
+      
+      // FIXED: Process the certification data to handle empty certification link
+      const processedData = this.processCertificationData(certificationData);
+      
+      console.log('Creating certification with data (after processing):', processedData);
       console.log('API URL:', `${this.baseUrl}/create/certification`);
       
       // Validate the certification data before sending
-      this.validateCertificationData(certificationData);
+      this.validateCertificationData(processedData);
 
       const response = await firstValueFrom(
         this.http.post(
           `${this.baseUrl}/create/certification`, 
-          certificationData, 
+          processedData, 
           { 
             headers: this.getAdminHeaders(),
             responseType: 'text'
@@ -77,8 +82,11 @@ export class CertificationService {
 
   async updateCertification(id: number, certificationData: CertificationRequest): Promise<string> {
     try {
+      // FIXED: Process the certification data to handle empty certification link
+      const processedData = this.processCertificationData(certificationData);
+      
       // Validate the certification data before sending
-      this.validateCertificationData(certificationData);
+      this.validateCertificationData(processedData);
 
       if (!id || id <= 0) {
         throw new Error('Invalid certification ID');
@@ -87,7 +95,7 @@ export class CertificationService {
       const response = await firstValueFrom(
         this.http.put<string>(
           `${this.baseUrl}/update/certification/${id}`, 
-          certificationData, 
+          processedData, 
           { 
             headers: this.getAdminHeaders(), 
             responseType: 'text' as 'json' 
@@ -123,6 +131,20 @@ export class CertificationService {
     }
   }
 
+  /**
+   * FIXED: Process certification data to handle empty certification link properly
+   * Convert empty/null certification link to empty string (not null)
+   */
+  private processCertificationData(data: CertificationRequest): CertificationRequest {
+    return {
+      title: data.title?.trim() || '',
+      description: data.description?.trim() || '',
+      monthYear: data.monthYear?.trim() || '',
+      // FIXED: Convert null/undefined/empty to empty string, not null
+      certificationLink: data.certificationLink?.trim() || ''
+    };
+  }
+
   private validateCertificationData(data: CertificationRequest): void {
     const errors: string[] = [];
 
@@ -141,7 +163,8 @@ export class CertificationService {
       errors.push('Month and year is required');
     }
 
-    // Optional certification link validation (basic URL format check if provided)
+    // FIXED: Validate certification link - only check if it's not empty
+    // Empty string is valid (will be stored as empty string in DB)
     if (data.certificationLink && data.certificationLink.trim() && !this.isValidUrl(data.certificationLink.trim())) {
       errors.push('Invalid certification link format');
     }

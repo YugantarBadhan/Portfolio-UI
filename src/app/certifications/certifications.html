@@ -1,0 +1,526 @@
+<!-- src/app/certifications/certifications.html -->
+<section id="certifications" class="certifications-section">
+  <div class="container">
+    <!-- Section Header -->
+    <div class="section-header">
+      <h2 class="section-title">Certifications</h2>
+    </div>
+
+    <!-- Loading State -->
+    <div
+      *ngIf="isLoading()"
+      class="loading-spinner"
+      role="status"
+      aria-label="Loading certifications"
+    >
+      <div class="spinner"></div>
+      <p>Loading certifications...</p>
+    </div>
+
+    <!-- Certification Form Modal - FIXED: No backdrop close -->
+    <div
+      *ngIf="showForm() && isAdmin()"
+      class="modal-overlay"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="form-title"
+    >
+      <div class="certification-form-container" (click)="$event.stopPropagation()">
+        <div class="form-header">
+          <h3 id="form-title">
+            {{ editingId() ? "Edit Certification" : "Add New Certification" }}
+          </h3>
+          <button
+            class="close-btn"
+            (click)="closeForm()"
+            aria-label="Close form"
+            type="button"
+          >
+            ×
+          </button>
+        </div>
+
+        <form
+          [formGroup]="certificationForm"
+          (ngSubmit)="onSubmit()"
+          class="certification-form"
+          novalidate
+        >
+          <div class="form-row">
+            <div class="form-group">
+              <label for="title">Certification Title *</label>
+              <input
+                type="text"
+                id="title"
+                formControlName="title"
+                placeholder="Enter certification title"
+                aria-describedby="title-error"
+                [attr.aria-invalid]="
+                  certificationForm.get('title')?.invalid &&
+                  certificationForm.get('title')?.touched
+                "
+              />
+              <div
+                id="title-error"
+                *ngIf="
+                  certificationForm.get('title')?.invalid &&
+                  certificationForm.get('title')?.touched
+                "
+                class="error-message"
+                role="alert"
+              >
+                Certification title is required
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="monthYear">Month & Year *</label>
+              <input
+                type="text"
+                id="monthYear"
+                formControlName="monthYear"
+                placeholder="e.g., January 2024"
+                aria-describedby="monthyear-error"
+                [attr.aria-invalid]="
+                  certificationForm.get('monthYear')?.invalid &&
+                  certificationForm.get('monthYear')?.touched
+                "
+              />
+              <div
+                id="monthyear-error"
+                *ngIf="
+                  certificationForm.get('monthYear')?.invalid &&
+                  certificationForm.get('monthYear')?.touched
+                "
+                class="error-message"
+                role="alert"
+              >
+                Month and year is required
+              </div>
+            </div>
+          </div>
+
+          <!-- Rich Text Editor for Description -->
+          <div class="form-group full-width">
+            <label for="description">Description *</label>
+
+            <!-- Quill Editor Container -->
+            <div
+              class="quill-editor-container"
+              role="textbox"
+              aria-multiline="true"
+            >
+              <div
+                #quillEditor
+                class="quill-editor"
+                aria-label="Certification description editor"
+              ></div>
+            </div>
+
+            <!-- Fallback textarea (hidden by default) -->
+            <textarea
+              id="description-fallback"
+              formControlName="description"
+              placeholder="Describe your certification, its significance, and what you learned"
+              rows="6"
+              style="display: none"
+              aria-describedby="description-help description-error"
+              [attr.aria-invalid]="
+                certificationForm.get('description')?.invalid &&
+                certificationForm.get('description')?.touched
+              "
+            ></textarea>
+
+            <div
+              id="description-error"
+              *ngIf="
+                certificationForm.get('description')?.invalid &&
+                certificationForm.get('description')?.touched
+              "
+              class="error-message"
+              role="alert"
+            >
+              Description is required
+            </div>
+
+            <!-- Helper text -->
+            <div id="description-help" class="editor-help-text">
+              Use the toolbar above to format your text with bold, italic,
+              lists, and more. Be detailed about your certification.
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="certificationLink">Certification Link (Optional)</label>
+            <input
+              type="url"
+              id="certificationLink"
+              formControlName="certificationLink"
+              placeholder="https://certification-provider.com/verify/your-cert"
+              aria-describedby="cert-link-help cert-link-error"
+              [attr.aria-invalid]="
+                certificationForm.get('certificationLink')?.invalid &&
+                certificationForm.get('certificationLink')?.touched
+              "
+            />
+            <div
+              id="cert-link-error"
+              *ngIf="
+                certificationForm.get('certificationLink')?.invalid &&
+                certificationForm.get('certificationLink')?.touched
+              "
+              class="error-message"
+              role="alert"
+            >
+              Please enter a valid URL
+            </div>
+            <div id="cert-link-help" class="editor-help-text">
+              Link to verify or view your certification online
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button
+              type="button"
+              class="btn-cancel"
+              (click)="closeForm()"
+              aria-label="Cancel form"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              class="btn-submit"
+              [disabled]="!isFormValid || isLoading()"
+              [attr.aria-label]="
+                isLoading()
+                  ? 'Saving certification...'
+                  : editingId()
+                  ? 'Update Certification'
+                  : 'Create Certification'
+              "
+            >
+              {{
+                isLoading()
+                  ? "Saving..."
+                  : editingId()
+                  ? "Update Certification"
+                  : "Create Certification"
+              }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Certification Selection Modal - FIXED: No backdrop close -->
+    <div
+      *ngIf="showCertificationSelectionModal() && isAdmin()"
+      class="modal-overlay"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="selection-title"
+    >
+      <div class="certification-selection-container" (click)="$event.stopPropagation()">
+        <div class="form-header">
+          <h3 id="selection-title">Select Certification to {{ selectedOperation() | titlecase }}</h3>
+          <button class="close-btn" (click)="closeCertificationSelectionModal()">
+            ×
+          </button>
+        </div>
+
+        <div class="modal-content">
+          <p *ngIf="certifications().length === 0">No certifications found.</p>
+          <div *ngIf="certifications().length > 0" class="certification-selection-list">
+            <button
+              *ngFor="let cert of certifications(); trackBy: trackByCertificationId"
+              class="certification-selection-item"
+              [class.delete-mode]="selectedOperation() === 'delete'"
+              (click)="selectCertification(cert.id)"
+            >
+              <div class="certification-info-modal">
+                <h4>{{ cert.title }}</h4>
+                <p>{{ cert.monthYear }}</p>
+                <small>ID: {{ cert.id }}</small>
+              </div>
+              <i
+                class="fas"
+                [class.fa-edit]="selectedOperation() === 'update'"
+                [class.fa-trash-alt]="selectedOperation() === 'delete'"
+              ></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button class="btn-cancel" (click)="closeCertificationSelectionModal()">
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Certification Details Modal - FIXED: No backdrop close -->
+    <div
+      *ngIf="showCertificationDetails()"
+      class="certification-details-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="certification-details-title"
+    >
+      <div class="certification-details-container" (click)="$event.stopPropagation()">
+        <!-- Modal Header -->
+        <div class="modal-header">
+          <div class="modal-header-content">
+            <h2 id="certification-details-title" class="modal-title">
+              {{ selectedCertification()?.title }}
+            </h2>
+            <button
+              class="modal-close-btn"
+              (click)="closeCertificationDetails()"
+              aria-label="Close certification details"
+              type="button"
+            >
+              <i class="fas fa-times" aria-hidden="true"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Scrollable Modal Content -->
+        <div class="modal-body">
+          <div class="modal-content-scroll">
+            <!-- Certification Description Section -->
+            <div class="modal-section">
+              <h3 class="modal-section-title">
+                <i class="fas fa-info-circle" aria-hidden="true"></i>
+                Certification Details
+              </h3>
+              <div
+                class="certification-full-description"
+                [innerHTML]="selectedCertification()?.description | safeHtml"
+                role="article"
+                [attr.aria-label]="
+                  'Full description of ' + selectedCertification()?.title
+                "
+              ></div>
+            </div>
+
+            <!-- Month Year Section -->
+            <div class="modal-section" *ngIf="selectedCertification()?.monthYear">
+              <h3 class="modal-section-title">
+                <i class="fas fa-calendar-alt" aria-hidden="true"></i>
+                Date Earned
+              </h3>
+              <div class="modal-month-year">
+                <p
+                  class="modal-month-year-content"
+                  [attr.aria-label]="
+                    'Certification earned in: ' + selectedCertification()?.monthYear
+                  "
+                >
+                  {{ selectedCertification()?.monthYear }}
+                </p>
+              </div>
+            </div>
+
+            <!-- Certification Link Section -->
+            <div
+              class="modal-section"
+              *ngIf="selectedCertification()?.certificationLink"
+            >
+              <h3 class="modal-section-title">
+                <i class="fas fa-external-link-alt" aria-hidden="true"></i>
+                Verification Link
+              </h3>
+              <div class="modal-certification-links">
+                <a
+                  [href]="selectedCertification()?.certificationLink"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="modal-certification-link"
+                  [attr.aria-label]="
+                    'Verify certification: ' + selectedCertification()?.title
+                  "
+                >
+                  <i class="fas fa-certificate" aria-hidden="true"></i>
+                  <span>Verify Certification</span>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Certifications Carousel -->
+    <div *ngIf="!isLoading()" class="certifications-carousel-container">
+      <!-- No Certifications Message -->
+      <div *ngIf="certifications().length === 0" class="no-certifications" role="status">
+        <p>No certifications found.</p>
+      </div>
+
+      <!-- Carousel with Navigation -->
+      <div
+        *ngIf="certifications().length > 0"
+        class="carousel-wrapper"
+        role="region"
+        aria-label="Certifications carousel"
+      >
+        <!-- Left Navigation Arrow -->
+        <button
+          class="carousel-nav carousel-nav-left"
+          (click)="scrollCarousel('left')"
+          [class.disabled]="!canScrollLeft()"
+          [disabled]="!canScrollLeft()"
+          [attr.aria-label]="
+            canScrollLeft() ? 'Previous certifications' : 'No previous certifications'
+          "
+          type="button"
+        >
+          <i class="fas fa-chevron-left" aria-hidden="true"></i>
+        </button>
+
+        <!-- Certifications Scroll Container -->
+        <div class="certifications-scroll-container" role="main">
+          <div
+            class="certifications-grid"
+            #certificationsGrid
+            [style.transform]="'translateX(' + currentTranslateX() + 'px)'"
+            role="list"
+            aria-label="Certification cards"
+          >
+            <div
+              *ngFor="let cert of certifications(); trackBy: trackByCertificationId"
+              class="certification-card"
+              role="listitem"
+              [attr.data-certification-id]="cert.id"
+              [attr.aria-label]="'Certification: ' + cert.title"
+            >
+              <div class="card-header">
+                <div class="certification-info">
+                  <h3
+                    class="certification-title"
+                    [id]="'certification-title-' + cert.id"
+                  >
+                    {{ cert.title }}
+                  </h3>
+                  <div class="certification-month-year">
+                    {{ cert.monthYear }}
+                  </div>
+                </div>
+
+                <!-- Admin Actions -->
+                <div *ngIf="isAdmin()" class="admin-actions-card">
+                  <button
+                    class="action-btn edit-btn"
+                    (click)="openForm(cert)"
+                    title="Edit Certification"
+                  >
+                    ✏️
+                  </button>
+                  <button
+                    class="action-btn delete-btn"
+                    (click)="deleteCertification(cert.id, cert.title)"
+                    title="Delete Certification"
+                  >
+                    🗑️
+                  </button>
+                </div>
+              </div>
+
+              <div class="card-body">
+                <!-- Certification Description Preview -->
+                <div
+                  class="description-preview"
+                  [innerHTML]="
+                    getDescriptionPreview(cert.description) | safeHtml
+                  "
+                  [attr.aria-labelledby]="'certification-title-' + cert.id"
+                  role="region"
+                ></div>
+
+                <!-- Know More Button -->
+                <button
+                  class="know-more-btn"
+                  (click)="openCertificationDetails(cert)"
+                  type="button"
+                  [attr.aria-label]="'Learn more about ' + cert.title"
+                >
+                  <i class="fas fa-arrow-right" aria-hidden="true"></i>
+                  <span>Know More</span>
+                </button>
+
+                <!-- Certification Link -->
+                <div
+                  class="certification-links"
+                  *ngIf="cert.certificationLink"
+                  role="navigation"
+                  aria-label="Certification link"
+                >
+                  <a
+                    [href]="cert.certificationLink"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="certification-link"
+                    [attr.aria-label]="'Verify certification: ' + cert.title"
+                  >
+                    <i class="fas fa-certificate" aria-hidden="true"></i>
+                    <span>Verify Certificate</span>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Navigation Arrow -->
+        <button
+          class="carousel-nav carousel-nav-right"
+          (click)="scrollCarousel('right')"
+          [class.disabled]="!canScrollRight()"
+          [disabled]="!canScrollRight()"
+          [attr.aria-label]="
+            canScrollRight() ? 'Next certifications' : 'No more certifications'
+          "
+          type="button"
+        >
+          <i class="fas fa-chevron-right" aria-hidden="true"></i>
+        </button>
+      </div>
+
+      <!-- Carousel Indicators -->
+      <div
+        *ngIf="certifications().length > 0 && shouldShowIndicators()"
+        class="carousel-indicators"
+        role="tablist"
+        aria-label="Carousel navigation"
+      >
+        <button
+          *ngFor="let indicator of getCarouselIndicators(); let i = index"
+          class="carousel-indicator"
+          [class.active]="i === currentIndicatorIndex()"
+          (click)="scrollToIndicator(i)"
+          [attr.aria-label]="'Go to page ' + (i + 1)"
+          [attr.aria-selected]="i === currentIndicatorIndex()"
+          role="tab"
+          type="button"
+        ></button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Additional accessibility improvements -->
+<div class="sr-only" aria-live="polite" aria-atomic="true">
+  <span *ngIf="isLoading()">Loading certifications, please wait...</span>
+  <span *ngIf="!isLoading() && certifications().length === 0">
+    No certifications available to display.
+  </span>
+  <span *ngIf="!isLoading() && certifications().length > 0">
+    {{ certifications().length }} certification{{ certifications().length === 1 ? "" : "s" }}
+    loaded successfully.
+  </span>
+  <span *ngIf="showCertificationDetails() && selectedCertification()">
+    Certification details for {{ selectedCertification()?.title }} are now displayed in a modal.
+  </span>
+</div>

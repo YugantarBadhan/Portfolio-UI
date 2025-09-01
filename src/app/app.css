@@ -2314,3 +2314,63 @@ body.dark-theme .resume-upload-container {
 .fast-transitions .mobile-menu-btn {
   transition-duration: 0.1s !important;
 }
+
+/* Specific section spacing fixes for certifications */
+#certifications {
+  margin-top: 0; /* Remove any top margin */
+  padding-top: 1rem; /* Minimal top padding */
+  margin-bottom: 0; /* Remove any bottom margin */
+  padding-bottom: 1rem; /* Minimal bottom padding */
+}
+
+/* Ensure consistent section spacing throughout including certifications */
+.certifications-section {
+  margin-bottom: 0 !important; /* Force remove bottom margins */
+  padding-bottom: 1rem !important; /* Consistent bottom padding */
+  margin-top: 0 !important; /* Force remove top margins */
+  padding-top: 1rem !important; /* Consistent top padding */
+}
+
+/* Fixed section anchor for certifications to prevent extra spacing */
+#certifications.section-anchor {
+  position: relative;
+  /* Removed min-height which was causing excessive spacing */
+}
+
+/* Responsive fixes for mobile certifications navigation */
+@media (max-width: 768px) {
+  .mobile-nav-links a[href="#certifications"] {
+    display: block;
+    padding: 1rem 0;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 1.2rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+  }
+
+  .mobile-nav-links a[href="#certifications"]:hover {
+    padding-left: 1rem;
+  }
+
+  html.light-theme .mobile-nav-links a[href="#certifications"] {
+    border-bottom-color: rgba(0, 0, 0, 0.1) !important;
+  }
+
+  html.light-theme .mobile-nav-links a[href="#certifications"]:hover {
+    color: #303d46 !important;
+  }
+
+  html.dark-theme .mobile-nav-links a[href="#certifications"]:hover {
+    color: #64b5f6 !important;
+  }
+}
+
+/* Ensure proper theme transitions for certification section */
+.fast-transitions .certifications-section * {
+  transition-duration: 0.2s !important;
+}
+
+.fast-transitions .certifications-section *:hover {
+  transition-duration: 0.1s !important;
+}

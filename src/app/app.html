@@ -554,6 +554,45 @@
   </div>
 </div>
 
+<!-- Certification Selection Modal -->
+<div *ngIf="showCertificationSelectionModal()" class="admin-modal-overlay">
+  <div class="admin-modal-container" (click)="$event.stopPropagation()">
+    <div class="admin-modal-header">
+      <h3>Select Certification to {{ selectedOperation() | titlecase }}</h3>
+      <button class="close-btn" (click)="closeCertificationSelectionModal()">×</button>
+    </div>
+
+    <div class="admin-modal-content">
+      <p *ngIf="certifications().length === 0">No certifications found.</p>
+      <div *ngIf="certifications().length > 0" class="experience-selection-list">
+        <button
+          *ngFor="let cert of certifications()"
+          class="experience-selection-item"
+          [class.delete-mode]="selectedOperation() === 'delete'"
+          (click)="selectCertification(cert.id)"
+        >
+          <div class="experience-info">
+            <h4>{{ cert.title }}</h4>
+            <p>{{ cert.monthYear }}</p>
+            <small>ID: {{ cert.id }}</small>
+          </div>
+          <i
+            class="fas"
+            [class.fa-edit]="selectedOperation() === 'update'"
+            [class.fa-trash-alt]="selectedOperation() === 'delete'"
+          ></i>
+        </button>
+      </div>
+    </div>
+
+    <div class="admin-modal-actions">
+      <button class="btn-cancel" (click)="closeCertificationSelectionModal()">
+        Cancel
+      </button>
+    </div>
+  </div>
+</div>
+
 <!-- Mobile Navigation Menu -->
 <div
   class="mobile-menu"
@@ -673,13 +712,10 @@
   <app-skills *ngIf="shouldShowSkills()"></app-skills>
 </div>
 
-<!-- Certifications Section - Placeholder -->
-<section class="section" [class.dark-theme]="isDarkTheme" id="certifications">
-  <div class="container">
-    <h2>Certifications</h2>
-    <p>Coming soon...</p>
-  </div>
-</section>
+<!-- Certifications Section -->
+<div id="certifications" class="section-anchor">
+  <app-certifications *ngIf="shouldShowCertifications()"></app-certifications>
+</div>
 
 <!-- Education Section - Placeholder -->
 <section class="section" [class.dark-theme]="isDarkTheme" id="educations">

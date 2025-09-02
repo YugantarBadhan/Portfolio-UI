@@ -1,3 +1,5 @@
+// Author: Yugantar Badhan
+
 import {
   Component,
   OnInit,
@@ -18,10 +20,13 @@ import { ConfigService } from './services/config.service';
 import { AdminSessionService } from './services/admin-session.service';
 import { ExperienceService } from './services/experience.service';
 import { ProjectService } from './services/project.service';
+import { EducationService } from './services/education.service';
 import { Experience } from './model/experience.model';
 import { Project } from './model/project.model';
+import { Education } from './model/education.model';
 import { ExperienceComponent } from './experience/experience';
 import { ProjectsComponent } from './projects/projects';
+import { EducationsComponent } from './educations/educations';
 import { HttpEventType } from '@angular/common/http';
 import { ResumeService, ResumeResponse } from './services/resume.service';
 import { SkillsComponent } from './skills/skills';
@@ -56,6 +61,7 @@ interface AdminOperation {
     ProjectsComponent,
     SkillsComponent,
     CertificationsComponent,
+    EducationsComponent,
   ],
   templateUrl: './app.html',
   styleUrls: ['./app.css'],
@@ -65,7 +71,9 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild(ExperienceComponent) experienceComponentRef!: ExperienceComponent;
   @ViewChild(ProjectsComponent) projectsComponentRef!: ProjectsComponent;
   @ViewChild(SkillsComponent) skillsComponentRef!: SkillsComponent;
-  @ViewChild(CertificationsComponent) certificationsComponentRef!: CertificationsComponent;
+  @ViewChild(CertificationsComponent)
+  certificationsComponentRef!: CertificationsComponent;
+  @ViewChild(EducationsComponent) educationsComponentRef!: EducationsComponent;
 
   private destroy$ = new Subject<void>();
   private cdr = inject(ChangeDetectorRef);
@@ -75,6 +83,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   private projectService = inject(ProjectService);
   private skillService = inject(SkillService);
   private certificationService = inject(CertificationService);
+  private educationService = inject(EducationService);
   private resumeService = inject(ResumeService);
   private router = inject(Router);
 
@@ -99,12 +108,14 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   projectsComponentLoaded = signal(false);
   skillsComponentLoaded = signal(false);
   certificationsComponentLoaded = signal(false);
+  educationsComponentLoaded = signal(false);
 
-  // FIXED: Component readiness tracking
+  // Component readiness tracking
   experienceComponentReady = signal(false);
   projectsComponentReady = signal(false);
   skillsComponentReady = signal(false);
   certificationsComponentReady = signal(false);
+  educationsComponentReady = signal(false);
 
   // Admin-related properties - USING AdminSessionService
   showAdminDropdown = signal(false);
@@ -115,11 +126,12 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   showProjectSelectionModal = signal(false);
   showSkillSelectionModal = signal(false);
   showCertificationSelectionModal = signal(false);
+  showEducationSelectionModal = signal(false);
   selectedAdminSection = signal<string>('');
   selectedOperation = signal<string>('');
   adminToken = '';
 
-  // FIXED: Pending operation tracking
+  // Pending operation tracking
   private pendingOperation: { section: string; operation: string } | null =
     null;
 
@@ -132,6 +144,8 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   selectedSkillId = signal<number | null>(null);
   certifications = signal<Certification[]>([]);
   selectedCertificationId = signal<number | null>(null);
+  educations = signal<Education[]>([]);
+  selectedEducationId = signal<number | null>(null);
 
   private sectionObserver?: IntersectionObserver;
   private isBrowser: boolean;
@@ -140,8 +154,8 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     { id: 'experience', label: 'Experience', enabled: true },
     { id: 'projects', label: 'Projects', enabled: true },
     { id: 'skills', label: 'Skills', enabled: true },
-     { id: 'certifications', label: 'Certifications', enabled: true },
-    { id: 'educations', label: 'Educations', enabled: false },
+    { id: 'certifications', label: 'Certifications', enabled: true },
+    { id: 'educations', label: 'Educations', enabled: true },
     { id: 'awards', label: 'Awards', enabled: false },
   ];
 
@@ -219,9 +233,13 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
         console.log('Skills component ready');
       }
       if (this.certificationsComponentRef) {
-  this.certificationsComponentReady.set(true);
-  console.log('Certifications component ready');
-}
+        this.certificationsComponentReady.set(true);
+        console.log('Certifications component ready');
+      }
+      if (this.educationsComponentRef) {
+        this.educationsComponentReady.set(true);
+        console.log('Educations component ready');
+      }
 
       // Apply admin mode if already authenticated
       if (this.isAdminAuthenticated()) {
@@ -280,10 +298,17 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
         console.log('Enabling admin mode for skills component');
         this.skillsComponentRef.enableAdminMode();
       }
-      if (this.certificationsComponentReady() && this.certificationsComponentRef) {
-  console.log('Enabling admin mode for certifications component');
-  this.certificationsComponentRef.enableAdminMode();
-}
+      if (
+        this.certificationsComponentReady() &&
+        this.certificationsComponentRef
+      ) {
+        console.log('Enabling admin mode for certifications component');
+        this.certificationsComponentRef.enableAdminMode();
+      }
+      if (this.educationsComponentReady() && this.educationsComponentRef) {
+        console.log('Enabling admin mode for educations component');
+        this.educationsComponentRef.enableAdminMode();
+      }
     } else {
       // Disable admin mode in all components immediately
       if (this.experienceComponentRef) {
@@ -296,8 +321,11 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
         this.skillsComponentRef.disableAdminMode();
       }
       if (this.certificationsComponentRef) {
-  this.certificationsComponentRef.disableAdminMode();
-}
+        this.certificationsComponentRef.disableAdminMode();
+      }
+      if (this.educationsComponentRef) {
+        this.educationsComponentRef.disableAdminMode();
+      }
     }
   }
 
@@ -408,6 +436,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
       const experienceSection = document.getElementById('experience');
       const projectsSection = document.getElementById('projects');
       const skillsSection = document.getElementById('skills');
+      const educationsSection = document.getElementById('educations');
 
       if (experienceSection) {
         this.sectionObserver?.observe(experienceSection);
@@ -417,6 +446,9 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
       }
       if (skillsSection) {
         this.sectionObserver?.observe(skillsSection);
+      }
+      if (educationsSection) {
+        this.sectionObserver?.observe(educationsSection);
       }
     }, 100);
   }
@@ -473,26 +505,60 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
       } catch (error) {
         console.error('Error loading skills section:', error);
       }
-    } else if (sectionId === 'certifications' && !this.certificationsComponentLoaded()) {
-  try {
-    await this.loadCertifications();
-    this.certificationsComponentLoaded.set(true);
+    } else if (
+      sectionId === 'certifications' &&
+      !this.certificationsComponentLoaded()
+    ) {
+      try {
+        await this.loadCertifications();
+        this.certificationsComponentLoaded.set(true);
 
-    setTimeout(() => {
-      this.certificationsComponentReady.set(true);
-      if (this.isAdminAuthenticated() && this.certificationsComponentRef) {
-        this.certificationsComponentRef.enableAdminMode();
+        setTimeout(() => {
+          this.certificationsComponentReady.set(true);
+          if (this.isAdminAuthenticated() && this.certificationsComponentRef) {
+            this.certificationsComponentRef.enableAdminMode();
+          }
+        }, 100);
+
+        this.cdr.markForCheck();
+      } catch (error) {
+        console.error('Error loading certifications section:', error);
       }
-    }, 100);
-
-    this.cdr.markForCheck();
-  } catch (error) {
-    console.error('Error loading certifications section:', error);
-  }
-}
-
-
-
+    } else if (
+      sectionId === 'educations' &&
+      !this.educationsComponentLoaded()
+    ) {
+      try {
+        await this.loadEducations();
+        this.educationsComponentLoaded.set(true);
+        setTimeout(() => {
+          this.educationsComponentReady.set(true);
+          if (this.isAdminAuthenticated() && this.educationsComponentRef) {
+            this.educationsComponentRef.enableAdminMode();
+          }
+        }, 100);
+        this.cdr.markForCheck();
+      } catch (error) {
+        console.error('Error loading educations section:', error);
+      }
+    } else if (
+      sectionId === 'educations' &&
+      !this.educationsComponentLoaded()
+    ) {
+      try {
+        await this.loadEducations();
+        this.educationsComponentLoaded.set(true);
+        setTimeout(() => {
+          this.educationsComponentReady.set(true);
+          if (this.isAdminAuthenticated() && this.educationsComponentRef) {
+            this.educationsComponentRef.enableAdminMode();
+          }
+        }, 100);
+        this.cdr.markForCheck();
+      } catch (error) {
+        console.error('Error loading educations section:', error);
+      }
+    }
   }
 
   // Check if section should be displayed
@@ -509,8 +575,12 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   shouldShowCertifications(): boolean {
-  return this.certificationsComponentLoaded();
-}
+    return this.certificationsComponentLoaded();
+  }
+
+  shouldShowEducations(): boolean {
+    return this.educationsComponentLoaded();
+  }
 
   @HostListener('window:scroll')
   onWindowScroll() {
@@ -715,7 +785,10 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
       } else if (sectionId === 'skills' && !this.skillsComponentLoaded()) {
         await this.loadSection('skills');
         await this.waitForComponent('skills');
-      } else if (sectionId === 'certifications' && !this.certificationsComponentLoaded()) {
+      } else if (
+        sectionId === 'certifications' &&
+        !this.certificationsComponentLoaded()
+      ) {
         await this.loadSection('certifications');
         await this.waitForComponent('certifications');
       }
@@ -753,7 +826,15 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
           componentReady = true;
         } else if (sectionId === 'skills' && this.skillsComponentReady()) {
           componentReady = true;
-        } else if (sectionId === 'certifications' && this.certificationsComponentReady()) {
+        } else if (
+          sectionId === 'certifications' &&
+          this.certificationsComponentReady()
+        ) {
+          componentReady = true;
+        } else if (
+          sectionId === 'educations' &&
+          this.educationsComponentReady()
+        ) {
           componentReady = true;
         }
 
@@ -1208,6 +1289,8 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
           await this.handleSkillsOperation(operationId);
         } else if (sectionId === 'certifications') {
           await this.handleCertificationsOperation(operationId);
+        } else if (sectionId === 'educations') {
+          await this.handleEducationsOperation(operationId);
         } else {
           console.warn(`Unknown section: ${sectionId}`);
           alert(`${sectionId} operations are not yet implemented`);
@@ -1380,50 +1463,100 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
    * FIXED: Handle certifications operations with proper component checking and error handling
    */
   private async handleCertificationsOperation(operationId: string) {
-  console.log('Handling certifications operation:', operationId);
+    console.log('Handling certifications operation:', operationId);
 
-  if (!this.certificationsComponentLoaded()) {
-    console.log('Loading certifications section...');
-    await this.loadSection('certifications');
-  }
+    if (!this.certificationsComponentLoaded()) {
+      console.log('Loading certifications section...');
+      await this.loadSection('certifications');
+    }
 
-  await this.waitForComponent('certifications');
+    await this.waitForComponent('certifications');
 
-  if (!this.certificationsComponentRef) {
-    console.error('Certifications component reference not available');
-    alert('Certifications component is not ready. Please try again.');
-    return;
-  }
+    if (!this.certificationsComponentRef) {
+      console.error('Certifications component reference not available');
+      alert('Certifications component is not ready. Please try again.');
+      return;
+    }
 
-  this.certificationsComponentRef.enableAdminMode();
+    this.certificationsComponentRef.enableAdminMode();
 
-  if (operationId === 'create') {
-    console.log('Opening certifications create form');
-    setTimeout(() => {
-      this.certificationsComponentRef.handleCreateOperation();
-    }, 100);
-  } else if (operationId === 'update' || operationId === 'delete') {
-    try {
-      await this.loadCertifications();
+    if (operationId === 'create') {
+      console.log('Opening certifications create form');
+      setTimeout(() => {
+        this.certificationsComponentRef.handleCreateOperation();
+      }, 100);
+    } else if (operationId === 'update' || operationId === 'delete') {
+      try {
+        await this.loadCertifications();
 
-      if (this.certifications().length === 0) {
-        alert('No certifications available to ' + operationId);
-        return;
+        if (this.certifications().length === 0) {
+          alert('No certifications available to ' + operationId);
+          return;
+        }
+
+        this.showCertificationSelectionModal.set(true);
+        this.selectedOperation.set(operationId);
+
+        if (this.isBrowser) {
+          document.body.style.overflow = 'hidden';
+        }
+        this.cdr.markForCheck();
+      } catch (error) {
+        console.error('Error loading certifications:', error);
+        alert('Failed to load certifications');
       }
-
-      this.showCertificationSelectionModal.set(true);
-      this.selectedOperation.set(operationId);
-
-      if (this.isBrowser) {
-        document.body.style.overflow = 'hidden';
-      }
-      this.cdr.markForCheck();
-    } catch (error) {
-      console.error('Error loading certifications:', error);
-      alert('Failed to load certifications');
     }
   }
-}
+
+  private async handleEducationsOperation(operationId: string) {
+    console.log('Handling educations operation:', operationId);
+
+    // Ensure section is loaded first
+    if (!this.educationsComponentLoaded()) {
+      console.log('Loading educations section...');
+      await this.loadSection('educations');
+    }
+
+    // Wait for component to be ready
+    await this.waitForComponent('educations');
+
+    // Ensure component reference exists and is ready
+    if (!this.educationsComponentRef) {
+      console.error('Educations component reference not available');
+      alert('Educations component is not ready. Please try again.');
+      return;
+    }
+
+    // Ensure admin mode is enabled
+    this.educationsComponentRef.enableAdminMode();
+
+    if (operationId === 'create') {
+      console.log('Opening educations create form');
+      setTimeout(() => {
+        this.educationsComponentRef.handleCreateOperation();
+      }, 100);
+    } else if (operationId === 'update' || operationId === 'delete') {
+      try {
+        await this.loadEducations();
+
+        if (this.educations().length === 0) {
+          alert('No educations available to ' + operationId);
+          return;
+        }
+
+        this.showEducationSelectionModal.set(true);
+        this.selectedOperation.set(operationId);
+
+        if (this.isBrowser) {
+          document.body.style.overflow = 'hidden';
+        }
+        this.cdr.markForCheck();
+      } catch (error) {
+        console.error('Error loading educations:', error);
+        alert('Failed to load educations');
+      }
+    }
+  }
 
   closeExperienceSelectionModal() {
     this.showExperienceSelectionModal.set(false);
@@ -1459,15 +1592,26 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   closeCertificationSelectionModal() {
-  this.showCertificationSelectionModal.set(false);
-  this.selectedOperation.set('');
-  this.selectedCertificationId.set(null);
+    this.showCertificationSelectionModal.set(false);
+    this.selectedOperation.set('');
+    this.selectedCertificationId.set(null);
 
-  if (this.isBrowser) {
-    document.body.style.overflow = 'auto';
+    if (this.isBrowser) {
+      document.body.style.overflow = 'auto';
+    }
+    this.cdr.markForCheck();
   }
-  this.cdr.markForCheck();
-}
+
+  closeEducationSelectionModal() {
+    this.showEducationSelectionModal.set(false);
+    this.selectedOperation.set('');
+    this.selectedEducationId.set(null);
+
+    if (this.isBrowser) {
+      document.body.style.overflow = 'auto';
+    }
+    this.cdr.markForCheck();
+  }
 
   selectExperience(experienceId: number) {
     this.selectedExperienceId.set(experienceId);
@@ -1529,23 +1673,44 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   selectCertification(certificationId: number) {
-  this.selectedCertificationId.set(certificationId);
-  const operation = this.selectedOperation();
+    this.selectedCertificationId.set(certificationId);
+    const operation = this.selectedOperation();
 
-  this.closeCertificationSelectionModal();
+    this.closeCertificationSelectionModal();
 
-  const certification = this.certifications().find((c) => c.id === certificationId);
-  if (!certification) {
-    alert('Certification not found');
-    return;
+    const certification = this.certifications().find(
+      (c) => c.id === certificationId
+    );
+    if (!certification) {
+      alert('Certification not found');
+      return;
+    }
+
+    if (operation === 'update') {
+      this.updateCertification(certificationId);
+    } else if (operation === 'delete') {
+      this.deleteCertification(certificationId);
+    }
   }
 
-  if (operation === 'update') {
-    this.updateCertification(certificationId);
-  } else if (operation === 'delete') {
-    this.deleteCertification(certificationId);
+  selectEducation(educationId: number) {
+    this.selectedEducationId.set(educationId);
+    const operation = this.selectedOperation();
+
+    this.closeEducationSelectionModal();
+
+    const education = this.educations().find((e) => e.id === educationId);
+    if (!education) {
+      alert('Education not found');
+      return;
+    }
+
+    if (operation === 'update') {
+      this.updateEducation(educationId);
+    } else if (operation === 'delete') {
+      this.deleteEducation(educationId);
+    }
   }
-}
 
   private updateExperience(experienceId: number) {
     const experience = this.experiences().find(
@@ -1598,20 +1763,44 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   private updateCertification(certificationId: number) {
-  const certification = this.certifications().find((c) => c.id === certificationId);
-  if (certification) {
-    if (this.certificationsComponentRef) {
-      this.certificationsComponentRef.enableAdminMode();
-      setTimeout(() => {
-        this.certificationsComponentRef.handleCertificationSelection(certificationId, 'update');
-      }, 100);
+    const certification = this.certifications().find(
+      (c) => c.id === certificationId
+    );
+    if (certification) {
+      if (this.certificationsComponentRef) {
+        this.certificationsComponentRef.enableAdminMode();
+        setTimeout(() => {
+          this.certificationsComponentRef.handleCertificationSelection(
+            certificationId,
+            'update'
+          );
+        }, 100);
+      } else {
+        alert('Certifications component not loaded');
+      }
     } else {
-      alert('Certifications component not loaded');
+      alert('Certification not found');
     }
-  } else {
-    alert('Certification not found');
   }
-}
+
+  private updateEducation(educationId: number) {
+    const education = this.educations().find((e) => e.id === educationId);
+    if (education) {
+      if (this.educationsComponentRef) {
+        this.educationsComponentRef.enableAdminMode();
+        setTimeout(() => {
+          this.educationsComponentRef.handleEducationSelection(
+            educationId,
+            'update'
+          );
+        }, 100);
+      } else {
+        alert('Educations component not loaded');
+      }
+    } else {
+      alert('Education not found');
+    }
+  }
 
   private async deleteExperience(experienceId: number) {
     const experience = this.experiences().find(
@@ -1696,31 +1885,60 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     }
   }
 
-  private async deleteCertification(certificationId: number) {
-  const certification = this.certifications().find((c) => c.id === certificationId);
-  if (certification) {
-    const confirmMessage = `Are you sure you want to delete the certification "${certification.title}"?\n\nThis action cannot be undone.`;
-    const confirmDelete = confirm(confirmMessage);
+  private async deleteEducation(educationId: number) {
+    const education = this.educations().find((e) => e.id === educationId);
+    if (education) {
+      const confirmMessage = `Are you sure you want to delete the education "${education.degree}"?\n\nThis action cannot be undone.`;
+      const confirmDelete = confirm(confirmMessage);
 
-    if (confirmDelete) {
-      try {
-        await this.certificationService.deleteCertification(certificationId);
-        await this.loadCertifications();
+      if (confirmDelete) {
+        try {
+          await this.educationService.deleteEducation(educationId);
 
-        if (this.certificationsComponentRef) {
-          await this.certificationsComponentRef.refreshCertifications();
+          await this.loadEducations();
+
+          if (this.educationsComponentRef) {
+            await this.educationsComponentRef.refreshEducations();
+          }
+
+          alert('Education deleted successfully!');
+        } catch (error: any) {
+          console.error('Delete education error:', error);
+          alert(error.message || 'Failed to delete education');
         }
-
-        alert('Certification deleted successfully!');
-      } catch (error: any) {
-        console.error('Delete certification error:', error);
-        alert(error.message || 'Failed to delete certification');
       }
+    } else {
+      alert('Education not found');
     }
-  } else {
-    alert('Certification not found');
   }
-}
+
+  private async deleteCertification(certificationId: number) {
+    const certification = this.certifications().find(
+      (c) => c.id === certificationId
+    );
+    if (certification) {
+      const confirmMessage = `Are you sure you want to delete the certification "${certification.title}"?\n\nThis action cannot be undone.`;
+      const confirmDelete = confirm(confirmMessage);
+
+      if (confirmDelete) {
+        try {
+          await this.certificationService.deleteCertification(certificationId);
+          await this.loadCertifications();
+
+          if (this.certificationsComponentRef) {
+            await this.certificationsComponentRef.refreshCertifications();
+          }
+
+          alert('Certification deleted successfully!');
+        } catch (error: any) {
+          console.error('Delete certification error:', error);
+          alert(error.message || 'Failed to delete certification');
+        }
+      }
+    } else {
+      alert('Certification not found');
+    }
+  }
 
   private async loadExperiences() {
     try {
@@ -1765,15 +1983,29 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   private async loadCertifications() {
-  try {
-    const certifications = await this.certificationService.getAllCertifications();
-    certifications.sort((a, b) => b.id - a.id);
-    this.certifications.set(certifications);
-    this.cdr.markForCheck();
-  } catch (error) {
-    console.error('Error loading certifications in app component:', error);
-    this.certifications.set([]);
-    this.cdr.markForCheck();
+    try {
+      const certifications =
+        await this.certificationService.getAllCertifications();
+      certifications.sort((a, b) => b.id - a.id);
+      this.certifications.set(certifications);
+      this.cdr.markForCheck();
+    } catch (error) {
+      console.error('Error loading certifications in app component:', error);
+      this.certifications.set([]);
+      this.cdr.markForCheck();
+    }
   }
-}
+
+  private async loadEducations() {
+    try {
+      const educations = await this.educationService.getAllEducations();
+      educations.sort((a, b) => b.id - a.id);
+      this.educations.set(educations);
+      this.cdr.markForCheck();
+    } catch (error) {
+      console.error('Error loading educations in app component:', error);
+      this.educations.set([]);
+      this.cdr.markForCheck();
+    }
+  }
 }

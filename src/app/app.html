@@ -1,3 +1,5 @@
+<!-- Author: Yugantar Badhan -->
+
 <!-- Navigation Bar -->
 <nav
   class="navbar"
@@ -559,12 +561,17 @@
   <div class="admin-modal-container" (click)="$event.stopPropagation()">
     <div class="admin-modal-header">
       <h3>Select Certification to {{ selectedOperation() | titlecase }}</h3>
-      <button class="close-btn" (click)="closeCertificationSelectionModal()">×</button>
+      <button class="close-btn" (click)="closeCertificationSelectionModal()">
+        ×
+      </button>
     </div>
 
     <div class="admin-modal-content">
       <p *ngIf="certifications().length === 0">No certifications found.</p>
-      <div *ngIf="certifications().length > 0" class="experience-selection-list">
+      <div
+        *ngIf="certifications().length > 0"
+        class="experience-selection-list"
+      >
         <button
           *ngFor="let cert of certifications()"
           class="experience-selection-item"
@@ -587,6 +594,50 @@
 
     <div class="admin-modal-actions">
       <button class="btn-cancel" (click)="closeCertificationSelectionModal()">
+        Cancel
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Education Selection Modal -->
+<div *ngIf="showEducationSelectionModal()" class="admin-modal-overlay">
+  <div class="admin-modal-container" (click)="$event.stopPropagation()">
+    <div class="admin-modal-header">
+      <h3>Select Education to {{ selectedOperation() | titlecase }}</h3>
+      <button class="close-btn" (click)="closeEducationSelectionModal()">
+        ×
+      </button>
+    </div>
+
+    <div class="admin-modal-content">
+      <p *ngIf="educations().length === 0">No educations found.</p>
+      <div *ngIf="educations().length > 0" class="experience-selection-list">
+        <button
+          *ngFor="let edu of educations()"
+          class="experience-selection-item"
+          [class.delete-mode]="selectedOperation() === 'delete'"
+          (click)="selectEducation(edu.id)"
+        >
+          <div class="experience-info">
+            <h4>{{ edu.degree }}</h4>
+            <p>{{ edu.institute }}</p>
+            <small
+              >{{ edu.startDate }} -
+              {{ edu.currentStudying ? "Present" : edu.endDate }}</small
+            >
+          </div>
+          <i
+            class="fas"
+            [class.fa-edit]="selectedOperation() === 'update'"
+            [class.fa-trash-alt]="selectedOperation() === 'delete'"
+          ></i>
+        </button>
+      </div>
+    </div>
+
+    <div class="admin-modal-actions">
+      <button class="btn-cancel" (click)="closeEducationSelectionModal()">
         Cancel
       </button>
     </div>
@@ -717,13 +768,10 @@
   <app-certifications *ngIf="shouldShowCertifications()"></app-certifications>
 </div>
 
-<!-- Education Section - Placeholder -->
-<section class="section" [class.dark-theme]="isDarkTheme" id="educations">
-  <div class="container">
-    <h2>Education</h2>
-    <p>Coming soon...</p>
-  </div>
-</section>
+<!-- Education Section -->
+<div id="educations" class="section-anchor">
+  <app-educations *ngIf="shouldShowEducations()"></app-educations>
+</div>
 
 <!-- Awards Section - Placeholder -->
 <section class="section" [class.dark-theme]="isDarkTheme" id="awards">

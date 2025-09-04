@@ -38,6 +38,9 @@ import { Subject } from 'rxjs';
 import { CertificationsComponent } from './certifications/certifications';
 import { CertificationService } from './services/certification.service';
 import { Certification } from './model/certification.model';
+import { AwardsComponent } from './awards/awards';
+import { AwardService } from './services/award.service';
+import { Award } from './model/award.model';
 
 interface AdminSection {
   id: string;
@@ -62,6 +65,7 @@ interface AdminOperation {
     SkillsComponent,
     CertificationsComponent,
     EducationsComponent,
+    AwardsComponent,
   ],
   templateUrl: './app.html',
   styleUrls: ['./app.css'],
@@ -74,6 +78,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild(CertificationsComponent)
   certificationsComponentRef!: CertificationsComponent;
   @ViewChild(EducationsComponent) educationsComponentRef!: EducationsComponent;
+  @ViewChild(AwardsComponent) awardsComponentRef!: AwardsComponent;
 
   private destroy$ = new Subject<void>();
   private cdr = inject(ChangeDetectorRef);
@@ -84,6 +89,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   private skillService = inject(SkillService);
   private certificationService = inject(CertificationService);
   private educationService = inject(EducationService);
+  private awardService = inject(AwardService);
   private resumeService = inject(ResumeService);
   private router = inject(Router);
 
@@ -109,6 +115,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   skillsComponentLoaded = signal(false);
   certificationsComponentLoaded = signal(false);
   educationsComponentLoaded = signal(false);
+  awardsComponentLoaded = signal(false);
 
   // Component readiness tracking
   experienceComponentReady = signal(false);
@@ -116,6 +123,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   skillsComponentReady = signal(false);
   certificationsComponentReady = signal(false);
   educationsComponentReady = signal(false);
+  awardsComponentReady = signal(false);
 
   // Admin-related properties - USING AdminSessionService
   showAdminDropdown = signal(false);
@@ -127,6 +135,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   showSkillSelectionModal = signal(false);
   showCertificationSelectionModal = signal(false);
   showEducationSelectionModal = signal(false);
+  showAwardSelectionModal = signal(false);
   selectedAdminSection = signal<string>('');
   selectedOperation = signal<string>('');
   adminToken = '';
@@ -146,6 +155,8 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   selectedCertificationId = signal<number | null>(null);
   educations = signal<Education[]>([]);
   selectedEducationId = signal<number | null>(null);
+  awards = signal<Award[]>([]);
+  selectedAwardId = signal<number | null>(null);
 
   private sectionObserver?: IntersectionObserver;
   private isBrowser: boolean;
@@ -156,7 +167,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     { id: 'skills', label: 'Skills', enabled: true },
     { id: 'certifications', label: 'Certifications', enabled: true },
     { id: 'educations', label: 'Educations', enabled: true },
-    { id: 'awards', label: 'Awards', enabled: false },
+    { id: 'awards', label: 'Awards', enabled: true },
   ];
 
   adminOperations: AdminOperation[] = [
@@ -240,6 +251,10 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
         this.educationsComponentReady.set(true);
         console.log('Educations component ready');
       }
+      if (this.awardsComponentRef) {
+        this.awardsComponentReady.set(true);
+        console.log('Awards component ready');
+      }
 
       // Apply admin mode if already authenticated
       if (this.isAdminAuthenticated()) {
@@ -309,6 +324,10 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
         console.log('Enabling admin mode for educations component');
         this.educationsComponentRef.enableAdminMode();
       }
+      if (this.awardsComponentReady() && this.awardsComponentRef) {
+        console.log('Enabling admin mode for awards component');
+        this.awardsComponentRef.enableAdminMode();
+      }
     } else {
       // Disable admin mode in all components immediately
       if (this.experienceComponentRef) {
@@ -325,6 +344,9 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
       }
       if (this.educationsComponentRef) {
         this.educationsComponentRef.disableAdminMode();
+      }
+      if (this.awardsComponentRef) {
+        this.awardsComponentRef.disableAdminMode();
       }
     }
   }
@@ -437,6 +459,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
       const projectsSection = document.getElementById('projects');
       const skillsSection = document.getElementById('skills');
       const educationsSection = document.getElementById('educations');
+      const awardsSection = document.getElementById('awards');
 
       if (experienceSection) {
         this.sectionObserver?.observe(experienceSection);
@@ -449,6 +472,9 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
       }
       if (educationsSection) {
         this.sectionObserver?.observe(educationsSection);
+      }
+      if (awardsSection) {
+        this.sectionObserver?.observe(awardsSection);
       }
     }, 100);
   }
@@ -541,22 +567,19 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
       } catch (error) {
         console.error('Error loading educations section:', error);
       }
-    } else if (
-      sectionId === 'educations' &&
-      !this.educationsComponentLoaded()
-    ) {
+    } else if (sectionId === 'awards' && !this.awardsComponentLoaded()) {
       try {
-        await this.loadEducations();
-        this.educationsComponentLoaded.set(true);
+        await this.loadAwards();
+        this.awardsComponentLoaded.set(true);
         setTimeout(() => {
-          this.educationsComponentReady.set(true);
-          if (this.isAdminAuthenticated() && this.educationsComponentRef) {
-            this.educationsComponentRef.enableAdminMode();
+          this.awardsComponentReady.set(true);
+          if (this.isAdminAuthenticated() && this.awardsComponentRef) {
+            this.awardsComponentRef.enableAdminMode();
           }
         }, 100);
         this.cdr.markForCheck();
       } catch (error) {
-        console.error('Error loading educations section:', error);
+        console.error('Error loading awards section:', error);
       }
     }
   }
@@ -580,6 +603,10 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
 
   shouldShowEducations(): boolean {
     return this.educationsComponentLoaded();
+  }
+
+  shouldShowAwards(): boolean {
+    return this.awardsComponentLoaded();
   }
 
   @HostListener('window:scroll')
@@ -835,6 +862,8 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
           sectionId === 'educations' &&
           this.educationsComponentReady()
         ) {
+          componentReady = true;
+        } else if (sectionId === 'awards' && this.awardsComponentReady()) {
           componentReady = true;
         }
 
@@ -1291,6 +1320,8 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
           await this.handleCertificationsOperation(operationId);
         } else if (sectionId === 'educations') {
           await this.handleEducationsOperation(operationId);
+        } else if (sectionId === 'awards') {
+          await this.handleAwardsOperation(operationId);
         } else {
           console.warn(`Unknown section: ${sectionId}`);
           alert(`${sectionId} operations are not yet implemented`);
@@ -1558,6 +1589,53 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     }
   }
 
+  // Add handleAwardsOperation method:
+  private async handleAwardsOperation(operationId: string) {
+    console.log('Handling awards operation:', operationId);
+
+    if (!this.awardsComponentLoaded()) {
+      console.log('Loading awards section...');
+      await this.loadSection('awards');
+    }
+
+    await this.waitForComponent('awards');
+
+    if (!this.awardsComponentRef) {
+      console.error('Awards component reference not available');
+      alert('Awards component is not ready. Please try again.');
+      return;
+    }
+
+    this.awardsComponentRef.enableAdminMode();
+
+    if (operationId === 'create') {
+      console.log('Opening awards create form');
+      setTimeout(() => {
+        this.awardsComponentRef.handleCreateOperation();
+      }, 100);
+    } else if (operationId === 'update' || operationId === 'delete') {
+      try {
+        await this.loadAwards();
+
+        if (this.awards().length === 0) {
+          alert('No awards available to ' + operationId);
+          return;
+        }
+
+        this.showAwardSelectionModal.set(true);
+        this.selectedOperation.set(operationId);
+
+        if (this.isBrowser) {
+          document.body.style.overflow = 'hidden';
+        }
+        this.cdr.markForCheck();
+      } catch (error) {
+        console.error('Error loading awards:', error);
+        alert('Failed to load awards');
+      }
+    }
+  }
+
   closeExperienceSelectionModal() {
     this.showExperienceSelectionModal.set(false);
     this.selectedOperation.set('');
@@ -1606,6 +1684,17 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     this.showEducationSelectionModal.set(false);
     this.selectedOperation.set('');
     this.selectedEducationId.set(null);
+
+    if (this.isBrowser) {
+      document.body.style.overflow = 'auto';
+    }
+    this.cdr.markForCheck();
+  }
+
+  closeAwardSelectionModal() {
+    this.showAwardSelectionModal.set(false);
+    this.selectedOperation.set('');
+    this.selectedAwardId.set(null);
 
     if (this.isBrowser) {
       document.body.style.overflow = 'auto';
@@ -1712,6 +1801,25 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     }
   }
 
+  selectAward(awardId: number) {
+    this.selectedAwardId.set(awardId);
+    const operation = this.selectedOperation();
+
+    this.closeAwardSelectionModal();
+
+    const award = this.awards().find((a) => a.id === awardId);
+    if (!award) {
+      alert('Award not found');
+      return;
+    }
+
+    if (operation === 'update') {
+      this.updateAward(awardId);
+    } else if (operation === 'delete') {
+      this.deleteAward(awardId);
+    }
+  }
+
   private updateExperience(experienceId: number) {
     const experience = this.experiences().find(
       (exp) => exp.id === experienceId
@@ -1799,6 +1907,22 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
       }
     } else {
       alert('Education not found');
+    }
+  }
+
+  private updateAward(awardId: number) {
+    const award = this.awards().find((a) => a.id === awardId);
+    if (award) {
+      if (this.awardsComponentRef) {
+        this.awardsComponentRef.enableAdminMode();
+        setTimeout(() => {
+          this.awardsComponentRef.handleAwardSelection(awardId, 'update');
+        }, 100);
+      } else {
+        alert('Awards component not loaded');
+      }
+    } else {
+      alert('Award not found');
     }
   }
 
@@ -1940,6 +2064,32 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     }
   }
 
+  private async deleteAward(awardId: number) {
+    const award = this.awards().find((a) => a.id === awardId);
+    if (award) {
+      const confirmMessage = `Are you sure you want to delete the award "${award.awardName}"?\n\nThis action cannot be undone.`;
+      const confirmDelete = confirm(confirmMessage);
+
+      if (confirmDelete) {
+        try {
+          await this.awardService.deleteAward(awardId);
+          await this.loadAwards();
+
+          if (this.awardsComponentRef) {
+            await this.awardsComponentRef.refreshAwards();
+          }
+
+          alert('Award deleted successfully!');
+        } catch (error: any) {
+          console.error('Delete award error:', error);
+          alert(error.message || 'Failed to delete award');
+        }
+      }
+    } else {
+      alert('Award not found');
+    }
+  }
+
   private async loadExperiences() {
     try {
       const experiences = await this.experienceService.getAllExperiences();
@@ -2005,6 +2155,19 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     } catch (error) {
       console.error('Error loading educations in app component:', error);
       this.educations.set([]);
+      this.cdr.markForCheck();
+    }
+  }
+
+  private async loadAwards() {
+    try {
+      const awards = await this.awardService.getAllAwards();
+      awards.sort((a, b) => b.id - a.id);
+      this.awards.set(awards);
+      this.cdr.markForCheck();
+    } catch (error) {
+      console.error('Error loading awards in app component:', error);
+      this.awards.set([]);
       this.cdr.markForCheck();
     }
   }

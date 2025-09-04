@@ -1,0 +1,356 @@
+<!-- src/app/awards/awards.html - Complete Fixed Version -->
+<section id="awards" class="awards-section">
+    <div class="container">
+        <!-- Section Header -->
+        <div class="section-header">
+            <h2 class="section-title">Awards</h2>
+        </div>
+
+        <!-- Loading State -->
+        <div *ngIf="isLoading()" class="loading-spinner" role="status" aria-label="Loading awards">
+            <div class="spinner"></div>
+            <p>Loading awards...</p>
+        </div>
+
+        <!-- Award Form Modal - FIXED: No backdrop close -->
+        <div *ngIf="showForm() && isAdmin()" class="modal-overlay" role="dialog" aria-modal="true"
+            aria-labelledby="form-title">
+            <div class="award-form-container" (click)="$event.stopPropagation()">
+                <div class="form-header">
+                    <h3 id="form-title">
+                        {{ editingId() ? "Edit Award" : "Add New Award" }}
+                    </h3>
+                    <button class="close-btn" (click)="closeForm()" aria-label="Close form" type="button">
+                        ×
+                    </button>
+                </div>
+
+                <form [formGroup]="awardForm" (ngSubmit)="onSubmit()" class="award-form" novalidate>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="awardName">Award Name *</label>
+                            <input type="text" id="awardName" formControlName="awardName" placeholder="Enter award name"
+                                aria-describedby="award-name-error" [attr.aria-invalid]="
+                  awardForm.get('awardName')?.invalid &&
+                  awardForm.get('awardName')?.touched
+                " />
+                            <div id="award-name-error" *ngIf="
+                  awardForm.get('awardName')?.invalid &&
+                  awardForm.get('awardName')?.touched
+                " class="error-message" role="alert">
+                                Award name is required
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="awardCompanyName">Award Company/Organization *</label>
+                            <input type="text" id="awardCompanyName" formControlName="awardCompanyName"
+                                placeholder="Enter company/organization name" aria-describedby="award-company-error"
+                                [attr.aria-invalid]="
+                  awardForm.get('awardCompanyName')?.invalid &&
+                  awardForm.get('awardCompanyName')?.touched
+                " />
+                            <div id="award-company-error" *ngIf="
+                  awardForm.get('awardCompanyName')?.invalid &&
+                  awardForm.get('awardCompanyName')?.touched
+                " class="error-message" role="alert">
+                                Award company/organization is required
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="awardYear">Award Year (Optional)</label>
+                            <input type="text" id="awardYear" formControlName="awardYear" placeholder="e.g., 2024"
+                                aria-describedby="award-year-help" />
+                            <div id="award-year-help" class="editor-help-text">
+                                Year when you received the award
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="awardLink">Award Link (Optional)</label>
+                            <input type="url" id="awardLink" formControlName="awardLink"
+                                placeholder="https://company.com/award-verification"
+                                aria-describedby="award-link-help award-link-error" [attr.aria-invalid]="
+                  awardForm.get('awardLink')?.invalid &&
+                  awardForm.get('awardLink')?.touched
+                " />
+                            <div id="award-link-error" *ngIf="
+                  awardForm.get('awardLink')?.invalid &&
+                  awardForm.get('awardLink')?.touched
+                " class="error-message" role="alert">
+                                Please enter a valid URL
+                            </div>
+                            <div id="award-link-help" class="editor-help-text">
+                                Link to verify or view your award online
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Description Field -->
+                    <div class="form-group full-width">
+                        <label for="description">Description *</label>
+                        <textarea id="description" formControlName="description"
+                            placeholder="Describe your award, what you achieved, and its significance..." rows="6"
+                            aria-describedby="description-help description-error" [attr.aria-invalid]="
+                awardForm.get('description')?.invalid &&
+                awardForm.get('description')?.touched
+              "></textarea>
+                        <div id="description-error" *ngIf="
+                awardForm.get('description')?.invalid &&
+                awardForm.get('description')?.touched
+              " class="error-message" role="alert">
+                            Description is required
+                        </div>
+                        <div id="description-help" class="editor-help-text">
+                            Provide details about your achievement and its importance
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn-cancel" (click)="closeForm()" aria-label="Cancel form">
+                            Cancel
+                        </button>
+                        <button type="submit" class="btn-submit" [disabled]="!isFormValid || isLoading()"
+                            [attr.aria-label]="
+                isLoading()
+                  ? 'Saving award...'
+                  : editingId()
+                  ? 'Update Award'
+                  : 'Create Award'
+              ">
+                            {{
+                            isLoading()
+                            ? "Saving..."
+                            : editingId()
+                            ? "Update Award"
+                            : "Create Award"
+                            }}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Award Selection Modal - FIXED: No backdrop close -->
+        <div *ngIf="showAwardSelectionModal() && isAdmin()" class="modal-overlay" role="dialog" aria-modal="true"
+            aria-labelledby="selection-title">
+            <div class="award-selection-container" (click)="$event.stopPropagation()">
+                <div class="form-header">
+                    <h3 id="selection-title">Select Award to {{ selectedOperation() | titlecase }}</h3>
+                    <button class="close-btn" (click)="closeAwardSelectionModal()">
+                        ×
+                    </button>
+                </div>
+
+                <div class="modal-content">
+                    <p *ngIf="awards().length === 0">No awards found.</p>
+                    <div *ngIf="awards().length > 0" class="award-selection-list">
+                        <button *ngFor="let award of awards(); trackBy: trackByAwardId" class="award-selection-item"
+                            [class.delete-mode]="selectedOperation() === 'delete'" (click)="selectAward(award.id)">
+                            <div class="award-info-modal">
+                                <h4>{{ award.awardName }}</h4>
+                                <p>{{ award.awardCompanyName }}</p>
+                                <small>{{ award.awardYear || 'Year not specified' }} • ID: {{ award.id }}</small>
+                            </div>
+                            <i class="fas" [class.fa-edit]="selectedOperation() === 'update'"
+                                [class.fa-trash-alt]="selectedOperation() === 'delete'"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="modal-actions">
+                    <button class="btn-cancel" (click)="closeAwardSelectionModal()">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Awards Carousel -->
+        <div *ngIf="!isLoading()" class="awards-carousel-container">
+            <!-- No Awards Message -->
+            <div *ngIf="awards().length === 0" class="no-awards" role="status">
+                <p>No awards found.</p>
+            </div>
+
+            <!-- Carousel with Navigation -->
+            <div *ngIf="awards().length > 0" class="carousel-wrapper" role="region" aria-label="Awards carousel">
+                <!-- Left Navigation Arrow -->
+                <button class="carousel-nav carousel-nav-left" (click)="scrollCarousel('left')"
+                    [class.disabled]="!canScrollLeft()" [disabled]="!canScrollLeft()" [attr.aria-label]="
+            canScrollLeft() ? 'Previous awards' : 'No previous awards'
+          " type="button">
+                    <i class="fas fa-chevron-left" aria-hidden="true"></i>
+                </button>
+
+                <!-- Awards Scroll Container -->
+                <div class="awards-scroll-container" role="main">
+                    <div class="awards-grid" #awardsGrid [style.transform]="'translateX(' + currentTranslateX() + 'px)'"
+                        role="list" aria-label="Award cards">
+                        <div *ngFor="let award of awards(); trackBy: trackByAwardId" class="award-card" role="listitem"
+                            [attr.data-award-id]="award.id" [attr.aria-label]="'Award: ' + award.awardName">
+                            <div class="card-header">
+                                <div class="award-info">
+                                    <h3 class="award-title" [id]="'award-title-' + award.id">
+                                        {{ award.awardName }}
+                                    </h3>
+                                    <div class="award-company">
+                                        {{ award.awardCompanyName }}
+                                    </div>
+                                    <div class="award-year" *ngIf="award.awardYear">
+                                        {{ award.awardYear }}
+                                    </div>
+                                </div>
+
+                                <!-- Admin Actions -->
+                                <div *ngIf="isAdmin()" class="admin-actions-card">
+                                    <button class="action-btn edit-btn" (click)="openForm(award)" title="Edit Award">
+                                        ✏️
+                                    </button>
+                                    <button class="action-btn delete-btn"
+                                        (click)="deleteAward(award.id, award.awardName)" title="Delete Award">
+                                        🗑️
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="card-body">
+                                <!-- Award Description Preview -->
+                                <div class="description-preview" [attr.aria-labelledby]="'award-title-' + award.id"
+                                    role="region">
+                                    {{ getDescriptionPreview(award.description) }}
+                                </div>
+
+                                <!-- FIXED: Know More Button -->
+                                <button *ngIf="shouldShowKnowMore(award.description)" 
+                                        class="know-more-btn"
+                                        (click)="openAwardDetails(award)" 
+                                        type="button"
+                                        [attr.aria-label]="'Learn more about ' + award.awardName">
+                                  <i class="fas fa-info-circle" aria-hidden="true"></i>
+                                  <span>Know More</span>
+                                </button>
+
+                                <!-- Award Link -->
+                                <div class="award-links" *ngIf="award.awardLink" role="navigation"
+                                    aria-label="Award link">
+                                    <a [href]="award.awardLink" target="_blank" rel="noopener noreferrer"
+                                        class="award-link" [attr.aria-label]="'View award: ' + award.awardName">
+                                        <i class="fas fa-trophy" aria-hidden="true"></i>
+                                        <span>View Award</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Navigation Arrow -->
+                <button class="carousel-nav carousel-nav-right" (click)="scrollCarousel('right')"
+                    [class.disabled]="!canScrollRight()" [disabled]="!canScrollRight()" [attr.aria-label]="
+            canScrollRight() ? 'Next awards' : 'No more awards'
+          " type="button">
+                    <i class="fas fa-chevron-right" aria-hidden="true"></i>
+                </button>
+            </div>
+
+            <!-- Carousel Indicators -->
+            <div *ngIf="awards().length > 0 && shouldShowIndicators()" class="carousel-indicators" role="tablist"
+                aria-label="Carousel navigation">
+                <button *ngFor="let indicator of getCarouselIndicators(); let i = index" class="carousel-indicator"
+                    [class.active]="i === currentIndicatorIndex()" (click)="scrollToIndicator(i)"
+                    [attr.aria-label]="'Go to page ' + (i + 1)" [attr.aria-selected]="i === currentIndicatorIndex()"
+                    role="tab" type="button"></button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FIXED: Award Details Modal Structure -->
+<div *ngIf="showAwardDetails()" class="modal-overlay" role="dialog" aria-modal="true" 
+     aria-labelledby="award-details-title" (click)="onModalOverlayClick($event)">
+  <div class="award-details-container" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <div class="modal-header-content">
+        <h2 id="award-details-title" class="modal-title">
+          {{ selectedAward()?.awardName }}
+        </h2>
+        <button class="modal-close-btn" (click)="closeAwardDetails()" 
+                aria-label="Close award details" type="button">
+          ×
+        </button>
+      </div>
+    </div>
+    
+    <div class="modal-body">
+      <div class="modal-content-scroll">
+        <!-- Company Section -->
+        <div class="modal-section">
+          <h3 class="modal-section-title">
+            <i class="fas fa-building" aria-hidden="true"></i>
+            Organization
+          </h3>
+          <div class="modal-company">
+            <div class="modal-company-content">
+              {{ selectedAward()?.awardCompanyName }}
+            </div>
+          </div>
+        </div>
+
+        <!-- Year Section -->
+        <div class="modal-section" *ngIf="selectedAward()?.awardYear">
+          <h3 class="modal-section-title">
+            <i class="fas fa-calendar" aria-hidden="true"></i>
+            Year Received
+          </h3>
+          <div class="modal-year">
+            <div class="modal-year-content">
+              {{ selectedAward()?.awardYear }}
+            </div>
+          </div>
+        </div>
+
+        <!-- Description Section -->
+        <div class="modal-section">
+          <h3 class="modal-section-title">
+            <i class="fas fa-info-circle" aria-hidden="true"></i>
+            Description
+          </h3>
+          <div class="award-full-description">
+            {{ selectedAward()?.description }}
+          </div>
+        </div>
+
+        <!-- Award Link Section -->
+        <div class="modal-section" *ngIf="selectedAward()?.awardLink">
+          <h3 class="modal-section-title">
+            <i class="fas fa-external-link-alt" aria-hidden="true"></i>
+            Award Link
+          </h3>
+          <div class="modal-award-links">
+            <a [href]="selectedAward()?.awardLink" target="_blank" rel="noopener noreferrer" 
+               class="modal-award-link" [attr.aria-label]="'View award: ' + selectedAward()?.awardName">
+              <i class="fas fa-trophy" aria-hidden="true"></i>
+              <span>View Award</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Additional accessibility improvements -->
+<div class="sr-only" aria-live="polite" aria-atomic="true">
+    <span *ngIf="isLoading()">Loading awards, please wait...</span>
+    <span *ngIf="!isLoading() && awards().length === 0">
+        No awards available to display.
+    </span>
+    <span *ngIf="!isLoading() && awards().length > 0">
+        {{ awards().length }} award{{ awards().length === 1 ? "" : "s" }}
+        loaded successfully.
+    </span>
+</div>

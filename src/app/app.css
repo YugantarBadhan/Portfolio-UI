@@ -56,7 +56,12 @@ html.light-theme .navbar {
 
 /* Dark theme navbar - use HTML-level selectors for immediate application */
 html.dark-theme .navbar {
-  background: rgba(44, 62, 80, 0.95) !important; /* Dark theme - matches body background */
+  background: rgba(
+    44,
+    62,
+    80,
+    0.95
+  ) !important; /* Dark theme - matches body background */
   border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
   box-shadow: 0 2px 20px rgba(0, 0, 0, 0.3) !important;
 }
@@ -174,7 +179,12 @@ html.light-theme .mobile-menu {
 }
 
 html.dark-theme .mobile-menu {
-  background: rgba(44, 62, 80, 0.98) !important; /* Dark theme - matches navbar */
+  background: rgba(
+    44,
+    62,
+    80,
+    0.98
+  ) !important; /* Dark theme - matches navbar */
 }
 
 .mobile-menu.open {
@@ -355,7 +365,11 @@ html.light-theme .admin-toggle.active {
 }
 
 html.dark-theme .admin-toggle.active {
-  border-color: rgb(10, 10, 10) !important; /* Very dark border when active for dark theme */
+  border-color: rgb(
+    10,
+    10,
+    10
+  ) !important; /* Very dark border when active for dark theme */
 }
 
 /* Admin icon - NO initial transition */
@@ -2377,8 +2391,6 @@ body.dark-theme .resume-upload-container {
   transition-duration: 0.1s !important;
 }
 
-/* Add these styles to your existing src/app/app.css file */
-
 /* Education Section - Replace the existing placeholder section */
 #educations {
   margin-top: 0; /* Remove any top margin */
@@ -2774,6 +2786,347 @@ body.dark-theme .education-selection-list::-webkit-scrollbar-thumb:hover {
 @media print {
   .education-selection-container,
   .education-form-container {
+    display: none !important;
+  }
+}
+
+/* Awards section spacing fixes */
+#awards {
+  margin-top: 0; /* Remove any top margin */
+  padding-top: 1rem; /* Minimal top padding */
+  margin-bottom: 0; /* Remove any bottom margin */
+  padding-bottom: 1rem; /* Minimal bottom padding */
+}
+
+/* Ensure consistent section spacing for awards */
+.awards-section {
+  margin-bottom: 0 !important; /* Force remove bottom margins */
+  padding-bottom: 1rem !important; /* Consistent bottom padding */
+  margin-top: 0 !important; /* Force remove top margins */
+  padding-top: 1rem !important; /* Consistent top padding */
+}
+
+/* Fixed section anchor for awards to prevent extra spacing */
+#awards.section-anchor {
+  position: relative;
+  /* Removed min-height which was causing excessive spacing */
+}
+
+/* Mobile navigation support for awards */
+@media (max-width: 768px) {
+  .mobile-nav-links a[href="#awards"] {
+    display: block;
+    padding: 1rem 0;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 1.2rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+  }
+
+  html.light-theme .mobile-nav-links a[href="#awards"] {
+    border-bottom-color: rgba(0, 0, 0, 0.1) !important;
+  }
+
+  .mobile-nav-links a[href="#awards"]:hover {
+    padding-left: 1rem;
+  }
+
+  html.light-theme .mobile-nav-links a[href="#awards"]:hover {
+    color: #303d46 !important;
+  }
+
+  html.dark-theme .mobile-nav-links a[href="#awards"]:hover {
+    color: #64b5f6 !important;
+  }
+}
+
+/* Ensure proper theme transitions for awards section */
+.fast-transitions .awards-section * {
+  transition-duration: 0.2s !important;
+}
+
+.fast-transitions .awards-section *:hover {
+  transition-duration: 0.1s !important;
+}
+
+/* Award Selection Modal - Same styling as other selection modals */
+.award-selection-container {
+  background: white !important;
+  border-radius: 15px;
+  padding: 30px;
+  max-width: 700px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  position: relative;
+  animation: slideIn 0.3s ease-out;
+  color: #333333 !important;
+}
+
+body.dark-theme .award-selection-container {
+  background: white !important;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  color: #333333 !important;
+}
+
+/* Award Selection List - Same styling as experience/project selection */
+.award-selection-list {
+  max-height: 400px;
+  overflow-y: auto;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  background: #f8f9fa;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+body.dark-theme .award-selection-list {
+  background: #f8f9fa;
+  border-color: #e9ecef;
+}
+
+.award-selection-item {
+  width: 100%;
+  padding: 18px 24px;
+  border: none;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  background: transparent;
+  cursor: default;
+  transition: none;
+  display: block;
+  text-align: left;
+  color: #333333 !important;
+  position: relative;
+  box-sizing: border-box;
+  min-height: auto;
+  word-wrap: break-word;
+  overflow: hidden;
+}
+
+body.dark-theme .award-selection-item {
+  border-bottom-color: rgba(0, 0, 0, 0.06);
+  color: #333333 !important;
+}
+
+.award-selection-item:last-child {
+  border-bottom: none;
+}
+
+/* Award info container in selection modal */
+.award-info-modal {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+  pointer-events: none;
+  position: relative;
+  z-index: 1;
+  padding-right: 50px;
+}
+
+.award-info-modal * {
+  pointer-events: none;
+  user-select: none;
+  cursor: inherit;
+  margin: 0;
+  padding: 0;
+  display: block;
+  width: 100%;
+  transition: none !important;
+}
+
+.award-info-modal h4 {
+  font-size: 1.15rem !important;
+  font-weight: 700 !important;
+  margin-bottom: 4px !important;
+  color: #333333 !important;
+  line-height: 1.3 !important;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.award-info-modal p {
+  font-size: 1rem !important;
+  color: #666666 !important;
+  margin-bottom: 4px !important;
+  font-weight: 500 !important;
+  line-height: 1.2 !important;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+body.dark-theme .award-info-modal p {
+  color: #666666 !important;
+}
+
+.award-info-modal small {
+  font-size: 0.85rem !important;
+  color: #888888 !important;
+  font-weight: 400 !important;
+  line-height: 1.2 !important;
+  opacity: 0.9;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+body.dark-theme .award-info-modal small {
+  color: #888888 !important;
+}
+
+/* Icon styling with hover effects for award selection */
+.award-selection-item i {
+  position: absolute;
+  right: 24px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.1rem !important;
+  color: #999999 !important;
+  transition: all 0.25s ease;
+  pointer-events: all !important;
+  z-index: 2;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 4px;
+}
+
+body.dark-theme .award-selection-item i {
+  color: #999999 !important;
+}
+
+.award-selection-item i.fa-edit:hover {
+  color: #007bff !important;
+  background: rgba(0, 123, 255, 0.1);
+  transform: translateY(-50%) scale(1.2);
+}
+
+body.dark-theme .award-selection-item i.fa-edit:hover {
+  color: #007bff !important;
+  background: rgba(0, 123, 255, 0.1);
+}
+
+.award-selection-item i.fa-trash-alt:hover {
+  color: #dc3545 !important;
+  background: rgba(220, 53, 69, 0.1);
+  transform: translateY(-50%) scale(1.2);
+}
+
+body.dark-theme .award-selection-item i.fa-trash-alt:hover {
+  color: #dc3545 !important;
+  background: rgba(220, 53, 69, 0.1);
+}
+
+/* Focus states for accessibility in award selection */
+.award-selection-item:focus {
+  outline: 2px solid #007bff;
+  outline-offset: -2px;
+  background: transparent !important;
+}
+
+.award-selection-item:active {
+  transform: none !important;
+  background: transparent !important;
+}
+
+/* Delete mode styling for award selection */
+.award-selection-item.delete-mode {
+  background: transparent !important;
+}
+
+.award-selection-item.delete-mode:hover {
+  background: transparent !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* Scrollbar styling for award selection list */
+.award-selection-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.award-selection-list::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 4px;
+}
+
+.award-selection-list::-webkit-scrollbar-thumb {
+  background: rgba(220, 53, 69, 0.3);
+  border-radius: 4px;
+  transition: background 0.3s ease;
+}
+
+.award-selection-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(220, 53, 69, 0.5);
+}
+
+body.dark-theme .award-selection-list::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+body.dark-theme .award-selection-list::-webkit-scrollbar-thumb {
+  background: rgba(220, 53, 69, 0.3);
+}
+
+body.dark-theme .award-selection-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(220, 53, 69, 0.5);
+}
+
+/* Responsive adjustments for award selection modal */
+@media (max-width: 768px) {
+  .award-selection-container {
+    padding: 20px !important;
+    width: 95% !important;
+    max-width: none !important;
+  }
+
+  .award-selection-list {
+    max-height: 300px;
+  }
+
+  .award-selection-item {
+    padding: 12px 15px;
+  }
+
+  .award-info-modal h4 {
+    font-size: 1rem !important;
+  }
+
+  .award-info-modal p {
+    font-size: 0.9rem !important;
+  }
+
+  .award-info-modal small {
+    font-size: 0.75rem !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .award-selection-container {
+    padding: 15px !important;
+    width: 98% !important;
+  }
+
+  .award-selection-list {
+    max-height: 250px;
+  }
+
+  .award-selection-item {
+    padding: 10px 12px;
+  }
+}
+
+/* Print styles - Hide award admin controls when printing */
+@media print {
+  .award-selection-container,
+  .award-form-container {
     display: none !important;
   }
 }

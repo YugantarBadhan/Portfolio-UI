@@ -644,6 +644,48 @@
   </div>
 </div>
 
+<!-- Award Selection Modal - FIXED: No backdrop close -->
+<div *ngIf="showAwardSelectionModal()" class="admin-modal-overlay">
+  <div class="admin-modal-container" (click)="$event.stopPropagation()">
+    <div class="admin-modal-header">
+      <h3>Select Award to {{ selectedOperation() | titlecase }}</h3>
+      <button class="close-btn" (click)="closeAwardSelectionModal()">×</button>
+    </div>
+
+    <div class="admin-modal-content">
+      <p *ngIf="awards().length === 0">No awards found.</p>
+      <div *ngIf="awards().length > 0" class="experience-selection-list">
+        <button
+          *ngFor="let award of awards()"
+          class="experience-selection-item"
+          [class.delete-mode]="selectedOperation() === 'delete'"
+          (click)="selectAward(award.id)"
+        >
+          <div class="experience-info">
+            <h4>{{ award.awardName }}</h4>
+            <p>{{ award.awardCompanyName }}</p>
+            <small
+              >{{ award.awardYear || "Year not specified" }} • ID:
+              {{ award.id }}</small
+            >
+          </div>
+          <i
+            class="fas"
+            [class.fa-edit]="selectedOperation() === 'update'"
+            [class.fa-trash-alt]="selectedOperation() === 'delete'"
+          ></i>
+        </button>
+      </div>
+    </div>
+
+    <div class="admin-modal-actions">
+      <button class="btn-cancel" (click)="closeAwardSelectionModal()">
+        Cancel
+      </button>
+    </div>
+  </div>
+</div>
+
 <!-- Mobile Navigation Menu -->
 <div
   class="mobile-menu"
@@ -773,10 +815,7 @@
   <app-educations *ngIf="shouldShowEducations()"></app-educations>
 </div>
 
-<!-- Awards Section - Placeholder -->
-<section class="section" [class.dark-theme]="isDarkTheme" id="awards">
-  <div class="container">
-    <h2>Awards</h2>
-    <p>Coming soon...</p>
-  </div>
-</section>
+<!-- Awards Section -->
+<div id="awards" class="section-anchor">
+  <app-awards *ngIf="shouldShowAwards()"></app-awards>
+</div>

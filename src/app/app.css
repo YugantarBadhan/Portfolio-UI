@@ -3130,3 +3130,163 @@ body.dark-theme .award-selection-list::-webkit-scrollbar-thumb:hover {
     display: none !important;
   }
 }
+
+/* Footer - Similar to navbar styling */
+.footer {
+  position: relative;
+  bottom: 0;
+  width: 100%;
+  backdrop-filter: blur(15px);
+  padding: 1.5rem 2rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 100;
+  box-shadow: 0 -2px 20px rgba(0, 0, 0, 0.1);
+  margin-top: auto;
+  /* NO initial transitions to prevent flash */
+}
+
+/* Light theme footer - use HTML-level selectors for immediate application */
+html.light-theme .footer {
+  background: #eaeaea !important; /* Light theme - matches body background */
+  border-top: none !important;
+  box-shadow: 0 -2px 20px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Dark theme footer - use HTML-level selectors for immediate application */
+html.dark-theme .footer {
+  background: rgba(44, 62, 80, 0.95) !important; /* Dark theme - matches body background */
+  border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+  box-shadow: 0 -2px 20px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Footer Content Container */
+.footer-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Footer Text - NO initial transition */
+.footer-text {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 500;
+  line-height: 1.4;
+  /* REMOVED: transition - will be added via JavaScript after load */
+}
+
+/* Use HTML-level selectors for immediate theme application */
+html.light-theme .footer-text {
+  color: #4a4a4a !important; /* Darker gray for light theme */
+}
+
+html.dark-theme .footer-text {
+  color: rgba(255, 255, 255, 0.85) !important; /* Slightly transparent white for dark theme */
+}
+
+/* Powered By styling */
+.powered-by {
+  font-weight: 700;
+  background: linear-gradient(135deg, #2196f3, #64b5f6);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  /* Fallback for browsers that don't support background-clip: text */
+  color: #2196f3;
+}
+
+html.dark-theme .powered-by {
+  background: linear-gradient(135deg, #64b5f6, #42a5f5);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  /* Fallback for dark theme */
+  color: #64b5f6;
+}
+
+html.light-theme .powered-by {
+  background: linear-gradient(135deg, #1976d2, #2196f3);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  /* Fallback for light theme */
+  color: #1976d2;
+}
+
+/* Ensure body is flexbox to push footer to bottom */
+body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* Main content should grow to fill available space */
+app-root {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 100vh;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .footer {
+    padding: 1.2rem 1rem;
+  }
+
+  .footer-text {
+    font-size: 0.9rem;
+    line-height: 1.5;
+  }
+}
+
+@media (max-width: 480px) {
+  .footer {
+    padding: 1rem 0.8rem;
+  }
+
+  .footer-text {
+    font-size: 0.85rem;
+    /* Stack on two lines for very small screens if needed */
+  }
+  
+  /* Optional: Break text on mobile for better readability */
+  .footer-text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    text-align: center;
+  }
+}
+
+@media (max-width: 360px) {
+  .footer {
+    padding: 0.8rem 0.5rem;
+  }
+
+  .footer-text {
+    font-size: 0.8rem;
+  }
+}
+
+/* Fast transitions class - matches your existing pattern */
+.fast-transitions .footer {
+  transition: all 0.2s ease !important;
+}
+
+.fast-transitions .footer-text {
+  transition: color 0.2s ease !important;
+}
+
+/* Print styles - Hide footer when printing */
+@media print {
+  .footer {
+    display: none !important;
+  }
+}

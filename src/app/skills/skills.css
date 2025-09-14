@@ -9,10 +9,10 @@
   padding: 0 20px;
 }
 
-/* Section Header - Matching Experience section header */
+/* Section Header */
 .section-header {
   text-align: center;
-  margin-bottom: 2rem; /* Same as Experience section */
+  margin-bottom: 3rem;
   position: relative;
 }
 

@@ -1,6 +1,5 @@
-/* Experience Section - Optimized spacing */
 .experience-section {
-  padding: 2rem 0; /* Reduced top padding to minimize gap from hero section */
+  padding: 1.5rem 0; /* Standardized padding */
   color: inherit;
 }
 

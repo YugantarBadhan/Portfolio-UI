@@ -1,7 +1,6 @@
 .skills-section {
-  padding: 2rem 0; /* Reduced padding to minimize gap */
+  padding: 1.5rem 0; /* Standardized padding */
   color: inherit;
-  min-height: auto; /* Remove min-height to prevent extra spacing */
 }
 
 .container {

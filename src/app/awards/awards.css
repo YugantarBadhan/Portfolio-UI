@@ -1,6 +1,5 @@
-/* src/app/awards/awards.css - Complete Version with Education Style Theme */
 .awards-section {
-  padding: 2rem 0;
+  padding: 1.5rem 0; /* Standardized padding */
   color: inherit;
   display: flex;
   flex-direction: column;

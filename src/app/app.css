@@ -1350,13 +1350,12 @@ body:not(.dark-theme) .profile-image-placeholder {
   color: #e74de7;
 }
 
-/* FIXED: Content sections - Minimal spacing to reduce gaps */
+/* Content sections - Standardized spacing */
 .section {
-  padding: 1rem 2rem; /* Reduced from 2rem to minimize gaps */
+  padding: 1.5rem 2rem; /* Standardized padding */
   max-width: 1200px;
   margin: 0 auto;
   color: inherit;
-  /* Removed min-height and display properties that were causing extra spacing */
   background: inherit !important;
 }
 
@@ -1364,14 +1363,14 @@ body:not(.dark-theme) .profile-image-placeholder {
   max-width: 1200px;
   width: 100%;
   text-align: center;
-  margin: 0; /* Removed auto margin */
-  padding: 0; /* Removed padding */
+  margin: 0;
+  padding: 0;
 }
 
 .section h2 {
   color: inherit;
   text-align: center;
-  margin-bottom: 1rem; /* Reduced from 1.5rem */
+  margin-bottom: 1.5rem; /* Consistent margin */
   font-size: 2.5rem;
   font-weight: 700;
 }
@@ -1379,7 +1378,7 @@ body:not(.dark-theme) .profile-image-placeholder {
 .section p {
   font-size: 1.2rem;
   opacity: 0.8;
-  margin-bottom: 0.5rem; /* Reduced from 1.5rem */
+  margin-bottom: 1rem; /* Consistent margin */
   color: inherit;
 }
 
@@ -1858,38 +1857,22 @@ body.dark-theme .resume-upload-container {
   color: inherit !important;
 }
 
-/* Specific section spacing fixes */
-#skills {
-  margin-bottom: 0; /* Remove any bottom margin */
-  padding-bottom: 1rem; /* Minimal bottom padding */
-}
-
-#certifications {
-  margin-top: 0; /* Remove any top margin */
-  padding-top: 1rem; /* Minimal top padding */
-}
-
-/* Ensure consistent section spacing throughout */
+/* Standardized section spacing */
 .hero,
 .experience-section,
 .projects-section,
-.skills-section {
-  margin-bottom: 0 !important; /* Force remove bottom margins */
-  padding-bottom: 1rem !important; /* Consistent bottom padding */
+.skills-section,
+.certifications-section,
+.educations-section,
+.awards-section {
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
 }
 
-.section:not(.hero):not(.experience-section):not(.projects-section):not(
-    .skills-section
-  ) {
-  margin-top: 0 !important; /* Force remove top margins */
-  padding-top: 1rem !important; /* Consistent top padding */
-}
-
-/* FIXED: Section anchors - Remove min-height that was causing extra spacing */
+/* Remove extra spacing from section anchors */
 .section-anchor {
   position: relative;
-  /* Removed min-height: 100vh; which was causing excessive spacing */
-  /* Removed empty::before rule that was adding unnecessary height */
+  scroll-margin-top: 80px; /* Account for fixed navbar */
 }
 
 /* Speed up all animations after load for snappy feel */

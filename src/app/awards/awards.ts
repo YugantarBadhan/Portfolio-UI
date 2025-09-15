@@ -1,4 +1,4 @@
-// src/app/awards/awards.ts - Complete Fixed Version
+// src/app/awards/awards.ts - Complete Fixed Version with Proper Scroll Restoration
 import {
   Component,
   OnInit,
@@ -110,7 +110,7 @@ export class AwardsComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnDestroy() {
     console.log('AwardsComponent: Destroying...');
-    
+
     // Cleanup animations
     if (this.animationFrameId) {
       cancelAnimationFrame(this.animationFrameId);
@@ -128,9 +128,28 @@ export class AwardsComponent implements OnInit, AfterViewInit, OnDestroy {
 
     // Restore body scroll if any modal was open
     if (this.isBrowser) {
-      document.body.style.overflow = 'auto';
+      const scrollY = document.body.getAttribute('data-scroll-y');
+      const scrollX = document.body.getAttribute('data-scroll-x');
+      
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.left = '';
+      document.body.style.width = '';
+      document.body.style.height = '';
+      document.body.style.overflow = '';
+      
+      document.body.removeAttribute('data-scroll-y');
+      document.body.removeAttribute('data-scroll-x');
+
+      if (scrollY && scrollX) {
+        window.scrollTo({
+          top: parseInt(scrollY),
+          left: parseInt(scrollX),
+          behavior: 'instant'
+        });
+      }
     }
-    
+
     // Reset all modal states
     this.showAwardDetails.set(false);
     this.showForm.set(false);
@@ -170,11 +189,25 @@ export class AwardsComponent implements OnInit, AfterViewInit, OnDestroy {
       alert('No awards available to update');
       return false;
     }
-    this.selectedOperation.set('update');
-    this.showAwardSelectionModal.set(true);
+    
     if (this.isBrowser) {
+      // Store current scroll position before opening modal
+      const currentScrollY = window.scrollY;
+      const currentScrollX = window.scrollX;
+      
+      document.body.setAttribute('data-scroll-y', currentScrollY.toString());
+      document.body.setAttribute('data-scroll-x', currentScrollX.toString());
+      
+      // Fix body position
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${currentScrollY}px`;
+      document.body.style.left = `-${currentScrollX}px`;
+      document.body.style.width = '100%';
       document.body.style.overflow = 'hidden';
     }
+    
+    this.selectedOperation.set('update');
+    this.showAwardSelectionModal.set(true);
     this.cdr.markForCheck();
     return true;
   }
@@ -185,11 +218,25 @@ export class AwardsComponent implements OnInit, AfterViewInit, OnDestroy {
       alert('No awards available to delete');
       return false;
     }
-    this.selectedOperation.set('delete');
-    this.showAwardSelectionModal.set(true);
+    
     if (this.isBrowser) {
+      // Store current scroll position before opening modal
+      const currentScrollY = window.scrollY;
+      const currentScrollX = window.scrollX;
+      
+      document.body.setAttribute('data-scroll-y', currentScrollY.toString());
+      document.body.setAttribute('data-scroll-x', currentScrollX.toString());
+      
+      // Fix body position
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${currentScrollY}px`;
+      document.body.style.left = `-${currentScrollX}px`;
+      document.body.style.width = '100%';
       document.body.style.overflow = 'hidden';
     }
+    
+    this.selectedOperation.set('delete');
+    this.showAwardSelectionModal.set(true);
     this.cdr.markForCheck();
     return true;
   }
@@ -237,7 +284,7 @@ export class AwardsComponent implements OnInit, AfterViewInit, OnDestroy {
 
   @HostListener('window:keydown', ['$event'])
   onKeyDown(event: KeyboardEvent) {
-    // Close award details modal on Escape key
+    // Close award details modal on Escape key - but only if modal is open
     if (this.showAwardDetails()) {
       if (event.key === 'Escape') {
         event.preventDefault();
@@ -306,7 +353,7 @@ export class AwardsComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  // Form Management
+  // Form Management - FIXED with proper scroll restoration
   async openForm(award?: Award) {
     console.log(
       'AwardsComponent: Opening form',
@@ -317,6 +364,18 @@ export class AwardsComponent implements OnInit, AfterViewInit, OnDestroy {
       this.resetForm();
 
       if (this.isBrowser) {
+        // Store current scroll position
+        const currentScrollY = window.scrollY;
+        const currentScrollX = window.scrollX;
+        
+        document.body.setAttribute('data-scroll-y', currentScrollY.toString());
+        document.body.setAttribute('data-scroll-x', currentScrollX.toString());
+        
+        // Fix body position
+        document.body.style.position = 'fixed';
+        document.body.style.top = `-${currentScrollY}px`;
+        document.body.style.left = `-${currentScrollX}px`;
+        document.body.style.width = '100%';
         document.body.style.overflow = 'hidden';
       }
 
@@ -339,7 +398,26 @@ export class AwardsComponent implements OnInit, AfterViewInit, OnDestroy {
     } catch (error) {
       console.error('Error opening form:', error);
       if (this.isBrowser) {
-        document.body.style.overflow = 'auto';
+        // Restore scroll position on error
+        const scrollY = document.body.getAttribute('data-scroll-y');
+        const scrollX = document.body.getAttribute('data-scroll-x');
+        
+        document.body.style.position = '';
+        document.body.style.top = '';
+        document.body.style.left = '';
+        document.body.style.width = '';
+        document.body.style.overflow = '';
+        
+        document.body.removeAttribute('data-scroll-y');
+        document.body.removeAttribute('data-scroll-x');
+
+        if (scrollY && scrollX) {
+          window.scrollTo({
+            top: parseInt(scrollY),
+            left: parseInt(scrollX),
+            behavior: 'instant'
+          });
+        }
       }
       throw error;
     }
@@ -351,7 +429,31 @@ export class AwardsComponent implements OnInit, AfterViewInit, OnDestroy {
     this.resetForm();
 
     if (this.isBrowser) {
-      document.body.style.overflow = 'auto';
+      // Get stored scroll positions
+      const scrollY = document.body.getAttribute('data-scroll-y');
+      const scrollX = document.body.getAttribute('data-scroll-x');
+      
+      // Remove all body style overrides
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.left = '';
+      document.body.style.width = '';
+      document.body.style.overflow = '';
+      
+      // Clean up data attributes
+      document.body.removeAttribute('data-scroll-y');
+      document.body.removeAttribute('data-scroll-x');
+
+      // Restore scroll position
+      if (scrollY && scrollX) {
+        requestAnimationFrame(() => {
+          window.scrollTo({
+            top: parseInt(scrollY),
+            left: parseInt(scrollX),
+            behavior: 'instant'
+          });
+        });
+      }
     }
     this.cdr.markForCheck();
   }
@@ -519,14 +621,38 @@ export class AwardsComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  // Selection Modal Management
+  // Selection Modal Management - FIXED with proper scroll restoration
   closeAwardSelectionModal() {
     this.showAwardSelectionModal.set(false);
     this.selectedOperation.set('');
     this.selectedAwardId.set(null);
 
     if (this.isBrowser) {
-      document.body.style.overflow = 'auto';
+      // Get stored scroll positions
+      const scrollY = document.body.getAttribute('data-scroll-y');
+      const scrollX = document.body.getAttribute('data-scroll-x');
+      
+      // Remove all body style overrides
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.left = '';
+      document.body.style.width = '';
+      document.body.style.overflow = '';
+      
+      // Clean up data attributes
+      document.body.removeAttribute('data-scroll-y');
+      document.body.removeAttribute('data-scroll-x');
+
+      // Restore scroll position
+      if (scrollY && scrollX) {
+        requestAnimationFrame(() => {
+          window.scrollTo({
+            top: parseInt(scrollY),
+            left: parseInt(scrollX),
+            behavior: 'instant'
+          });
+        });
+      }
     }
     this.cdr.markForCheck();
   }
@@ -550,22 +676,35 @@ export class AwardsComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  // FIXED: Award Details Modal Methods
+  // FIXED: Award Details Modal Methods with proper scroll restoration
   openAwardDetails(award: Award): void {
     console.log('Opening award details for:', award.awardName);
-    
+
     // Set the selected award first
     this.selectedAward.set(award);
-    
+
     // Show the modal
     this.showAwardDetails.set(true);
 
-    // Handle body scroll and focus management
+    // Handle body scroll prevention
     if (this.isBrowser) {
-      // Prevent body scrolling
-      document.body.style.overflow = 'hidden';
+      // Store current scroll position BEFORE making any changes
+      const currentScrollY = window.scrollY;
+      const currentScrollX = window.scrollX;
       
-      // Add modal overlay to DOM if it doesn't exist
+      // Store scroll position in data attributes
+      document.body.setAttribute('data-scroll-y', currentScrollY.toString());
+      document.body.setAttribute('data-scroll-x', currentScrollX.toString());
+      
+      // Prevent body scrolling by fixing position at current scroll
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${currentScrollY}px`;
+      document.body.style.left = `-${currentScrollX}px`;
+      document.body.style.width = '100%';
+      document.body.style.height = '100%';
+      document.body.style.overflow = 'hidden';
+
+      // Add modal overlay positioning
       setTimeout(() => {
         const modalOverlay = document.querySelector('.modal-overlay');
         if (modalOverlay) {
@@ -580,7 +719,7 @@ export class AwardsComponent implements OnInit, AfterViewInit, OnDestroy {
           (modalOverlay as HTMLElement).style.alignItems = 'center';
           (modalOverlay as HTMLElement).style.justifyContent = 'center';
         }
-        
+
         // Focus on close button for accessibility
         const closeButton = document.querySelector('.modal-close-btn') as HTMLElement;
         if (closeButton) {
@@ -588,45 +727,65 @@ export class AwardsComponent implements OnInit, AfterViewInit, OnDestroy {
         }
       }, 100);
     }
-    
+
     // Trigger change detection
     this.cdr.markForCheck();
   }
 
   closeAwardDetails(): void {
     console.log('Closing award details modal');
-    
+
     // Hide the modal
     this.showAwardDetails.set(false);
     this.selectedAward.set(null);
 
-    // Restore body scrolling
+    // Restore body scrolling and position
     if (this.isBrowser) {
-      document.body.style.overflow = 'auto';
+      // Get stored scroll positions
+      const scrollY = document.body.getAttribute('data-scroll-y');
+      const scrollX = document.body.getAttribute('data-scroll-x');
+      
+      // Remove all body style overrides
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.left = '';
+      document.body.style.width = '';
+      document.body.style.height = '';
+      document.body.style.overflow = '';
+      
+      // Clean up data attributes
+      document.body.removeAttribute('data-scroll-y');
+      document.body.removeAttribute('data-scroll-x');
+
+      // Restore scroll position smoothly
+      if (scrollY && scrollX) {
+        // Use requestAnimationFrame to ensure DOM is ready
+        requestAnimationFrame(() => {
+          window.scrollTo({
+            top: parseInt(scrollY),
+            left: parseInt(scrollX),
+            behavior: 'instant' // Use 'instant' to avoid smooth scrolling that might be jarring
+          });
+        });
+      }
     }
-    
+
     // Trigger change detection
     this.cdr.markForCheck();
-  }
-
-  // OPTIONAL: Add method to handle click outside modal
-  onModalOverlayClick(event: MouseEvent): void {
-    // Only close if clicking on the overlay itself, not the modal content
-    if (event.target === event.currentTarget) {
-      this.closeAwardDetails();
-    }
   }
 
   // FIXED: shouldShowKnowMore method - more reliable threshold
   shouldShowKnowMore(description: string | null | undefined): boolean {
     if (!description) return false;
-    
+
     // More reliable character count - trim whitespace first
     const trimmedDescription = description.trim();
     const maxChars = 120; // Slightly increased threshold
-    
-    console.log(`Description length: ${trimmedDescription.length}, threshold: ${maxChars}`);
-    
+
+    console.log(
+      `Description length: ${trimmedDescription.length}, threshold: ${maxChars}`
+    );
+
     return trimmedDescription.length > maxChars;
   }
 
@@ -636,7 +795,7 @@ export class AwardsComponent implements OnInit, AfterViewInit, OnDestroy {
 
     const trimmedDescription = description.trim();
     const maxChars = 120; // Match shouldShowKnowMore threshold
-    
+
     if (trimmedDescription.length <= maxChars) {
       return trimmedDescription;
     }
@@ -644,8 +803,9 @@ export class AwardsComponent implements OnInit, AfterViewInit, OnDestroy {
     // Find the last complete word within the limit
     const truncated = trimmedDescription.substring(0, maxChars);
     const lastSpace = truncated.lastIndexOf(' ');
-    
-    if (lastSpace > maxChars * 0.7) { // Only break on space if it's not too early
+
+    if (lastSpace > maxChars * 0.7) {
+      // Only break on space if it's not too early
       return trimmedDescription.substring(0, lastSpace) + '...';
     } else {
       return truncated + '...';

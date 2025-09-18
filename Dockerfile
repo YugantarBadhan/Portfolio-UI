@@ -20,7 +20,7 @@ RUN npm run build --verbose
 FROM nginx:alpine
 
 # Copy built Angular app to nginx html directory
-COPY --from=build /app/dist/portfolio-ui /usr/share/nginx/html/
+COPY --from=build /app/dist/portfolio-UI /usr/share/nginx/html/
 
 # Create custom nginx configuration with environment variable support
 RUN echo 'server {' > /etc/nginx/conf.d/default.conf && \

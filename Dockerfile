@@ -6,40 +6,30 @@ RUN npm ci
 COPY . .
 RUN npm run build:prod
 
-# Production stage  
+# Production stage
 FROM nginx:alpine
 
 # Copy built app
 COPY --from=build /app/dist/portfolio-UI/browser/ /usr/share/nginx/html/
 
-# Create nginx config that uses Railway's PORT environment variable
-RUN cat > /etc/nginx/conf.d/default.conf << 'EOL'
+# Create script that generates config with correct port
+RUN cat > /start.sh << 'EOF'
+#!/bin/sh
+PORT=${PORT:-80}
+cat > /etc/nginx/conf.d/default.conf << EOL
 server {
-    listen PORT_PLACEHOLDER;
-    server_name _;
+    listen $PORT;
     root /usr/share/nginx/html;
     index index.html;
-    
     location / {
-        try_files $uri $uri/ /index.html;
+        try_files \$uri \$uri/ /index.html;
     }
 }
 EOL
+echo "Nginx listening on port $PORT"
+nginx -g "daemon off;"
+EOF
 
-# Create startup script that replaces PORT_PLACEHOLDER with actual PORT
-RUN cat > /docker-entrypoint.sh << 'EOL'
-#!/bin/sh
-PORT=${PORT:-80}
-sed -i "s/PORT_PLACEHOLDER/$PORT/g" /etc/nginx/conf.d/default.conf
-echo "=== Nginx will listen on port $PORT ==="
-cat /etc/nginx/conf.d/default.conf
-exec nginx -g "daemon off;"
-EOL
+RUN chmod +x /start.sh
 
-RUN chmod +x /docker-entrypoint.sh
-
-# Show what we have
-RUN echo "=== Files ===" && ls -la /usr/share/nginx/html/
-
-EXPOSE $PORT
-CMD ["/docker-entrypoint.sh"]
+CMD ["/start.sh"]

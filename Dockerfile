@@ -14,14 +14,21 @@ RUN npm ci
 COPY . .
 
 # Build the Angular application for production
-RUN npm run build
+RUN npm run build --verbose
+
+# Debug: Show full directory structure
+RUN find /app -name "*.html" -o -name "*.js" -o -name "*.css" | head -20
+
+# Debug: List the contents of dist directory
+RUN ls -la /app/dist/ || echo "dist directory not found"
+RUN ls -la /app/ | grep -E "(dist|build|public)"
 
 # Production stage with Nginx
 FROM nginx:alpine
 
 # Copy built Angular app to nginx html directory
-# Note: Adjust the path based on your actual dist structure
-COPY --from=build /app/dist/portfolio-ui /usr/share/nginx/html/
+# Use wildcard to copy whatever is in dist folder
+COPY --from=build /app/dist/* /usr/share/nginx/html/
 
 # Create custom nginx configuration
 RUN echo 'server {' > /etc/nginx/conf.d/default.conf && \

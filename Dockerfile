@@ -18,8 +18,8 @@ RUN echo "=== Build output structure ===" && \
 # Production stage  
 FROM nginx:alpine
 
-# Copy built app - copy everything from portfolio-UI directory
-COPY --from=build /app/dist/portfolio-UI/ /usr/share/nginx/html/
+# Copy built app - copy ONLY the browser directory contents (this will overwrite nginx default files)
+COPY --from=build /app/dist/portfolio-UI/browser/ /usr/share/nginx/html/
 
 # Debug: Show what was copied to nginx
 RUN echo "=== Files copied to nginx ===" && \

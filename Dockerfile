@@ -18,8 +18,8 @@ RUN echo "=== Build output structure ===" && \
 # Production stage  
 FROM nginx:alpine
 
-# Copy built app - with traditional Angular build, files are directly in portfolio-UI
-COPY --from=build /app/dist/portfolio-UI/ /usr/share/nginx/html/
+# Copy built app - use the browser files from Angular's build output (client-side static files)
+COPY --from=build /app/dist/portfolio-UI/browser/ /usr/share/nginx/html/
 
 # Debug: Show what was copied to nginx
 RUN echo "=== Files copied to nginx ===" && \

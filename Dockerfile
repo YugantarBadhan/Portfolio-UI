@@ -13,55 +13,22 @@ FROM nginx:alpine
 # Copy built app - for SSR builds, the browser files are in a subdirectory
 COPY --from=build /app/dist/portfolio-UI/browser/ /usr/share/nginx/html/
 
-# Create nginx configuration template
-RUN cat > /etc/nginx/conf.d/default.conf.template << 'EOF'
-server {
-    listen ${PORT:-80};
-    server_name localhost;
-    root /usr/share/nginx/html;
-    index index.html;
+# Create nginx configuration using echo commands (more reliable than heredoc)
+RUN echo 'server {' > /etc/nginx/conf.d/default.conf && \
+    echo '    listen 80;' >> /etc/nginx/conf.d/default.conf && \
+    echo '    server_name localhost;' >> /etc/nginx/conf.d/default.conf && \
+    echo '    root /usr/share/nginx/html;' >> /etc/nginx/conf.d/default.conf && \
+    echo '    index index.html;' >> /etc/nginx/conf.d/default.conf && \
+    echo '' >> /etc/nginx/conf.d/default.conf && \
+    echo '    # Serve static files' >> /etc/nginx/conf.d/default.conf && \
+    echo '    location / {' >> /etc/nginx/conf.d/default.conf && \
+    echo '        try_files $uri $uri/ /index.html;' >> /etc/nginx/conf.d/default.conf && \
+    echo '    }' >> /etc/nginx/conf.d/default.conf && \
+    echo '' >> /etc/nginx/conf.d/default.conf && \
+    echo '    # Gzip compression' >> /etc/nginx/conf.d/default.conf && \
+    echo '    gzip on;' >> /etc/nginx/conf.d/default.conf && \
+    echo '    gzip_types text/plain text/css application/json application/javascript text/xml application/xml text/javascript;' >> /etc/nginx/conf.d/default.conf && \
+    echo '}' >> /etc/nginx/conf.d/default.conf
 
-    # Serve static files
-    location / {
-        try_files $uri $uri/ /index.html;
-    }
-
-    # Proxy API requests to backend
-    location /api/ {
-        proxy_pass https://portfolio-api-production-b9dc.up.railway.app/api/;
-        proxy_set_header Host $http_host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_connect_timeout 60s;
-        proxy_send_timeout 60s;
-        proxy_read_timeout 60s;
-        
-        # CORS headers
-        add_header 'Access-Control-Allow-Origin' '*' always;
-        add_header 'Access-Control-Allow-Methods' 'GET, POST, PUT, DELETE, OPTIONS' always;
-        add_header 'Access-Control-Allow-Headers' 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization' always;
-    }
-
-    # Gzip compression
-    gzip on;
-    gzip_types text/plain text/css application/json application/javascript text/xml application/xml text/javascript;
-}
-EOF
-
-# Create startup script
-RUN cat > /docker-entrypoint.sh << 'EOF'
-#!/bin/sh
-set -e
-
-# Substitute environment variables in nginx config
-envsubst '${PORT}' < /etc/nginx/conf.d/default.conf.template > /etc/nginx/conf.d/default.conf
-
-# Start nginx
-exec nginx -g "daemon off;"
-EOF
-
-RUN chmod +x /docker-entrypoint.sh
-
-EXPOSE ${PORT:-80}
-CMD ["/docker-entrypoint.sh"]
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]

@@ -1,5 +1,5 @@
 # Build stage
-FROM node:18-alpine AS build
+FROM node:20-alpine AS build
 
 # Set working directory
 WORKDIR /app
@@ -7,8 +7,8 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies
-RUN npm ci --only=production
+# Install ALL dependencies (including dev dependencies needed for build)
+RUN npm ci
 
 # Copy source code
 COPY . .
@@ -20,7 +20,8 @@ RUN npm run build
 FROM nginx:alpine
 
 # Copy built Angular app to nginx html directory
-COPY --from=build /app/dist/* /usr/share/nginx/html/
+# Note: Adjust the path based on your actual dist structure
+COPY --from=build /app/dist/portfolio-ui /usr/share/nginx/html/
 
 # Create custom nginx configuration
 RUN echo 'server {' > /etc/nginx/conf.d/default.conf && \

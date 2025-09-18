@@ -1,35 +1,16 @@
-# Build stage
-FROM node:20-alpine AS build
+### STAGE 1: Build ###
+FROM node:14.20.1 AS build
 WORKDIR /app
-COPY package*.json ./
-RUN npm ci
 COPY . .
-RUN npm run build:prod
+COPY .npmrc .npmrc
+COPY package.json package.json
+RUN npm cache clean --force
+RUN npm install -g @angular/cli@15.2.9
+RUN npm install
+RUN ng build               
 
-# Production stage
-FROM nginx:alpine
-
-# Copy built app
-COPY --from=build /app/dist/portfolio-UI/browser/ /usr/share/nginx/html/
-
-# Create script that generates config with correct port
-RUN cat > /start.sh << 'EOF'
-#!/bin/sh
-PORT=${PORT:-80}
-cat > /etc/nginx/conf.d/default.conf << EOL
-server {
-    listen $PORT;
-    root /usr/share/nginx/html;
-    index index.html;
-    location / {
-        try_files \$uri \$uri/ /index.html;
-    }
-}
-EOL
-echo "Nginx listening on port $PORT"
-nginx -g "daemon off;"
-EOF
-
-RUN chmod +x /start.sh
-
-CMD ["/start.sh"]
+### STAGE 2: Run ###
+FROM nginx:1.17.1-alpine
+COPY nginx.conf /etc/nginx/nginx.conf
+COPY --from=build /app/dist/ /usr/share/nginx/html
+CMD ["nginx", "-g", "daemon off;"]

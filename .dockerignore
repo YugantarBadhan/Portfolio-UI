@@ -10,7 +10,6 @@ coverage
 .coverage.*
 .cache
 *.log
-dist/
 .angular/
 e2e/
 *.md

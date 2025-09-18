@@ -1,42 +1,45 @@
 # Build stage
 FROM node:20-alpine AS build
-
 WORKDIR /app
-
-# Copy package files and install dependencies
 COPY package*.json ./
 RUN npm ci
-
-# Copy source and build
 COPY . .
 RUN npm run build:prod
 
-# Production stage
+# Production stage  
 FROM nginx:alpine
 
-# Remove default nginx content
-RUN rm -rf /usr/share/nginx/html/*
-
-# Copy built Angular app
+# Copy built app
 COPY --from=build /app/dist/portfolio-UI/browser/ /usr/share/nginx/html/
 
-# Create simple nginx config
-RUN echo 'server {' > /etc/nginx/conf.d/default.conf && \
-    echo '  listen 80;' >> /etc/nginx/conf.d/default.conf && \
-    echo '  server_name localhost;' >> /etc/nginx/conf.d/default.conf && \
-    echo '  root /usr/share/nginx/html;' >> /etc/nginx/conf.d/default.conf && \
-    echo '  index index.html;' >> /etc/nginx/conf.d/default.conf && \
-    echo '  location / {' >> /etc/nginx/conf.d/default.conf && \
-    echo '    try_files $uri $uri/ /index.html;' >> /etc/nginx/conf.d/default.conf && \
-    echo '  }' >> /etc/nginx/conf.d/default.conf && \
-    echo '}' >> /etc/nginx/conf.d/default.conf
+# Create nginx config that uses Railway's PORT environment variable
+RUN cat > /etc/nginx/conf.d/default.conf << 'EOL'
+server {
+    listen PORT_PLACEHOLDER;
+    server_name _;
+    root /usr/share/nginx/html;
+    index index.html;
+    
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+}
+EOL
 
-# Test configuration and show debug info
-RUN nginx -t && \
-    echo "=== Final nginx config ===" && \
-    cat /etc/nginx/conf.d/default.conf && \
-    echo "=== App files ===" && \
-    ls -la /usr/share/nginx/html/
+# Create startup script that replaces PORT_PLACEHOLDER with actual PORT
+RUN cat > /docker-entrypoint.sh << 'EOL'
+#!/bin/sh
+PORT=${PORT:-80}
+sed -i "s/PORT_PLACEHOLDER/$PORT/g" /etc/nginx/conf.d/default.conf
+echo "=== Nginx will listen on port $PORT ==="
+cat /etc/nginx/conf.d/default.conf
+exec nginx -g "daemon off;"
+EOL
 
-EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
+RUN chmod +x /docker-entrypoint.sh
+
+# Show what we have
+RUN echo "=== Files ===" && ls -la /usr/share/nginx/html/
+
+EXPOSE $PORT
+CMD ["/docker-entrypoint.sh"]

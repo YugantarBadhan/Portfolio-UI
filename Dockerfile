@@ -1,75 +1,67 @@
 # Build stage
 FROM node:20-alpine AS build
 
-# Set working directory
 WORKDIR /app
-
-# Copy package files
 COPY package*.json ./
-
-# Install ALL dependencies (including dev dependencies needed for build)
 RUN npm ci
-
-# Copy source code
 COPY . .
+RUN npm run build
 
-# Build the Angular application for production
-RUN npm run build --verbose
-
-# Production stage with Nginx
+# Production stage
 FROM nginx:alpine
 
-# Copy built Angular app to nginx html directory
-COPY --from=build /app/dist/portfolio-UI /usr/share/nginx/html/
+# Copy built app - for SSR builds, the browser files are in a subdirectory
+COPY --from=build /app/dist/portfolio-UI/browser/ /usr/share/nginx/html/
 
-# Create custom nginx configuration with environment variable support
-RUN echo 'server {' > /etc/nginx/conf.d/default.conf && \
-    echo '    listen $PORT;' >> /etc/nginx/conf.d/default.conf && \
-    echo '    server_name localhost;' >> /etc/nginx/conf.d/default.conf && \
-    echo '    root /usr/share/nginx/html;' >> /etc/nginx/conf.d/default.conf && \
-    echo '    index index.html;' >> /etc/nginx/conf.d/default.conf && \
-    echo '' >> /etc/nginx/conf.d/default.conf && \
-    echo '    # Handle Angular routing' >> /etc/nginx/conf.d/default.conf && \
-    echo '    location / {' >> /etc/nginx/conf.d/default.conf && \
-    echo '        try_files $uri $uri/ /index.html;' >> /etc/nginx/conf.d/default.conf && \
-    echo '    }' >> /etc/nginx/conf.d/default.conf && \
-    echo '' >> /etc/nginx/conf.d/default.conf && \
-    echo '    # API proxy to backend' >> /etc/nginx/conf.d/default.conf && \
-    echo '    location /api/ {' >> /etc/nginx/conf.d/default.conf && \
-    echo '        proxy_pass https://portfolio-api-production-b9dc.up.railway.app/api/;' >> /etc/nginx/conf.d/default.conf && \
-    echo '        proxy_http_version 1.1;' >> /etc/nginx/conf.d/default.conf && \
-    echo '        proxy_set_header Upgrade $http_upgrade;' >> /etc/nginx/conf.d/default.conf && \
-    echo '        proxy_set_header Connection '\''upgrade'\'';' >> /etc/nginx/conf.d/default.conf && \
-    echo '        proxy_set_header Host $host;' >> /etc/nginx/conf.d/default.conf && \
-    echo '        proxy_set_header X-Real-IP $remote_addr;' >> /etc/nginx/conf.d/default.conf && \
-    echo '        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;' >> /etc/nginx/conf.d/default.conf && \
-    echo '        proxy_set_header X-Forwarded-Proto $scheme;' >> /etc/nginx/conf.d/default.conf && \
-    echo '        proxy_cache_bypass $http_upgrade;' >> /etc/nginx/conf.d/default.conf && \
-    echo '    }' >> /etc/nginx/conf.d/default.conf && \
-    echo '' >> /etc/nginx/conf.d/default.conf && \
-    echo '    # Enable gzip compression' >> /etc/nginx/conf.d/default.conf && \
-    echo '    gzip on;' >> /etc/nginx/conf.d/default.conf && \
-    echo '    gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;' >> /etc/nginx/conf.d/default.conf && \
-    echo '' >> /etc/nginx/conf.d/default.conf && \
-    echo '    # Security headers' >> /etc/nginx/conf.d/default.conf && \
-    echo '    add_header X-Frame-Options DENY;' >> /etc/nginx/conf.d/default.conf && \
-    echo '    add_header X-Content-Type-Options nosniff;' >> /etc/nginx/conf.d/default.conf && \
-    echo '    add_header X-XSS-Protection "1; mode=block";' >> /etc/nginx/conf.d/default.conf && \
-    echo '}' >> /etc/nginx/conf.d/default.conf
+# Create nginx configuration template
+RUN cat > /etc/nginx/conf.d/default.conf.template << 'EOF'
+server {
+    listen ${PORT:-80};
+    server_name localhost;
+    root /usr/share/nginx/html;
+    index index.html;
 
-# Create a startup script to handle environment variables
-RUN echo '#!/bin/sh' > /docker-entrypoint.sh && \
-    echo 'set -e' >> /docker-entrypoint.sh && \
-    echo '' >> /docker-entrypoint.sh && \
-    echo '# Replace PORT in nginx config' >> /docker-entrypoint.sh && \
-    echo 'sed -i "s/\$PORT/${PORT:-80}/g" /etc/nginx/conf.d/default.conf' >> /docker-entrypoint.sh && \
-    echo '' >> /docker-entrypoint.sh && \
-    echo '# Start nginx' >> /docker-entrypoint.sh && \
-    echo 'exec nginx -g "daemon off;"' >> /docker-entrypoint.sh && \
-    chmod +x /docker-entrypoint.sh
+    # Serve static files
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
 
-# Expose port
-EXPOSE $PORT
+    # Proxy API requests to backend
+    location /api/ {
+        proxy_pass https://portfolio-api-production-b9dc.up.railway.app/api/;
+        proxy_set_header Host $http_host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_connect_timeout 60s;
+        proxy_send_timeout 60s;
+        proxy_read_timeout 60s;
+        
+        # CORS headers
+        add_header 'Access-Control-Allow-Origin' '*' always;
+        add_header 'Access-Control-Allow-Methods' 'GET, POST, PUT, DELETE, OPTIONS' always;
+        add_header 'Access-Control-Allow-Headers' 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization' always;
+    }
 
-# Use the startup script
-ENTRYPOINT ["/docker-entrypoint.sh"]
+    # Gzip compression
+    gzip on;
+    gzip_types text/plain text/css application/json application/javascript text/xml application/xml text/javascript;
+}
+EOF
+
+# Create startup script
+RUN cat > /docker-entrypoint.sh << 'EOF'
+#!/bin/sh
+set -e
+
+# Substitute environment variables in nginx config
+envsubst '${PORT}' < /etc/nginx/conf.d/default.conf.template > /etc/nginx/conf.d/default.conf
+
+# Start nginx
+exec nginx -g "daemon off;"
+EOF
+
+RUN chmod +x /docker-entrypoint.sh
+
+EXPOSE ${PORT:-80}
+CMD ["/docker-entrypoint.sh"]

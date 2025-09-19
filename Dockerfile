@@ -23,8 +23,11 @@ RUN npm run build:prod
 ### STAGE 2: Serve with Nginx ###
 FROM nginx:1.25-alpine
 
-# Copy custom nginx configuration
-COPY nginx.conf /etc/nginx/nginx.conf
+# Install envsubst (part of gettext package) for nginx template processing
+RUN apk add --no-cache gettext
+
+# Copy custom nginx configuration template
+COPY nginx.conf.template /etc/nginx/nginx.conf.template
 
 # Copy built application from build stage
 COPY --from=build /app/dist/portfolio-UI /usr/share/nginx/html
@@ -33,8 +36,8 @@ COPY --from=build /app/dist/portfolio-UI /usr/share/nginx/html
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 RUN chmod +x /docker-entrypoint.sh
 
-# Expose port (Railway will handle port mapping)
-EXPOSE 80
+# Expose port (Railway assigns PORT dynamically, default to 8080)
+EXPOSE 8080
 
 # Use custom entrypoint for environment variable substitution
 ENTRYPOINT ["/docker-entrypoint.sh"]

@@ -50,9 +50,9 @@ http {
         text/xml;
 
     server {
-        listen 80;
-        listen [::]:80;
-        server_name localhost;
+        listen ${PORT} default_server;
+        listen [::]:${PORT} default_server;
+        server_name _;
         
         root /usr/share/nginx/html;
         index index.html index.htm;
@@ -86,6 +86,13 @@ http {
         location /health {
             access_log off;
             return 200 "healthy\n";
+            add_header Content-Type text/plain;
+        }
+        
+        # Also provide health check on root for Railway
+        location = /healthz {
+            access_log off;
+            return 200 "OK";
             add_header Content-Type text/plain;
         }
         

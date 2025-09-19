@@ -3,6 +3,14 @@
 # Docker entrypoint script for frontend deployment
 echo "Starting frontend container..."
 
+# Set default port if not provided
+export PORT=${PORT:-8080}
+echo "Using port: $PORT"
+
+# Configure nginx with the correct port
+echo "Configuring nginx for port $PORT..."
+envsubst '${PORT}' < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf
+
 # Define the directory containing built files
 HTML_DIR="/usr/share/nginx/html"
 

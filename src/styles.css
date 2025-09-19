@@ -75,3 +75,17 @@ textarea,
   background: initial;
   color: initial;
 }
+
+/* Better base scaling */
+@media (min-width: 1200px) {
+  html {
+    font-size: 16px; /* Keep standard size */
+  }
+}
+
+/* Ensure content scales well */
+body {
+  min-width: 320px;
+  max-width: 100vw;
+  overflow-x: hidden;
+}

@@ -44,6 +44,8 @@ body:not(.dark-theme) {
   z-index: 1000;
   box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
   height: 80px; /* Fixed navbar height */
+  max-width: 100vw;
+  box-sizing: border-box;
   /* REMOVED: transition - will be added via JavaScript after load */
 }
 
@@ -1133,6 +1135,8 @@ html.dark-theme .theme-toggle:hover {
   gap: 4rem;
   align-items: center;
   width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 .hero-text {
@@ -1168,16 +1172,15 @@ body:not(.dark-theme) .hero-text .highlight {
   color: inherit;
 }
 
-/* Enhanced Hero Text Styling */
 .hero-text p {
-  font-size: 1.3rem; /* Increased font size */
+  font-size: 1.2rem;
   margin-bottom: 2.5rem;
-  line-height: 1.9; /* Better line spacing */
+  line-height: 1.7;
   max-width: 650px;
   font-weight: 400;
   position: relative;
-  letter-spacing: 0.5px; /* Added letter spacing for better readability */
-  text-align: left; /* Ensure left alignment */
+  letter-spacing: 0.3px;
+  text-align: left;
 }
 
 /* Add subtle text animations and styling effects */
@@ -1352,7 +1355,7 @@ body:not(.dark-theme) .profile-image-placeholder {
 
 /* Content sections - Standardized spacing */
 .section {
-  padding: 1.5rem 2rem; /* Standardized padding */
+  padding: 1.5rem 2rem;
   max-width: 1200px;
   margin: 0 auto;
   color: inherit;
@@ -2024,6 +2027,23 @@ body.dark-theme .resume-upload-container {
 
   .section {
     padding: 1rem 1rem; /* Further reduced mobile padding */
+  }
+}
+
+/* Better scaling for larger screens */
+@media (min-width: 1400px) {
+  .hero-content {
+    max-width: 1300px;
+    gap: 5rem;
+  }
+  
+  .hero-text p {
+    font-size: 1.3rem;
+    max-width: 700px;
+  }
+  
+  .section {
+    max-width: 1300px;
   }
 }
 

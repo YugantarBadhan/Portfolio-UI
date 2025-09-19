@@ -1,17 +1,43 @@
 ### STAGE 1: Build ###
-FROM node:20-alpine AS build
+FROM node:18-alpine AS build
+
+# Set working directory
 WORKDIR /app
-COPY . .
-COPY .npmrc .npmrc
-COPY package.json package.json
+
+# Copy package files first for better layer caching
+COPY package.json package-lock.json* ./
+
+# Clean npm cache and install dependencies
 RUN npm cache clean --force
-RUN npm install -g @angular/cli@15.2.9
-RUN npm install
-RUN ng build               
+RUN npm ci --only=production --silent
 
-### STAGE 2: Run ###
-FROM nginx:1.17.1-alpine
+# Install Angular CLI globally
+RUN npm install -g @angular/cli@20.0.4
+
+# Copy source code
+COPY . .
+
+# Build the Angular application for production
+RUN npm run build:prod
+
+### STAGE 2: Serve with Nginx ###
+FROM nginx:1.25-alpine
+
+# Copy custom nginx configuration
 COPY nginx.conf /etc/nginx/nginx.conf
-COPY --from=build /app/dist/ /usr/share/nginx/html
 
+# Copy built application from build stage
+COPY --from=build /app/dist/portfolio-UI /usr/share/nginx/html
+
+# Copy startup script
+COPY docker-entrypoint.sh /docker-entrypoint.sh
+RUN chmod +x /docker-entrypoint.sh
+
+# Expose port (Railway will handle port mapping)
+EXPOSE 80
+
+# Use custom entrypoint for environment variable substitution
+ENTRYPOINT ["/docker-entrypoint.sh"]
+
+# Start nginx
 CMD ["nginx", "-g", "daemon off;"]

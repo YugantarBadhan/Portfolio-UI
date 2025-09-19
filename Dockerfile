@@ -26,11 +26,17 @@ FROM nginx:1.25-alpine
 # Install envsubst (part of gettext package) for nginx template processing
 RUN apk add --no-cache gettext
 
+# Remove default nginx files to avoid conflicts
+RUN rm -rf /usr/share/nginx/html/*
+
 # Copy custom nginx configuration template
 COPY nginx.conf.template /etc/nginx/nginx.conf.template
 
 # Copy built application from build stage
 COPY --from=build /app/dist/portfolio-UI /usr/share/nginx/html
+
+# Debug: List contents of the build directory (temporary)
+RUN ls -la /usr/share/nginx/html && echo "=== Checking for index.html ===" && find /usr/share/nginx/html -name "index.html" -type f
 
 # Copy startup script
 COPY docker-entrypoint.sh /docker-entrypoint.sh

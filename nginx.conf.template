@@ -57,6 +57,9 @@ http {
         root /usr/share/nginx/html;
         index index.html index.htm;
         
+        # Debug: Log all requests
+        access_log /var/log/nginx/access.log main;
+        
         # Security headers
         add_header X-Frame-Options "SAMEORIGIN" always;
         add_header X-Content-Type-Options "nosniff" always;
@@ -74,12 +77,18 @@ http {
         # Handle Angular routes - fallback to index.html for SPA
         location / {
             try_files $uri $uri/ /index.html;
-            
-            # Cache control for HTML files
-            location ~* \.html$ {
-                expires 0;
-                add_header Cache-Control "no-cache, no-store, must-revalidate";
-            }
+        }
+        
+        # Explicit handling for index.html
+        location = / {
+            try_files /index.html =404;
+        }
+        
+        # Cache control for HTML files
+        location ~* \.html$ {
+            expires 0;
+            add_header Cache-Control "no-cache, no-store, must-revalidate";
+            try_files $uri =404;
         }
         
         # Health check endpoint for Railway

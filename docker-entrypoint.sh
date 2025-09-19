@@ -14,17 +14,6 @@ envsubst '${PORT}' < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf
 # Define the directory containing built files
 HTML_DIR="/usr/share/nginx/html"
 
-# Debug: Check if Angular files exist
-echo "Checking for Angular build files..."
-ls -la "$HTML_DIR"
-if [ ! -f "$HTML_DIR/index.html" ]; then
-    echo "ERROR: index.html not found in $HTML_DIR"
-    echo "Contents of $HTML_DIR:"
-    find "$HTML_DIR" -type f -name "*.html" -o -name "*.js" -o -name "*.css" | head -10
-else
-    echo "Angular files found successfully"
-fi
-
 # Function to replace API URL in JavaScript files
 replace_api_url() {
     local old_url="$1"

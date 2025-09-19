@@ -33,10 +33,7 @@ RUN rm -rf /usr/share/nginx/html/*
 COPY nginx.conf.template /etc/nginx/nginx.conf.template
 
 # Copy built application from build stage
-COPY --from=build /app/dist/portfolio-UI /usr/share/nginx/html
-
-# Debug: List contents of the build directory (temporary)
-RUN ls -la /usr/share/nginx/html && echo "=== Checking for index.html ===" && find /usr/share/nginx/html -name "index.html" -type f
+COPY --from=build /app/dist/portfolio-UI/browser /usr/share/nginx/html
 
 # Copy startup script
 COPY docker-entrypoint.sh /docker-entrypoint.sh

@@ -18,29 +18,43 @@ HTML_DIR="/usr/share/nginx/html"
 if [ -n "$API_URL" ]; then
     echo "Replacing API URL with environment variable: $API_URL"
     
-    # More comprehensive URL replacement patterns
+    # First, let's see what we're working with
+    echo "Before replacement - checking for localhost references:"
+    find "$HTML_DIR" -name "*.js" -type f -exec grep -l "localhost" {} \; | head -5 || echo "No localhost found initially"
+    
+    # More comprehensive and aggressive URL replacement patterns
     find "$HTML_DIR" -name "*.js" -type f -exec sed -i "s|https://portfolio-api-production-b9dc.up.railway.app/api|${API_URL}|g" {} \;
     find "$HTML_DIR" -name "*.js" -type f -exec sed -i "s|http://localhost:8080/api|${API_URL}|g" {} \;
     find "$HTML_DIR" -name "*.js" -type f -exec sed -i "s|localhost:8080/api|${API_URL#*://}|g" {} \;
     find "$HTML_DIR" -name "*.js" -type f -exec sed -i "s|\"localhost:8080\"|\"${API_URL#*://}\"|g" {} \;
+    find "$HTML_DIR" -name "*.js" -type f -exec sed -i "s|'localhost:8080'|'${API_URL#*://}'|g" {} \;
     
-    # Also check for any hardcoded localhost references in any format
+    # More aggressive localhost replacement
     find "$HTML_DIR" -name "*.js" -type f -exec sed -i "s|http:\\/\\/localhost:8080\\/api|${API_URL}|g" {} \;
     find "$HTML_DIR" -name "*.js" -type f -exec sed -i "s|\"http://localhost:8080/api\"|\"${API_URL}\"|g" {} \;
     find "$HTML_DIR" -name "*.js" -type f -exec sed -i "s|'http://localhost:8080/api'|'${API_URL}'|g" {} \;
+    find "$HTML_DIR" -name "*.js" -type f -exec sed -i "s|localhost:8080|${API_URL#*://}|g" {} \;
+    find "$HTML_DIR" -name "*.js" -type f -exec sed -i "s|\"localhost\"|\"${API_URL#*://}\"|g" {} \;
+    find "$HTML_DIR" -name "*.js" -type f -exec sed -i "s|'localhost'|'${API_URL#*://}'|g" {} \;
+    
+    # Nuclear option - replace any remaining localhost references
+    find "$HTML_DIR" -name "*.js" -type f -exec sed -i "s|localhost|${API_URL#*://}|g" {} \;
     
     echo "API URL replacement completed"
     
-    # Debug: Show what files were processed and verify replacement
-    echo "Files processed and content sample:"
-    find "$HTML_DIR" -name "*.js" -type f | head -3
-    
-    echo "Verifying replacement - checking for remaining localhost references:"
-    if find "$HTML_DIR" -name "*.js" -type f -exec grep -l "localhost.*api" {} \; | head -1; then
-        echo "WARNING: Some localhost references may still exist"
+    # Verification
+    echo "After replacement - checking for remaining localhost references:"
+    REMAINING_LOCALHOST=$(find "$HTML_DIR" -name "*.js" -type f -exec grep -l "localhost" {} \; | wc -l)
+    if [ "$REMAINING_LOCALHOST" -gt 0 ]; then
+        echo "WARNING: Found $REMAINING_LOCALHOST files still containing localhost"
+        echo "Sample remaining localhost references:"
+        find "$HTML_DIR" -name "*.js" -type f -exec grep -o "localhost[^\"']*" {} \; | head -5
     else
         echo "SUCCESS: No localhost references found in JS files"
     fi
+    
+    echo "Current API URL references found:"
+    find "$HTML_DIR" -name "*.js" -type f -exec grep -o "https://[^\"']*api[^\"']*" {} \; | sort -u | head -5
     
 elif [ -n "$RAILWAY_ENVIRONMENT" ]; then
     # If running on Railway but no explicit API_URL, try to construct it
@@ -51,6 +65,7 @@ elif [ -n "$RAILWAY_ENVIRONMENT" ]; then
         find "$HTML_DIR" -name "*.js" -type f -exec sed -i "s|https://portfolio-api-production-b9dc.up.railway.app/api|${CONSTRUCTED_API_URL}|g" {} \;
         find "$HTML_DIR" -name "*.js" -type f -exec sed -i "s|http://localhost:8080/api|${CONSTRUCTED_API_URL}|g" {} \;
         find "$HTML_DIR" -name "*.js" -type f -exec sed -i "s|localhost:8080/api|${CONSTRUCTED_API_URL#*://}|g" {} \;
+        find "$HTML_DIR" -name "*.js" -type f -exec sed -i "s|localhost|${CONSTRUCTED_API_URL#*://}|g" {} \;
     fi
 else
     echo "No API URL environment variable found, using default"

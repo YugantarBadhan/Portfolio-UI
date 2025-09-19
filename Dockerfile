@@ -1,5 +1,5 @@
 ### STAGE 1: Build ###
-FROM node:18-alpine AS build
+FROM node:20-alpine AS build
 
 # Set working directory
 WORKDIR /app
@@ -7,11 +7,11 @@ WORKDIR /app
 # Copy package files first for better layer caching
 COPY package.json package-lock.json* ./
 
-# Clean npm cache and install dependencies
+# Clean npm cache and install dependencies (include devDependencies for build)
 RUN npm cache clean --force
-RUN npm ci --only=production --silent
+RUN npm ci --silent
 
-# Install Angular CLI globally
+# Install Angular CLI globally (use compatible version)
 RUN npm install -g @angular/cli@20.0.4
 
 # Copy source code

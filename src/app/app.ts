@@ -458,6 +458,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
       const experienceSection = document.getElementById('experience');
       const projectsSection = document.getElementById('projects');
       const skillsSection = document.getElementById('skills');
+      const certificationsSection = document.getElementById('certifications');
       const educationsSection = document.getElementById('educations');
       const awardsSection = document.getElementById('awards');
 
@@ -469,6 +470,9 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
       }
       if (skillsSection) {
         this.sectionObserver?.observe(skillsSection);
+      }
+      if (certificationsSection) {
+        this.sectionObserver?.observe(certificationsSection);
       }
       if (educationsSection) {
         this.sectionObserver?.observe(educationsSection);

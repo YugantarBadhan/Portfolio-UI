@@ -69,8 +69,8 @@ body:not(.dark-theme) .spinner {
   }
 }
 
-/* EDUCATION CARDS GRID - 3 per row same as certifications */
-.educations-carousel-container {
+/* SIMPLE GRID LAYOUT - 3 CARDS PER ROW */
+.educations-container {
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -78,100 +78,24 @@ body:not(.dark-theme) .spinner {
   min-height: 0;
 }
 
-/* Carousel Wrapper */
-.carousel-wrapper {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  gap: 2rem;
-  min-height: 0;
-}
-
-/* Navigation Arrows - Same as certifications */
-.carousel-nav {
-  position: relative;
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.98),
-    rgba(255, 255, 255, 0.92)
-  );
-  border: 2px solid rgba(255, 255, 255, 0.4);
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  z-index: 100;
-  font-size: 1.4rem;
-  color: #333;
-  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.15), 0 8px 20px rgba(0, 0, 0, 0.12),
-    inset 0 1px 0 rgba(255, 255, 255, 0.8);
-  user-select: none;
-  flex-shrink: 0;
-}
-
-body.dark-theme .carousel-nav {
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.98),
-    rgba(255, 255, 255, 0.95)
-  );
-  border-color: rgba(255, 255, 255, 0.5);
-  color: #2c3e50;
-  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.25), 0 8px 20px rgba(0, 0, 0, 0.15),
-    inset 0 1px 0 rgba(255, 255, 255, 0.9);
-}
-
-.carousel-nav:hover:not(.disabled) {
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 1),
-    rgba(255, 255, 255, 0.98)
-  );
-  transform: scale(1.15);
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25), 0 15px 35px rgba(0, 0, 0, 0.18),
-    inset 0 1px 0 rgba(255, 255, 255, 1);
-}
-
-.carousel-nav.disabled {
-  opacity: 0.3;
-  cursor: not-allowed;
-  background: rgba(255, 255, 255, 0.4);
-  color: #999;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05), 0 2px 6px rgba(0, 0, 0, 0.03);
-}
-
-/* Educations Grid Container */
-.educations-scroll-container {
-  flex: 1;
-  overflow: hidden;
-  position: relative;
-  border-radius: 20px;
-  min-height: 0;
-}
-
+/* Educations Grid - Simple 3 Column Layout */
 .educations-grid {
-  display: flex;
-  flex-direction: row;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
   gap: 2rem;
-  transition: transform 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  will-change: transform;
-  align-items: stretch;
-  height: 100%;
   padding: 0;
   margin: 0;
+  justify-items: center;
+  align-items: stretch;
 }
 
 .no-educations {
+  grid-column: 1 / -1;
   text-align: center;
   padding: 100px 60px;
   color: rgba(255, 255, 255, 0.8);
   font-size: 1.4rem;
   font-weight: 500;
-  min-width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -188,7 +112,7 @@ body:not(.dark-theme) .no-educations {
   border-color: rgba(255, 255, 255, 0.35);
 }
 
-/* EDUCATION CARDS - Same size as certifications */
+/* FIXED SIZE EDUCATION CARDS */
 .education-card {
   background: #ffffff !important;
   border: none !important;
@@ -200,16 +124,11 @@ body:not(.dark-theme) .no-educations {
   overflow: hidden;
   display: flex;
   flex-direction: column;
-
-  /* Same dimensions as certification cards */
-  width: 450px !important;
-  height: 450px !important;
-  min-width: 450px !important;
-  min-height: 450px !important;
-  max-width: 450px !important;
-  max-height: 450px !important;
-  flex-shrink: 0;
-
+  width: 100%;
+  max-width: 450px;
+  height: 450px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  
   -webkit-transform: translateZ(0);
   transform: translateZ(0);
   -webkit-font-smoothing: antialiased;
@@ -220,15 +139,9 @@ body:not(.dark-theme) .no-educations {
   -webkit-text-stroke: 0.01px transparent;
 }
 
-.education-card::before {
-  content: "";
-  display: block;
-  width: 100%;
-  padding-top: 100%;
-  position: absolute;
-  top: 0;
-  left: 0;
-  z-index: -1;
+.education-card:hover {
+  transform: translateY(-5px) scale(1.02);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
 }
 
 .education-card *,
@@ -457,33 +370,6 @@ body.dark-theme .education-dates {
   transform: translateY(-2px) scale(1.02) translateZ(0);
   box-shadow: 0 4px 15px rgba(73, 80, 87, 0.3);
   color: white !important;
-}
-
-/* Carousel Indicators */
-.carousel-indicators {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 15px;
-  margin-top: 2.5rem;
-  padding: 1.5rem 0;
-}
-
-.carousel-indicator {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background: rgba(108, 117, 125, 0.4);
-  cursor: pointer;
-  transition: all 0.4s ease;
-  border: none;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.carousel-indicator.active {
-  background: #6c757d;
-  transform: scale(1.4);
-  box-shadow: 0 4px 10px rgba(108, 117, 125, 0.4);
 }
 
 /* EDUCATION DETAILS MODAL */
@@ -715,7 +601,7 @@ body.dark-theme .modal-header {
   line-height: 1.4;
 }
 
-/* FORM STYLES - Same as certifications with light theme */
+/* FORM STYLES - Same as projects with light theme */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -961,7 +847,7 @@ body.dark-theme .form-group textarea {
   cursor: not-allowed;
 }
 
-/* Education Selection Modal - Same as certifications */
+/* Education Selection Modal - Same as projects */
 .education-selection-container {
   background: white !important;
   border-radius: 15px;
@@ -1120,25 +1006,24 @@ body.dark-theme .education-selection-container {
   border-top: 1px solid #f0f0f0;
 }
 
-/* RESPONSIVE DESIGN */
+/* RESPONSIVE DESIGN - GRID LAYOUT */
 @media (max-width: 1400px) {
+  .educations-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.8rem;
+  }
+  
   .education-card {
-    width: 400px !important;
-    height: 400px !important;
-    min-width: 400px !important;
-    min-height: 400px !important;
-    max-width: 400px !important;
-    max-height: 400px !important;
+    max-width: 400px;
+    height: 400px;
   }
 
   .section-title {
     font-size: 2.5rem;
   }
 
-  .carousel-nav {
-    width: 55px;
-    height: 55px;
-    font-size: 1.3rem;
+  .education-details-container {
+    max-width: 800px;
   }
 }
 
@@ -1147,19 +1032,22 @@ body.dark-theme .education-selection-container {
     padding: 0 1.5rem;
   }
 
+  .educations-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+  }
+  
   .education-card {
-    width: 380px !important;
-    height: 380px !important;
-    min-width: 380px !important;
-    min-height: 380px !important;
-    max-width: 380px !important;
-    max-height: 380px !important;
+    max-width: 380px;
+    height: 380px;
   }
 
-  .carousel-nav {
-    width: 50px;
-    height: 50px;
-    font-size: 1.2rem;
+  .education-details-container {
+    max-width: 700px;
+  }
+
+  .modal-content-scroll {
+    padding: 25px 35px;
   }
 }
 
@@ -1174,6 +1062,17 @@ body.dark-theme .education-selection-container {
 
   .section-title {
     font-size: 2rem;
+  }
+
+  .educations-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  
+  .education-card {
+    max-width: 350px;
+    height: 350px;
+    padding: 24px !important;
   }
 
   .education-form-container,
@@ -1201,22 +1100,6 @@ body.dark-theme .education-selection-container {
     gap: 15px;
   }
 
-  .education-card {
-    width: 350px !important;
-    height: 350px !important;
-    min-width: 350px !important;
-    min-height: 350px !important;
-    max-width: 350px !important;
-    max-height: 350px !important;
-    padding: 24px !important;
-  }
-
-  .carousel-nav {
-    width: 40px;
-    height: 40px;
-    font-size: 1rem;
-  }
-
   .card-header {
     flex-direction: column;
     align-items: flex-start;
@@ -1235,14 +1118,45 @@ body.dark-theme .education-selection-container {
     -webkit-line-clamp: none;
   }
 
-  .carousel-indicators {
-    margin-top: 2rem;
-    padding: 1rem 0;
+  /* Mobile Modal Optimizations */
+  .education-details-modal {
+    padding: 15px;
+    align-items: flex-start;
+    padding-top: 30px;
   }
 
-  .carousel-indicator {
-    width: 10px;
-    height: 10px;
+  .education-details-container {
+    max-width: 100%;
+    width: 100%;
+    max-height: calc(100vh - 60px);
+    border-radius: 16px;
+  }
+
+  .modal-header {
+    padding: 25px 30px 15px;
+  }
+
+  .modal-title {
+    font-size: 1.5rem;
+  }
+
+  .modal-close-btn {
+    width: 40px;
+    height: 40px;
+    font-size: 1.2rem;
+  }
+
+  .modal-content-scroll {
+    padding: 20px 25px;
+  }
+
+  .modal-section-title {
+    font-size: 1.2rem;
+  }
+
+  .education-full-description {
+    font-size: 1rem;
+    padding: 20px;
   }
 }
 
@@ -1257,23 +1171,9 @@ body.dark-theme .education-selection-container {
     width: 98%;
   }
 
-  .carousel-wrapper {
-    gap: 1rem;
-  }
-
-  .carousel-nav {
-    width: 45px;
-    height: 45px;
-    font-size: 1.1rem;
-  }
-
   .education-card {
-    width: 320px !important;
-    height: 320px !important;
-    min-width: 320px !important;
-    min-height: 320px !important;
-    max-width: 320px !important;
-    max-height: 320px !important;
+    max-width: 320px;
+    height: 320px;
     padding: 20px !important;
   }
 
@@ -1287,12 +1187,165 @@ body.dark-theme .education-selection-container {
     min-width: 120px;
   }
 
-  .carousel-indicator {
-    width: 8px;
-    height: 8px;
+  /* Ultra Small Mobile Modal Optimizations */
+  .education-details-modal {
+    padding: 10px;
+    padding-top: 20px;
   }
 
-  .carousel-indicators {
-    gap: 10px;
+  .education-details-container {
+    border-radius: 12px;
+    max-height: calc(100vh - 40px);
+  }
+
+  .modal-header {
+    padding: 20px 25px 12px;
+  }
+
+  .modal-title {
+    font-size: 1.3rem;
+    line-height: 1.3;
+  }
+
+  .modal-close-btn {
+    width: 36px;
+    height: 36px;
+    font-size: 1.1rem;
+  }
+
+  .modal-content-scroll {
+    padding: 18px 20px;
+  }
+
+  .modal-section {
+    margin-bottom: 25px;
+  }
+
+  .modal-section-title {
+    font-size: 1.1rem;
+    margin-bottom: 12px;
+  }
+
+  .education-full-description {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    padding: 18px;
+  }
+
+  .education-detail-item {
+    padding: 16px;
+  }
+
+  .modal-tech-stack {
+    padding: 16px;
+  }
+
+  .modal-tech-stack-content {
+    font-size: 1rem;
+  }
+}
+
+/* Focus styles for better accessibility */
+.education-card:focus-within {
+  outline: 2px solid #6c757d;
+  outline-offset: 2px;
+}
+
+.know-more-btn:focus,
+.action-btn:focus,
+.modal-close-btn:focus {
+  outline: 2px solid #6c757d;
+  outline-offset: 2px;
+}
+
+/* Screen reader only content */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .educations-grid,
+  .education-card,
+  .know-more-btn,
+  .action-btn,
+  .education-details-modal,
+  .education-details-container,
+  .modal-header::before {
+    transition: none !important;
+    animation: none !important;
+    transform: none !important;
+  }
+
+  .education-card:hover {
+    transform: none !important;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .education-card,
+  .education-details-container {
+    border: 2px solid currentColor !important;
+  }
+
+  .know-more-btn {
+    border: 2px solid currentColor !important;
+    background: ButtonFace !important;
+    color: ButtonText !important;
+  }
+
+  .know-more-btn:hover {
+    background: Highlight !important;
+    color: HighlightText !important;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .know-more-btn {
+    background: white !important;
+    color: black !important;
+    border: 1px solid black !important;
+    box-shadow: none !important;
+    text-decoration: underline !important;
+  }
+
+  .know-more-btn::before,
+  .know-more-btn::after {
+    display: none !important;
+  }
+
+  .education-details-modal {
+    position: static !important;
+    background: white !important;
+    backdrop-filter: none !important;
+  }
+
+  .education-details-container {
+    box-shadow: none !important;
+    border: 1px solid black !important;
+    max-height: none !important;
+  }
+
+  .modal-header {
+    background: white !important;
+    color: black !important;
+  }
+
+  .modal-header::before {
+    display: none !important;
+  }
+
+  .modal-close-btn {
+    display: none !important;
   }
 }

@@ -7,9 +7,6 @@ import {
   signal,
   PLATFORM_ID,
   Inject,
-  ViewChild,
-  ElementRef,
-  AfterViewInit,
   HostListener,
   ChangeDetectionStrategy,
   ChangeDetectorRef,
@@ -34,12 +31,7 @@ import { ConfigService } from '../services/config.service';
   styleUrls: ['./educations.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class EducationsComponent
-  implements OnInit, AfterViewInit, OnDestroy
-{
-  @ViewChild('educationsGrid', { static: false })
-  educationsGridRef!: ElementRef;
-
+export class EducationsComponent implements OnInit, OnDestroy {
   private educationService = inject(EducationService);
   private fb = inject(FormBuilder);
   private configService = inject(ConfigService);
@@ -60,17 +52,8 @@ export class EducationsComponent
   selectedOperation = signal<string>('');
   selectedEducationId = signal<number | null>(null);
 
-  // Carousel state - same as certifications
-  currentTranslateX = signal(0);
-  currentIndicatorIndex = signal(0);
-  cardsPerView = signal(3);
-  maxTranslateX = signal(0);
-  cardWidth = signal(450);
-
   private isBrowser: boolean;
   private resizeTimeout: any;
-  private intersectionObserver?: IntersectionObserver;
-  private animationFrameId?: number;
 
   educationForm: FormGroup;
 
@@ -108,38 +91,12 @@ export class EducationsComponent
   ngOnInit() {
     console.log('EducationsComponent: Initializing...');
     this.loadEducations();
-    if (this.isBrowser) {
-      this.calculateCardsPerView();
-      this.setupIntersectionObserver();
-      this.optimizeForAnimations();
-    }
     this.checkAdminStatus();
-  }
-
-  ngAfterViewInit() {
-    console.log('EducationsComponent: After view init');
-
-    // Initialize carousel calculations
-    if (this.isBrowser) {
-      setTimeout(() => {
-        this.calculateCardsPerView();
-        this.updateCarouselConstraints();
-        this.applyOptimizedStyles();
-      }, 500);
-    }
   }
 
   ngOnDestroy() {
     console.log('EducationsComponent: Destroying...');
-    // Cleanup
-    if (this.animationFrameId) {
-      cancelAnimationFrame(this.animationFrameId);
-    }
-
-    if (this.intersectionObserver) {
-      this.intersectionObserver.disconnect();
-    }
-
+    
     if (this.resizeTimeout) {
       clearTimeout(this.resizeTimeout);
     }
@@ -245,10 +202,6 @@ export class EducationsComponent
     if (this.isBrowser) {
       clearTimeout(this.resizeTimeout);
       this.resizeTimeout = setTimeout(() => {
-        this.calculateCardsPerView();
-        this.updateCarouselConstraints();
-        this.adjustCarouselPosition();
-        this.applyOptimizedStyles();
         this.cdr.markForCheck();
       }, 150);
     }
@@ -400,17 +353,6 @@ export class EducationsComponent
       educations.sort((a, b) => b.id - a.id);
       this.educations.set(educations);
 
-      this.currentTranslateX.set(0);
-      this.currentIndicatorIndex.set(0);
-
-      if (this.isBrowser) {
-        setTimeout(() => {
-          this.calculateCardsPerView();
-          this.updateCarouselConstraints();
-          this.observeEducationCards();
-          this.applyOptimizedStyles();
-        }, 300);
-      }
       console.log(
         'EducationsComponent: Educations loaded successfully',
         educations.length,
@@ -603,298 +545,5 @@ export class EducationsComponent
 
   trackByEducationId(index: number, education: Education): number {
     return education.id;
-  }
-
-  // Animation Optimization Methods (same as certifications)
-  private optimizeForAnimations() {
-    if (!this.isBrowser) return;
-
-    const style = document.createElement('style');
-    style.textContent = `
-      .education-card {
-        -webkit-transform: translateZ(0) !important;
-        transform: translateZ(0) !important;
-        -webkit-font-smoothing: antialiased !important;
-        -moz-osx-font-smoothing: grayscale !important;
-        text-rendering: optimizeLegibility !important;
-        backface-visibility: hidden !important;
-        perspective: 1000px !important;
-      }
-    `;
-    document.head.appendChild(style);
-  }
-
-  private applyOptimizedStyles() {
-    if (!this.isBrowser) return;
-
-    const cards = document.querySelectorAll(
-      '.education-card'
-    ) as NodeListOf<HTMLElement>;
-    cards.forEach((card) => {
-      card.style.setProperty('-webkit-transform', 'translateZ(0)', 'important');
-      card.style.setProperty('transform', 'translateZ(0)', 'important');
-      card.style.setProperty(
-        '-webkit-font-smoothing',
-        'antialiased',
-        'important'
-      );
-      card.style.setProperty(
-        '-moz-osx-font-smoothing',
-        'grayscale',
-        'important'
-      );
-      card.style.setProperty(
-        'text-rendering',
-        'optimizeLegibility',
-        'important'
-      );
-      card.style.setProperty('backface-visibility', 'hidden', 'important');
-    });
-  }
-
-  private setupIntersectionObserver() {
-    if (!this.isBrowser || typeof IntersectionObserver === 'undefined') {
-      return;
-    }
-
-    this.intersectionObserver = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          const card = entry.target as HTMLElement;
-          if (entry.isIntersecting) {
-            card.style.willChange = 'transform';
-            this.optimizeCardForAnimation(card);
-          } else {
-            card.style.willChange = 'auto';
-          }
-        });
-      },
-      {
-        root: null,
-        rootMargin: '50px',
-        threshold: 0.1,
-      }
-    );
-  }
-
-  private optimizeCardForAnimation(card: HTMLElement) {
-    card.style.setProperty('-webkit-transform', 'translateZ(0)', 'important');
-    card.style.setProperty('transform', 'translateZ(0)', 'important');
-    card.style.setProperty(
-      '-webkit-font-smoothing',
-      'antialiased',
-      'important'
-    );
-    card.style.setProperty('-moz-osx-font-smoothing', 'grayscale', 'important');
-    card.style.setProperty('text-rendering', 'optimizeLegibility', 'important');
-    card.style.setProperty('backface-visibility', 'hidden', 'important');
-    card.style.setProperty('perspective', '1000px', 'important');
-  }
-
-  private observeEducationCards() {
-    if (!this.intersectionObserver || !this.isBrowser) return;
-
-    const cards = document.querySelectorAll('.education-card');
-    cards.forEach((card) => {
-      this.intersectionObserver!.observe(card);
-      this.optimizeCardForAnimation(card as HTMLElement);
-    });
-  }
-
-  // Carousel Methods (same as certifications)
-  private calculateCardsPerView() {
-    if (!this.isBrowser) return;
-
-    const windowWidth = window.innerWidth;
-
-    if (windowWidth <= 480) {
-      this.cardsPerView.set(1);
-      this.cardWidth.set(320);
-    } else if (windowWidth <= 768) {
-      this.cardsPerView.set(1);
-      this.cardWidth.set(350);
-    } else if (windowWidth <= 1200) {
-      this.cardsPerView.set(2);
-      this.cardWidth.set(380);
-    } else if (windowWidth <= 1400) {
-      this.cardsPerView.set(3);
-      this.cardWidth.set(400);
-    } else {
-      this.cardsPerView.set(3);
-      this.cardWidth.set(450);
-    }
-
-    this.updateCarouselConstraints();
-    this.updateCardStyles();
-  }
-
-  private updateCardStyles() {
-    if (!this.isBrowser) return;
-
-    const cards = document.querySelectorAll(
-      '.education-card'
-    ) as NodeListOf<HTMLElement>;
-    const cardSize = this.cardWidth();
-
-    cards.forEach((card) => {
-      card.style.setProperty('width', `${cardSize}px`, 'important');
-      card.style.setProperty('height', `${cardSize}px`, 'important');
-      card.style.setProperty('min-width', `${cardSize}px`, 'important');
-      card.style.setProperty('min-height', `${cardSize}px`, 'important');
-      card.style.setProperty('max-width', `${cardSize}px`, 'important');
-      card.style.setProperty('max-height', `${cardSize}px`, 'important');
-
-      this.optimizeCardForAnimation(card);
-    });
-  }
-
-  private updateCarouselConstraints() {
-    const totalEducations = this.educations().length;
-    const cardsPerView = this.cardsPerView();
-
-    if (totalEducations <= cardsPerView) {
-      this.maxTranslateX.set(0);
-      this.currentTranslateX.set(0);
-      this.currentIndicatorIndex.set(0);
-      return;
-    }
-
-    const cardWidth = this.cardWidth();
-    const gap = 32;
-    const scrollDistance = cardWidth + gap;
-    const maxScroll = (totalEducations - cardsPerView) * scrollDistance;
-    this.maxTranslateX.set(-maxScroll);
-  }
-
-  private adjustCarouselPosition() {
-    const currentTranslate = this.currentTranslateX();
-    const maxTranslate = this.maxTranslateX();
-
-    if (currentTranslate < maxTranslate) {
-      const cardWidth = this.cardWidth();
-      const gap = 32;
-      const scrollDistance = cardWidth + gap;
-      const validPosition =
-        Math.ceil(Math.abs(currentTranslate) / scrollDistance) * scrollDistance;
-      const newPosition = Math.max(maxTranslate, -validPosition);
-
-      this.currentTranslateX.set(newPosition);
-      this.updateIndicatorIndex();
-    }
-  }
-
-  canScrollLeft(): boolean {
-    return this.currentTranslateX() < 0;
-  }
-
-  canScrollRight(): boolean {
-    return this.currentTranslateX() > this.maxTranslateX();
-  }
-
-  scrollCarousel(direction: 'left' | 'right') {
-    if (!this.isBrowser) return;
-
-    const currentTranslate = this.currentTranslateX();
-    const cardWidth = this.cardWidth();
-    const gap = 32;
-    const scrollAmount = cardWidth + gap;
-
-    let newTranslate = currentTranslate;
-
-    if (direction === 'left' && this.canScrollLeft()) {
-      newTranslate = Math.min(0, currentTranslate + scrollAmount);
-    } else if (direction === 'right' && this.canScrollRight()) {
-      newTranslate = Math.max(
-        this.maxTranslateX(),
-        currentTranslate - scrollAmount
-      );
-    }
-
-    this.animateCarousel(newTranslate);
-  }
-
-  shouldShowIndicators(): boolean {
-    const totalEducations = this.educations().length;
-    const cardsPerView = this.cardsPerView();
-    return totalEducations > cardsPerView;
-  }
-
-  getCarouselIndicators(): number[] {
-    const totalEducations = this.educations().length;
-    const cardsPerView = this.cardsPerView();
-
-    if (totalEducations <= cardsPerView) return [];
-
-    const totalIndicators = totalEducations - cardsPerView + 1;
-    return Array(totalIndicators)
-      .fill(0)
-      .map((_, index) => index);
-  }
-
-  scrollToIndicator(indicatorIndex: number) {
-    if (!this.isBrowser) return;
-
-    const cardWidth = this.cardWidth();
-    const gap = 32;
-    const scrollDistance = cardWidth + gap;
-    const newTranslate = -indicatorIndex * scrollDistance;
-    const clampedTranslate = Math.max(
-      this.maxTranslateX(),
-      Math.min(0, newTranslate)
-    );
-
-    this.animateCarousel(clampedTranslate);
-  }
-
-  private animateCarousel(targetTranslate: number) {
-    const startTranslate = this.currentTranslateX();
-    const duration = 600;
-    const startTime = performance.now();
-
-    if (this.animationFrameId) {
-      cancelAnimationFrame(this.animationFrameId);
-    }
-
-    const animate = (currentTime: number) => {
-      const elapsed = currentTime - startTime;
-      const progress = Math.min(elapsed / duration, 1);
-
-      const easeOutCubic = 1 - Math.pow(1 - progress, 3);
-
-      const currentTranslate =
-        startTranslate + (targetTranslate - startTranslate) * easeOutCubic;
-      this.currentTranslateX.set(currentTranslate);
-
-      const grid = document.querySelector(
-        '.educations-grid'
-      ) as HTMLElement;
-      if (grid) {
-        grid.style.transform = `translate3d(${currentTranslate}px, 0, 0)`;
-        grid.style.webkitTransform = `translate3d(${currentTranslate}px, 0, 0)`;
-      }
-
-      if (progress < 1) {
-        this.animationFrameId = requestAnimationFrame(animate);
-      } else {
-        this.currentTranslateX.set(targetTranslate);
-        this.updateIndicatorIndex();
-        this.animationFrameId = undefined;
-
-        setTimeout(() => {
-          this.applyOptimizedStyles();
-        }, 50);
-      }
-    };
-
-    this.animationFrameId = requestAnimationFrame(animate);
-  }
-
-  private updateIndicatorIndex() {
-    const cardWidth = this.cardWidth();
-    const gap = 32;
-    const scrollDistance = cardWidth + gap;
-    const currentTranslate = Math.abs(this.currentTranslateX());
-    const index = Math.round(currentTranslate / scrollDistance);
-    this.currentIndicatorIndex.set(index);
   }
 }

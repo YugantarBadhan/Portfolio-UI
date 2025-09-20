@@ -37,7 +37,7 @@ body:not(.dark-theme) {
   top: 0;
   width: 100%;
   backdrop-filter: blur(15px);
-  padding: 1rem 2rem;
+  padding: 1rem 1.5rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -46,7 +46,7 @@ body:not(.dark-theme) {
   height: 80px; /* Fixed navbar height */
   max-width: 100vw;
   box-sizing: border-box;
-  /* REMOVED: transition - will be added via JavaScript after load */
+  overflow: hidden;
 }
 
 /* Light theme navbar - use HTML-level selectors for immediate application */
@@ -99,8 +99,10 @@ html.dark-theme .logo {
 
 .nav-links {
   display: flex;
-  gap: 2rem;
+  gap: 1.2rem;
   list-style: none;
+  white-space: nowrap;
+  align-items: center;
 }
 
 .desktop-nav {
@@ -112,10 +114,22 @@ html.dark-theme .logo {
   text-decoration: none;
   font-weight: 500;
   position: relative;
-  padding: 0.5rem 1rem;
-  border-radius: 25px;
+  padding: 0.5rem 0.8rem;
+  border-radius: 20px;
   cursor: pointer;
-  /* REMOVED: transition - will be added via JavaScript after load */
+  font-size: 0.95rem;
+  white-space: nowrap;
+}
+
+/* Desktop navigation container optimization */
+.desktop-nav {
+  flex-shrink: 0;
+  max-width: none;
+}
+
+.desktop-nav .nav-links {
+  flex-wrap: nowrap;
+  min-width: 0;
 }
 
 /* Use HTML-level selectors for immediate theme application */
@@ -1888,6 +1902,30 @@ body.dark-theme .resume-upload-container {
 }
 
 /* Responsive Design */
+/* Optimize navigation for medium screens */
+@media (max-width: 1024px) and (min-width: 769px) {
+  .nav-links {
+    gap: 1rem;
+  }
+  
+  .nav-links a {
+    padding: 0.5rem 0.7rem;
+    font-size: 0.9rem;
+  }
+}
+
+/* Optimize navigation for smaller desktop screens */
+@media (max-width: 1200px) and (min-width: 1025px) {
+  .nav-links {
+    gap: 1.1rem;
+  }
+  
+  .nav-links a {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.93rem;
+  }
+}
+
 @media (max-width: 768px) {
   .navbar {
     padding: 1rem;

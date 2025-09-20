@@ -81,11 +81,11 @@ body:not(.dark-theme) .spinner {
 /* Educations Grid - Simple 3 Column Layout */
 .educations-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 450px));
   gap: 2rem;
   padding: 0;
   margin: 0;
-  justify-items: center;
+  justify-content: center;
   align-items: stretch;
 }
 
@@ -125,10 +125,9 @@ body:not(.dark-theme) .no-educations {
   display: flex;
   flex-direction: column;
   width: 100%;
-  max-width: 450px;
   height: 450px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-  
+
   -webkit-transform: translateZ(0);
   transform: translateZ(0);
   -webkit-font-smoothing: antialiased;
@@ -306,7 +305,11 @@ body.dark-theme .education-dates {
   color: #2c3e50 !important;
   font-weight: 700;
   text-align: center;
-  background: linear-gradient(135deg, rgba(108, 117, 125, 0.15), rgba(173, 181, 189, 0.15));
+  background: linear-gradient(
+    135deg,
+    rgba(108, 117, 125, 0.15),
+    rgba(173, 181, 189, 0.15)
+  );
   padding: 12px;
   border-radius: 12px;
   border: 2px solid rgba(108, 117, 125, 0.2);
@@ -618,13 +621,21 @@ body.dark-theme .modal-header {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes modalFadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes modalSlideIn {
@@ -1009,12 +1020,11 @@ body.dark-theme .education-selection-container {
 /* RESPONSIVE DESIGN - GRID LAYOUT */
 @media (max-width: 1400px) {
   .educations-grid {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1.8rem;
+    grid-template-columns: repeat(3, minmax(0, 400px));
+    gap: 2rem;
   }
-  
+
   .education-card {
-    max-width: 400px;
     height: 400px;
   }
 
@@ -1033,12 +1043,11 @@ body.dark-theme .education-selection-container {
   }
 
   .educations-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1.5rem;
+    grid-template-columns: repeat(2, minmax(0, 380px));
+    gap: 2rem;
   }
-  
+
   .education-card {
-    max-width: 380px;
     height: 380px;
   }
 
@@ -1065,57 +1074,14 @@ body.dark-theme .education-selection-container {
   }
 
   .educations-grid {
-    grid-template-columns: 1fr;
-    gap: 1.5rem;
+    grid-template-columns: minmax(0, 350px);
+    gap: 2rem;
+    justify-content: center;
   }
-  
+
   .education-card {
-    max-width: 350px;
     height: 350px;
     padding: 24px !important;
-  }
-
-  .education-form-container,
-  .education-selection-container {
-    padding: 20px;
-    width: 95%;
-    max-width: none;
-  }
-
-  .form-row {
-    grid-template-columns: 1fr;
-    gap: 15px;
-  }
-
-  .form-group.full-width {
-    grid-column: span 1;
-  }
-
-  .form-actions {
-    flex-direction: column;
-  }
-
-  .education-details-grid {
-    grid-template-columns: 1fr;
-    gap: 15px;
-  }
-
-  .card-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
-  }
-
-  .admin-actions-card {
-    position: absolute;
-    top: 15px;
-    right: 15px;
-  }
-
-  .education-degree {
-    font-size: 1.3rem !important;
-    max-height: none;
-    -webkit-line-clamp: none;
   }
 
   /* Mobile Modal Optimizations */
@@ -1171,8 +1137,12 @@ body.dark-theme .education-selection-container {
     width: 98%;
   }
 
+  .educations-grid {
+    grid-template-columns: minmax(0, 320px);
+    gap: 2rem;
+  }
+
   .education-card {
-    max-width: 320px;
     height: 320px;
     padding: 20px !important;
   }

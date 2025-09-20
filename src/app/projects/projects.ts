@@ -43,7 +43,6 @@ interface GitHubRepo {
 })
 export class ProjectsComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('quillEditor', { static: false }) quillEditorRef!: ElementRef;
-  @ViewChild('projectsGrid', { static: false }) projectsGridRef!: ElementRef;
 
   private projectService = inject(ProjectService);
   private fb = inject(FormBuilder);
@@ -62,20 +61,11 @@ export class ProjectsComponent implements OnInit, AfterViewInit, OnDestroy {
   showProjectDetails = signal(false);
   selectedProject = signal<Project | null>(null);
 
-  // Enhanced carousel state
-  currentTranslateX = signal(0);
-  currentIndicatorIndex = signal(0);
-  cardsPerView = signal(3);
-  maxTranslateX = signal(0);
-  cardWidth = signal(450);
-
   private isBrowser: boolean;
   private quillEditor: any = null;
   private quillLoaded = false;
   private quillLoadPromise: Promise<void> | null = null;
   private resizeTimeout: any;
-  private intersectionObserver?: IntersectionObserver;
-  private animationFrameId?: number;
 
   projectForm: FormGroup;
 
@@ -94,12 +84,6 @@ export class ProjectsComponent implements OnInit, AfterViewInit, OnDestroy {
   ngOnInit() {
     console.log('ProjectsComponent: Initializing...');
     this.loadProjects();
-    // Don't load Quill on init - wait for form to be opened
-    if (this.isBrowser) {
-      this.calculateCardsPerView();
-      this.setupIntersectionObserver();
-      this.optimizeForAnimations();
-    }
     this.checkAdminStatus();
   }
 
@@ -109,28 +93,11 @@ export class ProjectsComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.isBrowser && this.showForm() && this.quillLoaded) {
       setTimeout(() => this.initializeQuillEditor(), 100);
     }
-
-    // Initialize carousel calculations
-    if (this.isBrowser) {
-      setTimeout(() => {
-        this.calculateCardsPerView();
-        this.updateCarouselConstraints();
-        this.applyOptimizedStyles();
-      }, 500);
-    }
   }
 
   ngOnDestroy() {
     console.log('ProjectsComponent: Destroying...');
-    // Cleanup
-    if (this.animationFrameId) {
-      cancelAnimationFrame(this.animationFrameId);
-    }
-
-    if (this.intersectionObserver) {
-      this.intersectionObserver.disconnect();
-    }
-
+    
     if (this.resizeTimeout) {
       clearTimeout(this.resizeTimeout);
     }
@@ -226,10 +193,6 @@ export class ProjectsComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.isBrowser) {
       clearTimeout(this.resizeTimeout);
       this.resizeTimeout = setTimeout(() => {
-        this.calculateCardsPerView();
-        this.updateCarouselConstraints();
-        this.adjustCarouselPosition();
-        this.applyOptimizedStyles();
         this.cdr.markForCheck();
       }, 150);
     }
@@ -478,17 +441,6 @@ export class ProjectsComponent implements OnInit, AfterViewInit, OnDestroy {
       projects.sort((a, b) => b.id - a.id);
       this.projects.set(projects);
 
-      this.currentTranslateX.set(0);
-      this.currentIndicatorIndex.set(0);
-
-      if (this.isBrowser) {
-        setTimeout(() => {
-          this.calculateCardsPerView();
-          this.updateCarouselConstraints();
-          this.observeProjectCards();
-          this.applyOptimizedStyles();
-        }, 300);
-      }
       console.log(
         'ProjectsComponent: Projects loaded successfully',
         projects.length,
@@ -659,9 +611,6 @@ export class ProjectsComponent implements OnInit, AfterViewInit, OnDestroy {
 
     return null;
   }
-
-  // Rest of the methods remain the same as in the original component...
-  // (Including Quill editor methods, carousel methods, modal methods, etc.)
 
   private initializeQuillEditor() {
     if (
@@ -839,214 +788,6 @@ export class ProjectsComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  // Animation Optimization Methods
-  private optimizeForAnimations() {
-    if (!this.isBrowser) return;
-
-    const style = document.createElement('style');
-    style.textContent = `
-      .project-card {
-        -webkit-transform: translateZ(0) !important;
-        transform: translateZ(0) !important;
-        -webkit-font-smoothing: antialiased !important;
-        -moz-osx-font-smoothing: grayscale !important;
-        text-rendering: optimizeLegibility !important;
-        backface-visibility: hidden !important;
-        perspective: 1000px !important;
-      }
-    `;
-    document.head.appendChild(style);
-  }
-
-  private applyOptimizedStyles() {
-    if (!this.isBrowser) return;
-
-    const cards = document.querySelectorAll(
-      '.project-card'
-    ) as NodeListOf<HTMLElement>;
-    cards.forEach((card) => {
-      card.style.setProperty('-webkit-transform', 'translateZ(0)', 'important');
-      card.style.setProperty('transform', 'translateZ(0)', 'important');
-      card.style.setProperty(
-        '-webkit-font-smoothing',
-        'antialiased',
-        'important'
-      );
-      card.style.setProperty(
-        '-moz-osx-font-smoothing',
-        'grayscale',
-        'important'
-      );
-      card.style.setProperty(
-        'text-rendering',
-        'optimizeLegibility',
-        'important'
-      );
-      card.style.setProperty('backface-visibility', 'hidden', 'important');
-    });
-  }
-
-  private setupIntersectionObserver() {
-    if (!this.isBrowser || typeof IntersectionObserver === 'undefined') {
-      return;
-    }
-
-    this.intersectionObserver = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          const card = entry.target as HTMLElement;
-          if (entry.isIntersecting) {
-            card.style.willChange = 'transform';
-            this.optimizeCardForAnimation(card);
-          } else {
-            card.style.willChange = 'auto';
-          }
-        });
-      },
-      {
-        root: null,
-        rootMargin: '50px',
-        threshold: 0.1,
-      }
-    );
-  }
-
-  private optimizeCardForAnimation(card: HTMLElement) {
-    card.style.setProperty('-webkit-transform', 'translateZ(0)', 'important');
-    card.style.setProperty('transform', 'translateZ(0)', 'important');
-    card.style.setProperty(
-      '-webkit-font-smoothing',
-      'antialiased',
-      'important'
-    );
-    card.style.setProperty('-moz-osx-font-smoothing', 'grayscale', 'important');
-    card.style.setProperty('text-rendering', 'optimizeLegibility', 'important');
-    card.style.setProperty('backface-visibility', 'hidden', 'important');
-    card.style.setProperty('perspective', '1000px', 'important');
-  }
-
-  private observeProjectCards() {
-    if (!this.intersectionObserver || !this.isBrowser) return;
-
-    const cards = document.querySelectorAll('.project-card');
-    cards.forEach((card) => {
-      this.intersectionObserver!.observe(card);
-      this.optimizeCardForAnimation(card as HTMLElement);
-    });
-  }
-
-  // Carousel Methods
-  private calculateCardsPerView() {
-    if (!this.isBrowser) return;
-
-    const windowWidth = window.innerWidth;
-
-    if (windowWidth <= 480) {
-      this.cardsPerView.set(1);
-      this.cardWidth.set(320);
-    } else if (windowWidth <= 768) {
-      this.cardsPerView.set(1);
-      this.cardWidth.set(350);
-    } else if (windowWidth <= 1200) {
-      this.cardsPerView.set(2);
-      this.cardWidth.set(380);
-    } else if (windowWidth <= 1400) {
-      this.cardsPerView.set(3);
-      this.cardWidth.set(400);
-    } else {
-      this.cardsPerView.set(3);
-      this.cardWidth.set(450);
-    }
-
-    this.updateCarouselConstraints();
-    this.updateCardStyles();
-  }
-
-  private updateCardStyles() {
-    if (!this.isBrowser) return;
-
-    const cards = document.querySelectorAll(
-      '.project-card'
-    ) as NodeListOf<HTMLElement>;
-    const cardSize = this.cardWidth();
-
-    cards.forEach((card) => {
-      card.style.setProperty('width', `${cardSize}px`, 'important');
-      card.style.setProperty('height', `${cardSize}px`, 'important');
-      card.style.setProperty('min-width', `${cardSize}px`, 'important');
-      card.style.setProperty('min-height', `${cardSize}px`, 'important');
-      card.style.setProperty('max-width', `${cardSize}px`, 'important');
-      card.style.setProperty('max-height', `${cardSize}px`, 'important');
-
-      this.optimizeCardForAnimation(card);
-    });
-  }
-
-  private updateCarouselConstraints() {
-    const totalProjects = this.projects().length;
-    const cardsPerView = this.cardsPerView();
-
-    if (totalProjects <= cardsPerView) {
-      this.maxTranslateX.set(0);
-      this.currentTranslateX.set(0);
-      this.currentIndicatorIndex.set(0);
-      return;
-    }
-
-    const cardWidth = this.cardWidth();
-    const gap = 32;
-    const scrollDistance = cardWidth + gap;
-    const maxScroll = (totalProjects - cardsPerView) * scrollDistance;
-    this.maxTranslateX.set(-maxScroll);
-  }
-
-  private adjustCarouselPosition() {
-    const currentTranslate = this.currentTranslateX();
-    const maxTranslate = this.maxTranslateX();
-
-    if (currentTranslate < maxTranslate) {
-      const cardWidth = this.cardWidth();
-      const gap = 32;
-      const scrollDistance = cardWidth + gap;
-      const validPosition =
-        Math.ceil(Math.abs(currentTranslate) / scrollDistance) * scrollDistance;
-      const newPosition = Math.max(maxTranslate, -validPosition);
-
-      this.currentTranslateX.set(newPosition);
-      this.updateIndicatorIndex();
-    }
-  }
-
-  canScrollLeft(): boolean {
-    return this.currentTranslateX() < 0;
-  }
-
-  canScrollRight(): boolean {
-    return this.currentTranslateX() > this.maxTranslateX();
-  }
-
-  scrollCarousel(direction: 'left' | 'right') {
-    if (!this.isBrowser) return;
-
-    const currentTranslate = this.currentTranslateX();
-    const cardWidth = this.cardWidth();
-    const gap = 32;
-    const scrollAmount = cardWidth + gap;
-
-    let newTranslate = currentTranslate;
-
-    if (direction === 'left' && this.canScrollLeft()) {
-      newTranslate = Math.min(0, currentTranslate + scrollAmount);
-    } else if (direction === 'right' && this.canScrollRight()) {
-      newTranslate = Math.max(
-        this.maxTranslateX(),
-        currentTranslate - scrollAmount
-      );
-    }
-
-    this.animateCarousel(newTranslate);
-  }
-
   // Project Details Modal Methods
   openProjectDetails(project: Project): void {
     this.selectedProject.set(project);
@@ -1201,89 +942,5 @@ export class ProjectsComponent implements OnInit, AfterViewInit, OnDestroy {
 
   trackByProjectId(index: number, project: Project): number {
     return project.id;
-  }
-
-  // Add other required carousel and indicator methods
-  shouldShowIndicators(): boolean {
-    const totalProjects = this.projects().length;
-    const cardsPerView = this.cardsPerView();
-    return totalProjects > cardsPerView;
-  }
-
-  getCarouselIndicators(): number[] {
-    const totalProjects = this.projects().length;
-    const cardsPerView = this.cardsPerView();
-
-    if (totalProjects <= cardsPerView) return [];
-
-    const totalIndicators = totalProjects - cardsPerView + 1;
-    return Array(totalIndicators)
-      .fill(0)
-      .map((_, index) => index);
-  }
-
-  scrollToIndicator(indicatorIndex: number) {
-    if (!this.isBrowser) return;
-
-    const cardWidth = this.cardWidth();
-    const gap = 32;
-    const scrollDistance = cardWidth + gap;
-    const newTranslate = -indicatorIndex * scrollDistance;
-    const clampedTranslate = Math.max(
-      this.maxTranslateX(),
-      Math.min(0, newTranslate)
-    );
-
-    this.animateCarousel(clampedTranslate);
-  }
-
-  private animateCarousel(targetTranslate: number) {
-    const startTranslate = this.currentTranslateX();
-    const duration = 600;
-    const startTime = performance.now();
-
-    if (this.animationFrameId) {
-      cancelAnimationFrame(this.animationFrameId);
-    }
-
-    const animate = (currentTime: number) => {
-      const elapsed = currentTime - startTime;
-      const progress = Math.min(elapsed / duration, 1);
-
-      const easeOutCubic = 1 - Math.pow(1 - progress, 3);
-
-      const currentTranslate =
-        startTranslate + (targetTranslate - startTranslate) * easeOutCubic;
-      this.currentTranslateX.set(currentTranslate);
-
-      const grid = document.querySelector('.projects-grid') as HTMLElement;
-      if (grid) {
-        grid.style.transform = `translate3d(${currentTranslate}px, 0, 0)`;
-        grid.style.webkitTransform = `translate3d(${currentTranslate}px, 0, 0)`;
-      }
-
-      if (progress < 1) {
-        this.animationFrameId = requestAnimationFrame(animate);
-      } else {
-        this.currentTranslateX.set(targetTranslate);
-        this.updateIndicatorIndex();
-        this.animationFrameId = undefined;
-
-        setTimeout(() => {
-          this.applyOptimizedStyles();
-        }, 50);
-      }
-    };
-
-    this.animationFrameId = requestAnimationFrame(animate);
-  }
-
-  private updateIndicatorIndex() {
-    const cardWidth = this.cardWidth();
-    const gap = 32;
-    const scrollDistance = cardWidth + gap;
-    const currentTranslate = Math.abs(this.currentTranslateX());
-    const index = Math.round(currentTranslate / scrollDistance);
-    this.currentIndicatorIndex.set(index);
   }
 }

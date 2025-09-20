@@ -1,4 +1,4 @@
-<!-- src/app/awards/awards.html - Complete Fixed Version -->
+<!-- src/app/awards/awards.html - Complete Fixed Version with Simple Grid Layout -->
 <section id="awards" class="awards-section">
   <div class="container">
     <!-- Section Header -->
@@ -261,159 +261,101 @@
       </div>
     </div>
 
-    <!-- Awards Carousel -->
-    <div *ngIf="!isLoading()" class="awards-carousel-container">
+    <!-- Simple Grid Awards Layout -->
+    <div *ngIf="!isLoading()" class="awards-container">
       <!-- No Awards Message -->
       <div *ngIf="awards().length === 0" class="no-awards" role="status">
         <p>No awards found.</p>
       </div>
 
-      <!-- Carousel with Navigation -->
+      <!-- Awards Grid -->
       <div
         *ngIf="awards().length > 0"
-        class="carousel-wrapper"
-        role="region"
-        aria-label="Awards carousel"
+        class="awards-grid"
+        role="main"
+        aria-label="Awards grid"
       >
-        <!-- Left Navigation Arrow -->
-        <button
-          class="carousel-nav carousel-nav-left"
-          (click)="scrollCarousel('left')"
-          [class.disabled]="!canScrollLeft()"
-          [disabled]="!canScrollLeft()"
-          [attr.aria-label]="
-            canScrollLeft() ? 'Previous awards' : 'No previous awards'
-          "
-          type="button"
+        <div
+          *ngFor="let award of awards(); trackBy: trackByAwardId"
+          class="award-card"
+          role="listitem"
+          [attr.data-award-id]="award.id"
+          [attr.aria-label]="'Award: ' + award.awardName"
         >
-          <i class="fas fa-chevron-left" aria-hidden="true"></i>
-        </button>
+          <div class="card-header">
+            <div class="award-info">
+              <h3 class="award-title" [id]="'award-title-' + award.id">
+                {{ award.awardName }}
+              </h3>
+              <div class="award-company">
+                {{ award.awardCompanyName }}
+              </div>
+              <div class="award-year" *ngIf="award.awardYear">
+                {{ award.awardYear }}
+              </div>
+            </div>
 
-        <!-- Awards Scroll Container -->
-        <div class="awards-scroll-container" role="main">
-          <div
-            class="awards-grid"
-            #awardsGrid
-            [style.transform]="'translateX(' + currentTranslateX() + 'px)'"
-            role="list"
-            aria-label="Award cards"
-          >
+            <!-- Admin Actions -->
+            <div *ngIf="isAdmin()" class="admin-actions-card">
+              <button
+                class="action-btn edit-btn"
+                (click)="openForm(award)"
+                title="Edit Award"
+              >
+                ✏️
+              </button>
+              <button
+                class="action-btn delete-btn"
+                (click)="deleteAward(award.id, award.awardName)"
+                title="Delete Award"
+              >
+                🗑️
+              </button>
+            </div>
+          </div>
+
+          <div class="card-body">
+            <!-- Award Description Preview -->
             <div
-              *ngFor="let award of awards(); trackBy: trackByAwardId"
-              class="award-card"
-              role="listitem"
-              [attr.data-award-id]="award.id"
-              [attr.aria-label]="'Award: ' + award.awardName"
+              class="description-preview"
+              [attr.aria-labelledby]="'award-title-' + award.id"
+              role="region"
             >
-              <div class="card-header">
-                <div class="award-info">
-                  <h3 class="award-title" [id]="'award-title-' + award.id">
-                    {{ award.awardName }}
-                  </h3>
-                  <div class="award-company">
-                    {{ award.awardCompanyName }}
-                  </div>
-                  <div class="award-year" *ngIf="award.awardYear">
-                    {{ award.awardYear }}
-                  </div>
-                </div>
+              {{ getDescriptionPreview(award.description) }}
+            </div>
 
-                <!-- Admin Actions -->
-                <div *ngIf="isAdmin()" class="admin-actions-card">
-                  <button
-                    class="action-btn edit-btn"
-                    (click)="openForm(award)"
-                    title="Edit Award"
-                  >
-                    ✏️
-                  </button>
-                  <button
-                    class="action-btn delete-btn"
-                    (click)="deleteAward(award.id, award.awardName)"
-                    title="Delete Award"
-                  >
-                    🗑️
-                  </button>
-                </div>
-              </div>
+            <!-- FIXED: Know More Button -->
+            <button
+              *ngIf="shouldShowKnowMore(award.description)"
+              class="know-more-btn"
+              (click)="openAwardDetails(award)"
+              type="button"
+              [attr.aria-label]="'Learn more about ' + award.awardName"
+            >
+              <i class="fas fa-info-circle" aria-hidden="true"></i>
+              <span>Know More</span>
+            </button>
 
-              <div class="card-body">
-                <!-- Award Description Preview -->
-                <div
-                  class="description-preview"
-                  [attr.aria-labelledby]="'award-title-' + award.id"
-                  role="region"
-                >
-                  {{ getDescriptionPreview(award.description) }}
-                </div>
-
-                <!-- FIXED: Know More Button -->
-                <button
-                  *ngIf="shouldShowKnowMore(award.description)"
-                  class="know-more-btn"
-                  (click)="openAwardDetails(award)"
-                  type="button"
-                  [attr.aria-label]="'Learn more about ' + award.awardName"
-                >
-                  <i class="fas fa-info-circle" aria-hidden="true"></i>
-                  <span>Know More</span>
-                </button>
-
-                <!-- Award Link -->
-                <div
-                  class="award-links"
-                  *ngIf="award.awardLink"
-                  role="navigation"
-                  aria-label="Award link"
-                >
-                  <a
-                    [href]="award.awardLink"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    class="award-link"
-                    [attr.aria-label]="'View award: ' + award.awardName"
-                  >
-                    <i class="fas fa-trophy" aria-hidden="true"></i>
-                    <span>View Award</span>
-                  </a>
-                </div>
-              </div>
+            <!-- Award Link -->
+            <div
+              class="award-links"
+              *ngIf="award.awardLink"
+              role="navigation"
+              aria-label="Award link"
+            >
+              <a
+                [href]="award.awardLink"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="award-link"
+                [attr.aria-label]="'View award: ' + award.awardName"
+              >
+                <i class="fas fa-trophy" aria-hidden="true"></i>
+                <span>View Award</span>
+              </a>
             </div>
           </div>
         </div>
-
-        <!-- Right Navigation Arrow -->
-        <button
-          class="carousel-nav carousel-nav-right"
-          (click)="scrollCarousel('right')"
-          [class.disabled]="!canScrollRight()"
-          [disabled]="!canScrollRight()"
-          [attr.aria-label]="
-            canScrollRight() ? 'Next awards' : 'No more awards'
-          "
-          type="button"
-        >
-          <i class="fas fa-chevron-right" aria-hidden="true"></i>
-        </button>
-      </div>
-
-      <!-- Carousel Indicators -->
-      <div
-        *ngIf="awards().length > 0 && shouldShowIndicators()"
-        class="carousel-indicators"
-        role="tablist"
-        aria-label="Carousel navigation"
-      >
-        <button
-          *ngFor="let indicator of getCarouselIndicators(); let i = index"
-          class="carousel-indicator"
-          [class.active]="i === currentIndicatorIndex()"
-          (click)="scrollToIndicator(i)"
-          [attr.aria-label]="'Go to page ' + (i + 1)"
-          [attr.aria-selected]="i === currentIndicatorIndex()"
-          role="tab"
-          type="button"
-        ></button>
       </div>
     </div>
   </div>

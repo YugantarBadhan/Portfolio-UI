@@ -1,4 +1,4 @@
-// src/app/awards/awards.ts - Complete Fixed Version with Proper Scroll Restoration
+// src/app/awards/awards.ts - Complete Fixed Version with Simple Grid Layout
 import {
   Component,
   OnInit,
@@ -6,9 +6,6 @@ import {
   signal,
   PLATFORM_ID,
   Inject,
-  ViewChild,
-  ElementRef,
-  AfterViewInit,
   HostListener,
   ChangeDetectionStrategy,
   ChangeDetectorRef,
@@ -33,10 +30,7 @@ import { ConfigService } from '../services/config.service';
   styleUrls: ['./awards.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AwardsComponent implements OnInit, AfterViewInit, OnDestroy {
-  @ViewChild('awardsGrid', { static: false })
-  awardsGridRef!: ElementRef;
-
+export class AwardsComponent implements OnInit, OnDestroy {
   private awardService = inject(AwardService);
   private fb = inject(FormBuilder);
   private configService = inject(ConfigService);
@@ -58,17 +52,9 @@ export class AwardsComponent implements OnInit, AfterViewInit, OnDestroy {
   selectedOperation = signal<string>('');
   selectedAwardId = signal<number | null>(null);
 
-  // Carousel state signals - same as projects
-  currentTranslateX = signal(0);
-  currentIndicatorIndex = signal(0);
-  cardsPerView = signal(3);
-  maxTranslateX = signal(0);
-  cardWidth = signal(450);
-
   private isBrowser: boolean;
   private resizeTimeout: any;
   private intersectionObserver?: IntersectionObserver;
-  private animationFrameId?: number;
 
   awardForm: FormGroup;
 
@@ -88,33 +74,14 @@ export class AwardsComponent implements OnInit, AfterViewInit, OnDestroy {
     console.log('AwardsComponent: Initializing...');
     this.loadAwards();
     if (this.isBrowser) {
-      this.calculateCardsPerView();
       this.setupIntersectionObserver();
       this.optimizeForAnimations();
     }
     this.checkAdminStatus();
   }
 
-  ngAfterViewInit() {
-    console.log('AwardsComponent: After view init');
-
-    // Initialize carousel calculations
-    if (this.isBrowser) {
-      setTimeout(() => {
-        this.calculateCardsPerView();
-        this.updateCarouselConstraints();
-        this.applyOptimizedStyles();
-      }, 500);
-    }
-  }
-
   ngOnDestroy() {
     console.log('AwardsComponent: Destroying...');
-
-    // Cleanup animations
-    if (this.animationFrameId) {
-      cancelAnimationFrame(this.animationFrameId);
-    }
 
     // Cleanup intersection observer
     if (this.intersectionObserver) {
@@ -273,9 +240,6 @@ export class AwardsComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.isBrowser) {
       clearTimeout(this.resizeTimeout);
       this.resizeTimeout = setTimeout(() => {
-        this.calculateCardsPerView();
-        this.updateCarouselConstraints();
-        this.adjustCarouselPosition();
         this.applyOptimizedStyles();
         this.cdr.markForCheck();
       }, 150);
@@ -479,13 +443,8 @@ export class AwardsComponent implements OnInit, AfterViewInit, OnDestroy {
       awards.sort((a, b) => b.id - a.id);
       this.awards.set(awards);
 
-      this.currentTranslateX.set(0);
-      this.currentIndicatorIndex.set(0);
-
       if (this.isBrowser) {
         setTimeout(() => {
-          this.calculateCardsPerView();
-          this.updateCarouselConstraints();
           this.observeAwardCards();
           this.applyOptimizedStyles();
         }, 300);
@@ -910,200 +869,5 @@ export class AwardsComponent implements OnInit, AfterViewInit, OnDestroy {
       this.intersectionObserver!.observe(card);
       this.optimizeCardForAnimation(card as HTMLElement);
     });
-  }
-
-  // Carousel Methods
-  private calculateCardsPerView() {
-    if (!this.isBrowser) return;
-
-    const windowWidth = window.innerWidth;
-
-    if (windowWidth <= 480) {
-      this.cardsPerView.set(1);
-      this.cardWidth.set(320);
-    } else if (windowWidth <= 768) {
-      this.cardsPerView.set(1);
-      this.cardWidth.set(350);
-    } else if (windowWidth <= 1200) {
-      this.cardsPerView.set(2);
-      this.cardWidth.set(380);
-    } else if (windowWidth <= 1400) {
-      this.cardsPerView.set(3);
-      this.cardWidth.set(400);
-    } else {
-      this.cardsPerView.set(3);
-      this.cardWidth.set(450);
-    }
-
-    this.updateCarouselConstraints();
-    this.updateCardStyles();
-  }
-
-  private updateCardStyles() {
-    if (!this.isBrowser) return;
-
-    const cards = document.querySelectorAll(
-      '.award-card'
-    ) as NodeListOf<HTMLElement>;
-    const cardSize = this.cardWidth();
-
-    cards.forEach((card) => {
-      card.style.setProperty('width', `${cardSize}px`, 'important');
-      card.style.setProperty('height', `${cardSize}px`, 'important');
-      card.style.setProperty('min-width', `${cardSize}px`, 'important');
-      card.style.setProperty('min-height', `${cardSize}px`, 'important');
-      card.style.setProperty('max-width', `${cardSize}px`, 'important');
-      card.style.setProperty('max-height', `${cardSize}px`, 'important');
-
-      this.optimizeCardForAnimation(card);
-    });
-  }
-
-  private updateCarouselConstraints() {
-    const totalAwards = this.awards().length;
-    const cardsPerView = this.cardsPerView();
-
-    if (totalAwards <= cardsPerView) {
-      this.maxTranslateX.set(0);
-      this.currentTranslateX.set(0);
-      this.currentIndicatorIndex.set(0);
-      return;
-    }
-
-    const cardWidth = this.cardWidth();
-    const gap = 32;
-    const scrollDistance = cardWidth + gap;
-    const maxScroll = (totalAwards - cardsPerView) * scrollDistance;
-    this.maxTranslateX.set(-maxScroll);
-  }
-
-  private adjustCarouselPosition() {
-    const currentTranslate = this.currentTranslateX();
-    const maxTranslate = this.maxTranslateX();
-
-    if (currentTranslate < maxTranslate) {
-      const cardWidth = this.cardWidth();
-      const gap = 32;
-      const scrollDistance = cardWidth + gap;
-      const validPosition =
-        Math.ceil(Math.abs(currentTranslate) / scrollDistance) * scrollDistance;
-      const newPosition = Math.max(maxTranslate, -validPosition);
-
-      this.currentTranslateX.set(newPosition);
-      this.updateIndicatorIndex();
-    }
-  }
-
-  canScrollLeft(): boolean {
-    return this.currentTranslateX() < 0;
-  }
-
-  canScrollRight(): boolean {
-    return this.currentTranslateX() > this.maxTranslateX();
-  }
-
-  scrollCarousel(direction: 'left' | 'right') {
-    if (!this.isBrowser) return;
-
-    const currentTranslate = this.currentTranslateX();
-    const cardWidth = this.cardWidth();
-    const gap = 32;
-    const scrollAmount = cardWidth + gap;
-
-    let newTranslate = currentTranslate;
-
-    if (direction === 'left' && this.canScrollLeft()) {
-      newTranslate = Math.min(0, currentTranslate + scrollAmount);
-    } else if (direction === 'right' && this.canScrollRight()) {
-      newTranslate = Math.max(
-        this.maxTranslateX(),
-        currentTranslate - scrollAmount
-      );
-    }
-
-    this.animateCarousel(newTranslate);
-  }
-
-  shouldShowIndicators(): boolean {
-    const totalAwards = this.awards().length;
-    const cardsPerView = this.cardsPerView();
-    return totalAwards > cardsPerView;
-  }
-
-  getCarouselIndicators(): number[] {
-    const totalAwards = this.awards().length;
-    const cardsPerView = this.cardsPerView();
-
-    if (totalAwards <= cardsPerView) return [];
-
-    const totalIndicators = totalAwards - cardsPerView + 1;
-    return Array(totalIndicators)
-      .fill(0)
-      .map((_, index) => index);
-  }
-
-  scrollToIndicator(indicatorIndex: number) {
-    if (!this.isBrowser) return;
-
-    const cardWidth = this.cardWidth();
-    const gap = 32;
-    const scrollDistance = cardWidth + gap;
-    const newTranslate = -indicatorIndex * scrollDistance;
-    const clampedTranslate = Math.max(
-      this.maxTranslateX(),
-      Math.min(0, newTranslate)
-    );
-
-    this.animateCarousel(clampedTranslate);
-  }
-
-  private animateCarousel(targetTranslate: number) {
-    const startTranslate = this.currentTranslateX();
-    const duration = 600;
-    const startTime = performance.now();
-
-    if (this.animationFrameId) {
-      cancelAnimationFrame(this.animationFrameId);
-    }
-
-    const animate = (currentTime: number) => {
-      const elapsed = currentTime - startTime;
-      const progress = Math.min(elapsed / duration, 1);
-
-      const easeOutCubic = 1 - Math.pow(1 - progress, 3);
-
-      const currentTranslate =
-        startTranslate + (targetTranslate - startTranslate) * easeOutCubic;
-      this.currentTranslateX.set(currentTranslate);
-
-      const grid = document.querySelector('.awards-grid') as HTMLElement;
-      if (grid) {
-        grid.style.transform = `translate3d(${currentTranslate}px, 0, 0)`;
-        grid.style.webkitTransform = `translate3d(${currentTranslate}px, 0, 0)`;
-      }
-
-      if (progress < 1) {
-        this.animationFrameId = requestAnimationFrame(animate);
-      } else {
-        this.currentTranslateX.set(targetTranslate);
-        this.updateIndicatorIndex();
-        this.animationFrameId = undefined;
-
-        setTimeout(() => {
-          this.applyOptimizedStyles();
-        }, 50);
-      }
-    };
-
-    this.animationFrameId = requestAnimationFrame(animate);
-  }
-
-  private updateIndicatorIndex() {
-    const cardWidth = this.cardWidth();
-    const gap = 32;
-    const scrollDistance = cardWidth + gap;
-    const currentTranslate = Math.abs(this.currentTranslateX());
-    const index = Math.round(currentTranslate / scrollDistance);
-    this.currentIndicatorIndex.set(index);
   }
 }

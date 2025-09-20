@@ -352,159 +352,100 @@
       </div>
     </div>
 
-    <!-- Certifications Carousel -->
-    <div *ngIf="!isLoading()" class="certifications-carousel-container">
+    <!-- Simple Grid Certifications Layout -->
+    <div *ngIf="!isLoading()" class="certifications-container">
       <!-- No Certifications Message -->
       <div *ngIf="certifications().length === 0" class="no-certifications" role="status">
         <p>No certifications found.</p>
       </div>
 
-      <!-- Carousel with Navigation -->
+      <!-- Certifications Grid -->
       <div
         *ngIf="certifications().length > 0"
-        class="carousel-wrapper"
-        role="region"
-        aria-label="Certifications carousel"
+        class="certifications-grid"
+        role="main"
+        aria-label="Certifications grid"
       >
-        <!-- Left Navigation Arrow -->
-        <button
-          class="carousel-nav carousel-nav-left"
-          (click)="scrollCarousel('left')"
-          [class.disabled]="!canScrollLeft()"
-          [disabled]="!canScrollLeft()"
-          [attr.aria-label]="
-            canScrollLeft() ? 'Previous certifications' : 'No previous certifications'
-          "
-          type="button"
+        <div
+          *ngFor="let cert of certifications(); trackBy: trackByCertificationId"
+          class="certification-card"
+          role="listitem"
+          [attr.data-certification-id]="cert.id"
+          [attr.aria-label]="'Certification: ' + cert.title"
         >
-          <i class="fas fa-chevron-left" aria-hidden="true"></i>
-        </button>
+          <div class="card-header">
+            <div class="certification-info">
+              <h3
+                class="certification-title"
+                [id]="'certification-title-' + cert.id"
+              >
+                {{ cert.title }}
+              </h3>
+              <div class="certification-month-year">
+                {{ cert.monthYear }}
+              </div>
+            </div>
 
-        <!-- Certifications Scroll Container -->
-        <div class="certifications-scroll-container" role="main">
-          <div
-            class="certifications-grid"
-            #certificationsGrid
-            [style.transform]="'translateX(' + currentTranslateX() + 'px)'"
-            role="list"
-            aria-label="Certification cards"
-          >
+            <!-- Admin Actions -->
+            <div *ngIf="isAdmin()" class="admin-actions-card">
+              <button
+                class="action-btn edit-btn"
+                (click)="openForm(cert)"
+                title="Edit Certification"
+              >
+                ✏️
+              </button>
+              <button
+                class="action-btn delete-btn"
+                (click)="deleteCertification(cert.id, cert.title)"
+                title="Delete Certification"
+              >
+                🗑️
+              </button>
+            </div>
+          </div>
+
+          <div class="card-body">
+            <!-- Certification Description Preview -->
             <div
-              *ngFor="let cert of certifications(); trackBy: trackByCertificationId"
-              class="certification-card"
-              role="listitem"
-              [attr.data-certification-id]="cert.id"
-              [attr.aria-label]="'Certification: ' + cert.title"
+              class="description-preview"
+              [innerHTML]="
+                getDescriptionPreview(cert.description) | safeHtml
+              "
+              [attr.aria-labelledby]="'certification-title-' + cert.id"
+              role="region"
+            ></div>
+
+            <!-- Know More Button -->
+            <button
+              class="know-more-btn"
+              (click)="openCertificationDetails(cert)"
+              type="button"
+              [attr.aria-label]="'Learn more about ' + cert.title"
             >
-              <div class="card-header">
-                <div class="certification-info">
-                  <h3
-                    class="certification-title"
-                    [id]="'certification-title-' + cert.id"
-                  >
-                    {{ cert.title }}
-                  </h3>
-                  <div class="certification-month-year">
-                    {{ cert.monthYear }}
-                  </div>
-                </div>
+              <span>Know More</span>
+            </button>
 
-                <!-- Admin Actions -->
-                <div *ngIf="isAdmin()" class="admin-actions-card">
-                  <button
-                    class="action-btn edit-btn"
-                    (click)="openForm(cert)"
-                    title="Edit Certification"
-                  >
-                    ✏️
-                  </button>
-                  <button
-                    class="action-btn delete-btn"
-                    (click)="deleteCertification(cert.id, cert.title)"
-                    title="Delete Certification"
-                  >
-                    🗑️
-                  </button>
-                </div>
-              </div>
-
-              <div class="card-body">
-                <!-- Certification Description Preview -->
-                <div
-                  class="description-preview"
-                  [innerHTML]="
-                    getDescriptionPreview(cert.description) | safeHtml
-                  "
-                  [attr.aria-labelledby]="'certification-title-' + cert.id"
-                  role="region"
-                ></div>
-
-                <!-- Know More Button -->
-                <button
-                  class="know-more-btn"
-                  (click)="openCertificationDetails(cert)"
-                  type="button"
-                  [attr.aria-label]="'Learn more about ' + cert.title"
-                >
-                  <!-- <i class="fas fa-arrow-right" aria-hidden="true"></i> -->
-                  <span>Know More</span>
-                </button>
-
-                <!-- Certification Link -->
-                <div
-                  class="certification-links"
-                  *ngIf="cert.certificationLink"
-                  role="navigation"
-                  aria-label="Certification link"
-                >
-                  <a
-                    [href]="cert.certificationLink"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    class="certification-link"
-                    [attr.aria-label]="'Verify certification: ' + cert.title"
-                  >
-                    <i class="fas fa-certificate" aria-hidden="true"></i>
-                    <span>Verify Certificate</span>
-                  </a>
-                </div>
-              </div>
+            <!-- Certification Link -->
+            <div
+              class="certification-links"
+              *ngIf="cert.certificationLink"
+              role="navigation"
+              aria-label="Certification link"
+            >
+              <a
+                [href]="cert.certificationLink"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="certification-link"
+                [attr.aria-label]="'Verify certification: ' + cert.title"
+              >
+                <i class="fas fa-certificate" aria-hidden="true"></i>
+                <span>Verify Certificate</span>
+              </a>
             </div>
           </div>
         </div>
-
-        <!-- Right Navigation Arrow -->
-        <button
-          class="carousel-nav carousel-nav-right"
-          (click)="scrollCarousel('right')"
-          [class.disabled]="!canScrollRight()"
-          [disabled]="!canScrollRight()"
-          [attr.aria-label]="
-            canScrollRight() ? 'Next certifications' : 'No more certifications'
-          "
-          type="button"
-        >
-          <i class="fas fa-chevron-right" aria-hidden="true"></i>
-        </button>
-      </div>
-
-      <!-- Carousel Indicators -->
-      <div
-        *ngIf="certifications().length > 0 && shouldShowIndicators()"
-        class="carousel-indicators"
-        role="tablist"
-        aria-label="Carousel navigation"
-      >
-        <button
-          *ngFor="let indicator of getCarouselIndicators(); let i = index"
-          class="carousel-indicator"
-          [class.active]="i === currentIndicatorIndex()"
-          (click)="scrollToIndicator(i)"
-          [attr.aria-label]="'Go to page ' + (i + 1)"
-          [attr.aria-selected]="i === currentIndicatorIndex()"
-          role="tab"
-          type="button"
-        ></button>
       </div>
     </div>
   </div>

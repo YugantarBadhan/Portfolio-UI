@@ -1139,7 +1139,7 @@ html.dark-theme .theme-toggle:hover {
   min-height: 80vh;
   display: flex;
   align-items: center;
-  padding: 6rem 2rem 1rem;
+  padding: 8rem 2rem 1rem;
   max-width: 1200px;
   margin: 0 auto;
   position: relative;
@@ -1331,11 +1331,12 @@ body:not(.dark-theme) .resume-btn:hover {
   animation: fadeInLeft 1s ease-out;
   order: 1;
   margin-bottom: 1rem;
+  margin-top: 2rem;
 }
 
 .profile-card {
   width: 100%;
-  max-width: 280px;
+  max-width: 240px;
   height: auto;
   padding: 0;
   background: transparent;
@@ -1346,10 +1347,11 @@ body:not(.dark-theme) .resume-btn:hover {
   align-items: center;
 }
 
-.profile-image {
+.profile-image,
+.profile-image-placeholder {
   width: 100%;
-  max-width: 280px;
-  height: 280px;
+  max-width: 240px;
+  height: 240px;
   border-radius: 50px;
   object-fit: cover;
   object-position: center;
@@ -1358,17 +1360,11 @@ body:not(.dark-theme) .resume-btn:hover {
 }
 
 .profile-image-placeholder {
-  width: 100%;
-  max-width: 280px;
-  height: 280px;
-  border-radius: 50px;
   background: linear-gradient(45deg, #e74de7, #764ba2);
-  display: flex;
   align-items: center;
   justify-content: center;
   font-size: 4rem;
   color: white;
-  margin: 0;
 }
 
 body.dark-theme .profile-image-placeholder {
@@ -1920,7 +1916,7 @@ body.dark-theme .resume-upload-container {
   .nav-links {
     gap: 1rem;
   }
-  
+
   .nav-links a {
     padding: 0.5rem 0.7rem;
     font-size: 0.9rem;
@@ -1932,7 +1928,7 @@ body.dark-theme .resume-upload-container {
   .nav-links {
     gap: 1.1rem;
   }
-  
+
   .nav-links a {
     padding: 0.5rem 0.75rem;
     font-size: 0.93rem;
@@ -2073,12 +2069,12 @@ body.dark-theme .resume-upload-container {
   }
 
   .profile-card {
-    max-width: 300px;
+    max-width: 240px;
   }
 
   .profile-image,
   .profile-image-placeholder {
-    height: 300px;
+    height: 240px;
   }
 
   .section {
@@ -2096,12 +2092,12 @@ body.dark-theme .resume-upload-container {
     max-width: 1300px;
     gap: 5rem;
   }
-  
+
   .hero-text p {
     font-size: 1.3rem;
     max-width: 700px;
   }
-  
+
   .section {
     max-width: 1300px;
   }
@@ -3219,7 +3215,12 @@ html.light-theme .footer {
 
 /* Dark theme footer - use HTML-level selectors for immediate application */
 html.dark-theme .footer {
-  background: rgba(44, 62, 80, 0.95) !important; /* Dark theme - matches body background */
+  background: rgba(
+    44,
+    62,
+    80,
+    0.95
+  ) !important; /* Dark theme - matches body background */
   border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
   box-shadow: 0 -2px 20px rgba(0, 0, 0, 0.3) !important;
 }
@@ -3250,7 +3251,12 @@ html.light-theme .footer-text {
 }
 
 html.dark-theme .footer-text {
-  color: rgba(255, 255, 255, 0.85) !important; /* Slightly transparent white for dark theme */
+  color: rgba(
+    255,
+    255,
+    255,
+    0.85
+  ) !important; /* Slightly transparent white for dark theme */
 }
 
 /* Powered By styling */
@@ -3318,7 +3324,7 @@ app-root {
     font-size: 0.85rem;
     /* Stack on two lines for very small screens if needed */
   }
-  
+
   /* Optional: Break text on mobile for better readability */
   .footer-text {
     display: flex;
@@ -3441,12 +3447,12 @@ app-root {
   }
 
   .profile-card {
-    max-width: 260px;
+    max-width: 220px;
   }
 
   .profile-image,
   .profile-image-placeholder {
-    height: 260px;
+    height: 220px;
   }
 
   .section {
@@ -3472,11 +3478,84 @@ app-root {
   }
 
   .profile-card {
-    max-width: 240px;
+    max-width: 200px;
   }
 
   .profile-image,
   .profile-image-placeholder {
-    height: 240px;
+    height: 200px;
+  }
+}
+
+/* Profile Photo Upload Specific Styles */
+.profile-photo-upload-container {
+  background: white !important;
+  border-radius: 16px;
+  padding: 0;
+  max-width: 900px;
+  width: 90%;
+  max-height: 90vh;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  position: relative;
+  animation: slideIn 0.3s ease-out;
+  color: #333 !important;
+  display: flex;
+  flex-direction: column;
+}
+
+body.dark-theme .profile-photo-upload-container {
+  background: white !important;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  color: #333 !important;
+}
+
+/* Photo Upload Area Specific */
+.upload-area .upload-icon .fa-camera {
+  color: #6c757d;
+}
+
+.upload-area.drag-over .upload-icon .fa-camera {
+  color: #28a745;
+  animation: bounce 0.5s ease;
+}
+
+/* Photo Preview Thumbnail in List */
+.resume-item .resume-icon img {
+  border: 2px solid #dee2e6;
+  transition: all 0.3s ease;
+}
+
+.resume-item.active .resume-icon img {
+  border-color: #28a745;
+  box-shadow: 0 0 10px rgba(40, 167, 69, 0.3);
+}
+
+/* Dynamic Profile Image in Hero */
+.hero .profile-image {
+  transition: all 0.3s ease;
+}
+
+.hero .profile-image:hover {
+  transform: scale(1.02);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+}
+
+body.dark-theme .hero .profile-image:hover {
+  box-shadow: 0 8px 32px rgba(100, 181, 246, 0.2);
+}
+
+/* Responsive adjustments for profile photo thumbnails */
+@media (max-width: 768px) {
+  .resume-item .resume-icon img {
+    width: 35px;
+    height: 35px;
+  }
+}
+
+@media (max-width: 480px) {
+  .resume-item .resume-icon img {
+    width: 30px;
+    height: 30px;
   }
 }

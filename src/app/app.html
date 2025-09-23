@@ -124,6 +124,16 @@
             Upload Resume
           </button>
 
+          <!-- Upload Profile Photo button in the admin dropdown content -->
+          <button
+            class="admin-section-btn"
+            (click)="handleProfilePhotoUploadRequest($event)"
+            title="Upload Profile Photo"
+          >
+            <i class="fas fa-camera"></i>
+            Upload Profile Photo
+          </button>
+
           <!-- Other Admin Sections -->
           <button
             *ngFor="let section of adminSections"
@@ -356,6 +366,209 @@
         <i class="fas fa-file-upload"></i>
         <p>No resumes uploaded yet</p>
         <p class="empty-hint">Upload your first resume to get started</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Profile Photo Upload Modal -->
+<div *ngIf="showProfilePhotoUploadModal()" class="admin-modal-overlay">
+  <div class="resume-upload-container" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Profile Photo Management</h3>
+      <button
+        class="close-btn"
+        (click)="closeProfilePhotoUploadModal()"
+        type="button"
+      >
+        ×
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <!-- Upload Section -->
+      <div class="upload-section" *ngIf="!profilePhotoUploaded()">
+        <div
+          class="upload-area"
+          [class.drag-over]="isDragOverPhoto"
+          (dragover)="onPhotoDragOver($event)"
+          (dragleave)="onPhotoDragLeave($event)"
+          (drop)="onPhotoDrop($event)"
+        >
+          <div class="upload-icon">
+            <i class="fas fa-camera"></i>
+          </div>
+
+          <h4>Upload Profile Photo</h4>
+          <p class="upload-text">
+            Drag & drop your photo here or click to browse
+          </p>
+          <p class="file-types">Supported formats: JPG, PNG, WebP (Max 5MB)</p>
+          <p class="file-types">Dimensions: 100x100 to 4000x4000 pixels</p>
+
+          <input
+            type="file"
+            id="photoFileInput"
+            #photoFileInput
+            (change)="onPhotoFileSelected($event)"
+            accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
+            style="display: none"
+          />
+
+          <button class="btn-browse" (click)="photoFileInput.click()">
+            <i class="fas fa-folder-open"></i> Browse Images
+          </button>
+        </div>
+
+        <!-- File Preview Before Upload -->
+        <div class="file-preview" *ngIf="selectedPhotoFile">
+          <div class="preview-header">
+            <i class="fas fa-image file-icon"></i>
+            <div class="file-info">
+              <p class="file-name">{{ selectedPhotoFile.name }}</p>
+              <p class="file-size">
+                {{ formatFileSize(selectedPhotoFile.size) }}
+              </p>
+            </div>
+            <button class="btn-remove" (click)="removeSelectedPhotoFile()">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+
+          <div class="upload-actions">
+            <button class="btn-cancel" (click)="removeSelectedPhotoFile()">
+              Cancel
+            </button>
+            <button
+              class="btn-upload"
+              (click)="uploadProfilePhoto()"
+              [disabled]="isPhotoUploading()"
+            >
+              <i class="fas fa-upload"></i>
+              {{ isPhotoUploading() ? "Uploading..." : "Upload Photo" }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Upload Progress -->
+        <div class="upload-progress" *ngIf="isPhotoUploading()">
+          <div class="progress-bar">
+            <div
+              class="progress-fill"
+              [style.width.%]="photoUploadProgress()"
+            ></div>
+          </div>
+          <p class="progress-text">Uploading... {{ photoUploadProgress() }}%</p>
+        </div>
+
+        <!-- Error Message -->
+        <div class="error-message-box" *ngIf="photoUploadError()">
+          <i class="fas fa-exclamation-circle"></i>
+          <p>{{ photoUploadError() }}</p>
+        </div>
+      </div>
+
+      <!-- SUCCESS AND ERROR MESSAGES -->
+      <div class="success-message-box" *ngIf="photoUploadSuccess()">
+        <i class="fas fa-check-circle"></i>
+        <p>{{ photoUploadSuccess() }}</p>
+      </div>
+
+      <!-- Error Message for general operations -->
+      <div
+        class="error-message-box"
+        *ngIf="photoUploadError() && !selectedPhotoFile && !isPhotoUploading()"
+      >
+        <i class="fas fa-exclamation-circle"></i>
+        <p>{{ photoUploadError() }}</p>
+      </div>
+
+      <!-- Existing Profile Photos List -->
+      <div
+        class="resumes-list-section"
+        *ngIf="existingProfilePhotos().length > 0"
+      >
+        <h4 class="section-title">
+          <i class="fas fa-images"></i> Uploaded Profile Photos
+        </h4>
+
+        <div class="resumes-list">
+          <div
+            *ngFor="let photo of existingProfilePhotos()"
+            class="resume-item"
+            [class.active]="photo.isActive"
+          >
+            <div class="resume-icon">
+              <img
+                [src]="photo.imageUrl"
+                alt="Profile photo thumbnail"
+                style="
+                  width: 40px;
+                  height: 40px;
+                  border-radius: 50%;
+                  object-fit: cover;
+                "
+                onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'"
+              />
+              <i class="fas fa-image" style="display: none"></i>
+            </div>
+
+            <div class="resume-details">
+              <p class="resume-name">{{ photo.originalFileName }}</p>
+              <p class="resume-meta">
+                {{ photo.fileSizeFormatted }} • {{ photo.imageWidth }}x{{
+                  photo.imageHeight
+                }}px • Uploaded {{ formatUploadDate(photo.uploadedDate) }}
+              </p>
+              <span class="active-badge" *ngIf="photo.isActive">
+                <i class="fas fa-check-circle"></i> Active
+              </span>
+            </div>
+
+            <div class="resume-actions">
+              <button
+                class="btn-action"
+                (click)="previewProfilePhoto(photo.id)"
+                title="Preview"
+              >
+                <i class="fas fa-eye"></i>
+              </button>
+
+              <button
+                class="btn-action"
+                *ngIf="!photo.isActive"
+                (click)="setActiveProfilePhoto(photo.id)"
+                title="Set as Active"
+              >
+                <i class="fas fa-check"></i>
+              </button>
+
+              <button
+                class="btn-action btn-delete"
+                (click)="deleteProfilePhoto(photo.id, photo.originalFileName)"
+                title="Delete"
+              >
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Empty State -->
+      <div
+        class="empty-state"
+        *ngIf="
+          existingProfilePhotos().length === 0 &&
+          !selectedPhotoFile &&
+          !isPhotoUploading() &&
+          !photoUploadSuccess() &&
+          !photoUploadError()
+        "
+      >
+        <i class="fas fa-camera"></i>
+        <p>No profile photos uploaded yet</p>
+        <p class="empty-hint">Upload your first profile photo to get started</p>
       </div>
     </div>
   </div>
@@ -748,18 +961,35 @@
 <!-- Hero Section -->
 <section class="hero" [class.dark-theme]="isDarkTheme" id="home">
   <div class="hero-content">
+    <!-- Updated hero-image section with debug info -->
     <div class="hero-image">
       <div class="profile-card">
+        <!-- Debug info (remove in production) -->
+        <div
+          *ngIf="getActiveProfilePhotoUrl()"
+          style="font-size: 10px; color: #666; margin-bottom: 5px"
+        >
+          <!-- Debug: {{ getActiveProfilePhotoUrl() }} -->
+        </div>
+
+        <!-- Dynamic Profile Photo -->
         <img
-          src="assets/images/profile_photo.png"
+          *ngIf="getActiveProfilePhotoUrl()"
+          [src]="getActiveProfilePhotoUrl()"
           alt="Yugantar Badhan"
           class="profile-image"
-          onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'"
-          onload="console.log('Profile image loaded successfully')"
-          onError="console.error('Profile image failed to load')"
+          (error)="onProfileImageError($event)"
+          (load)="onProfileImageLoad($event)"
+          style="max-width: 100%; height: auto"
         />
-        <div class="profile-image-placeholder" style="display: none">
+
+        <!-- Placeholder if no image available -->
+        <div
+          *ngIf="!getActiveProfilePhotoUrl()"
+          class="profile-image-placeholder"
+        >
           <i class="fas fa-user"></i>
+          <div style="font-size: 10px; margin-top: 5px">No photo available</div>
         </div>
       </div>
     </div>

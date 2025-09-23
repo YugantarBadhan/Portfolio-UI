@@ -41,6 +41,8 @@ import { Certification } from './model/certification.model';
 import { AwardsComponent } from './awards/awards';
 import { AwardService } from './services/award.service';
 import { Award } from './model/award.model';
+import { ProfilePhotoService } from './services/profile-photo.service';
+import { ProfilePhoto, ProfilePhotoInfo } from './model/profile-photo.model';
 
 interface AdminSection {
   id: string;
@@ -91,6 +93,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   private educationService = inject(EducationService);
   private awardService = inject(AwardService);
   private resumeService = inject(ResumeService);
+  private profilePhotoService = inject(ProfilePhotoService);
   private router = inject(Router);
 
   title = 'Portfolio-UI';
@@ -108,6 +111,20 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   uploadSuccess = signal<string>('');
   existingResumes = signal<ResumeResponse[]>([]);
   resumeUploaded = signal(false);
+
+  // Profile Photo Upload properties
+  showProfilePhotoUploadModal = signal(false);
+  selectedPhotoFile: File | null = null;
+  isPhotoUploading = signal(false);
+  photoUploadProgress = signal(0);
+  photoUploadError = signal<string>('');
+  photoUploadSuccess = signal<string>('');
+  existingProfilePhotos = signal<ProfilePhoto[]>([]);
+  profilePhotoUploaded = signal(false);
+  isDragOverPhoto = false;
+
+  // Active profile photo info
+  activeProfilePhotoInfo = signal<ProfilePhotoInfo | null>(null);
 
   // Lazy loading state
   experienceComponentLoaded = signal(false);
@@ -182,27 +199,23 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
 
   ngOnInit() {
     if (this.isBrowser) {
+      // Add debug info
+      console.log('ConfigService API URL:', this.configService.apiUrl);
+
       // CRITICAL: Sync with the theme already applied in index.html
-      // Don't set a default - read what's already been applied
       try {
         const savedTheme = localStorage.getItem('theme');
-        this.isDarkTheme = savedTheme !== 'light'; // true unless explicitly light
+        this.isDarkTheme = savedTheme !== 'light';
 
-        // Theme is already applied in index.html, just sync the state
-        // NO need to call applyTheme() here - it's already applied
-        console.log('Theme synced:', this.isDarkTheme ? 'dark' : 'light');
-
-        // Add fast transitions after initial load for smooth toggling
         setTimeout(() => {
           this.enableFastTransitions();
-        }, 100); // Small delay to ensure everything is rendered
+        }, 100);
       } catch (error) {
         console.error('Error reading theme preference:', error);
-        // Fallback to dark theme
         this.isDarkTheme = true;
       }
 
-      // Rest of your ngOnInit code...
+      // Rest of your existing ngOnInit code...
       this.adminSessionService.isAuthenticated$
         .pipe(takeUntil(this.destroy$))
         .subscribe((isAuth) => {
@@ -222,8 +235,8 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
 
       this.setupScrollRestoration();
       this.setupSectionObserver();
+      this.loadActiveProfilePhotoInfo();
     } else {
-      // Server-side: default to dark theme
       this.isDarkTheme = true;
     }
   }
@@ -285,6 +298,12 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
 
     if (section === 'resume') {
       this.openResumeUploadModal();
+      return;
+    }
+
+    // ADD THIS NEW CONDITION:
+    if (section === 'profile-photo') {
+      this.openProfilePhotoUploadModal();
       return;
     }
 
@@ -2174,5 +2193,342 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
       this.awards.set([]);
       this.cdr.markForCheck();
     }
+  }
+
+  /**
+   * Handle profile photo upload request with session check
+   */
+  handleProfilePhotoUploadRequest(event: Event) {
+    event.stopPropagation();
+
+    if (!this.isAdminAuthenticated()) {
+      // Set pending operation
+      this.pendingOperation = { section: 'profile-photo', operation: 'upload' };
+      this.selectedAdminSection.set('profile-photo');
+      this.showAdminTokenModal.set(true);
+      this.showAdminDropdown.set(false);
+      this.adminToken = '';
+
+      if (this.isBrowser) {
+        document.body.style.overflow = 'hidden';
+      }
+
+      setTimeout(() => {
+        const input = document.querySelector(
+          '.admin-token-input'
+        ) as HTMLInputElement;
+        if (input) {
+          input.focus();
+        }
+      }, 100);
+    } else {
+      this.openProfilePhotoUploadModal();
+    }
+    this.cdr.markForCheck();
+  }
+
+  /**
+   * Open profile photo upload modal
+   */
+  openProfilePhotoUploadModal() {
+    this.showProfilePhotoUploadModal.set(true);
+    this.showAdminDropdown.set(false);
+    this.resetPhotoUploadState();
+    this.loadExistingProfilePhotos();
+
+    if (this.isBrowser) {
+      document.body.style.overflow = 'hidden';
+    }
+    this.cdr.markForCheck();
+  }
+
+  /**
+   * Close profile photo upload modal
+   */
+  closeProfilePhotoUploadModal() {
+    this.showProfilePhotoUploadModal.set(false);
+    this.resetPhotoUploadState();
+
+    if (this.isBrowser) {
+      document.body.style.overflow = 'auto';
+    }
+    this.cdr.markForCheck();
+  }
+
+  /**
+   * Reset photo upload state
+   */
+  private resetPhotoUploadState() {
+    this.selectedPhotoFile = null;
+    this.isDragOverPhoto = false;
+    this.isPhotoUploading.set(false);
+    this.photoUploadProgress.set(0);
+    this.photoUploadError.set('');
+    this.photoUploadSuccess.set('');
+    this.profilePhotoUploaded.set(false);
+  }
+
+  /**
+   * Load existing profile photos
+   */
+  async loadExistingProfilePhotos() {
+    try {
+      const photos = await this.profilePhotoService.getAllProfilePhotos();
+      this.existingProfilePhotos.set(photos);
+      this.cdr.markForCheck();
+    } catch (error: any) {
+      console.error('Error loading profile photos:', error);
+      if (error.message.includes('Unauthorized')) {
+        this.photoUploadError.set(
+          'Unauthorized access. Please re-authenticate.'
+        );
+        this.adminSessionService.forceLogout('Authentication expired');
+      }
+    }
+  }
+
+  /**
+   * UPDATED: Load active profile photo info with better error handling
+   */
+  async loadActiveProfilePhotoInfo() {
+    try {
+      console.log('Loading active profile photo info...');
+      const photoInfo = await this.profilePhotoService.getProfilePhotoInfo();
+      console.log('Received photo info:', photoInfo);
+
+      this.activeProfilePhotoInfo.set(photoInfo);
+      this.cdr.markForCheck();
+    } catch (error: any) {
+      console.error('Error loading active profile photo info:', error);
+      this.activeProfilePhotoInfo.set({
+        available: false,
+        message: 'Failed to load profile photo information',
+      });
+      this.cdr.markForCheck();
+    }
+  }
+
+  // Photo Drag and Drop handlers
+  onPhotoDragOver(event: DragEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragOverPhoto = true;
+    this.cdr.markForCheck();
+  }
+
+  onPhotoDragLeave(event: DragEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragOverPhoto = false;
+    this.cdr.markForCheck();
+  }
+
+  onPhotoDrop(event: DragEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragOverPhoto = false;
+
+    const files = event.dataTransfer?.files;
+    if (files && files.length > 0) {
+      this.handlePhotoFileSelection(files[0]);
+    }
+    this.cdr.markForCheck();
+  }
+
+  onPhotoFileSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      this.handlePhotoFileSelection(input.files[0]);
+    }
+  }
+
+  private handlePhotoFileSelection(file: File) {
+    // Reset previous errors
+    this.photoUploadError.set('');
+    this.photoUploadSuccess.set('');
+
+    // Validate file
+    const validationError = this.profilePhotoService.validateFile(file);
+    if (validationError) {
+      this.photoUploadError.set(validationError);
+      this.selectedPhotoFile = null;
+      this.cdr.markForCheck();
+      return;
+    }
+
+    this.selectedPhotoFile = file;
+    this.cdr.markForCheck();
+  }
+
+  removeSelectedPhotoFile() {
+    this.selectedPhotoFile = null;
+    this.photoUploadError.set('');
+    this.photoUploadSuccess.set('');
+    this.cdr.markForCheck();
+  }
+
+  /**
+   * UPDATED: Upload profile photo and refresh hero section
+   */
+  uploadProfilePhoto() {
+    if (!this.selectedPhotoFile) {
+      this.photoUploadError.set('Please select an image file to upload');
+      return;
+    }
+
+    this.isPhotoUploading.set(true);
+    this.photoUploadProgress.set(0);
+    this.photoUploadError.set('');
+    this.photoUploadSuccess.set('');
+
+    this.profilePhotoService
+      .uploadProfilePhoto(this.selectedPhotoFile)
+      .subscribe({
+        next: (event) => {
+          if (event.type === HttpEventType.UploadProgress) {
+            const progress = event.total
+              ? Math.round((100 * event.loaded) / event.total)
+              : 0;
+            this.photoUploadProgress.set(progress);
+          } else if (event.type === HttpEventType.Response) {
+            this.isPhotoUploading.set(false);
+            this.photoUploadProgress.set(100);
+
+            if (event.body.success) {
+              this.photoUploadSuccess.set(
+                event.body.message || 'Profile photo uploaded successfully!'
+              );
+              this.profilePhotoUploaded.set(true);
+              this.selectedPhotoFile = null;
+
+              this.loadExistingProfilePhotos();
+
+              setTimeout(() => {
+                this.loadActiveProfilePhotoInfo();
+              }, 500);
+
+              setTimeout(() => {
+                this.photoUploadSuccess.set('');
+                this.profilePhotoUploaded.set(false);
+                this.cdr.markForCheck();
+              }, 3000);
+            } else {
+              this.photoUploadError.set(event.body.message || 'Upload failed');
+            }
+          }
+          this.cdr.markForCheck();
+        },
+        error: (error) => {
+          console.error('Photo upload error:', error);
+          this.isPhotoUploading.set(false);
+          this.photoUploadProgress.set(0);
+          this.photoUploadError.set(
+            error.message || 'Failed to upload profile photo. Please try again.'
+          );
+          this.cdr.markForCheck();
+        },
+      });
+  }
+
+  /**
+   * UPDATED: Set active profile photo and refresh hero section
+   */
+  async setActiveProfilePhoto(photoId: number) {
+    try {
+      await this.profilePhotoService.setActiveProfilePhoto(photoId);
+      this.photoUploadSuccess.set('Profile photo set as active successfully!');
+
+      // Reload both the list and the hero section with a delay
+      await this.loadExistingProfilePhotos();
+
+      // Add delay to ensure backend has processed the change
+      setTimeout(() => {
+        this.loadActiveProfilePhotoInfo();
+      }, 500);
+
+      // Clear success message after 3 seconds
+      setTimeout(() => {
+        this.photoUploadSuccess.set('');
+        this.cdr.markForCheck();
+      }, 3000);
+    } catch (error: any) {
+      console.error('Error setting active profile photo:', error);
+      this.photoUploadError.set(
+        error.message || 'Failed to set active profile photo'
+      );
+    }
+    this.cdr.markForCheck();
+  }
+
+  async deleteProfilePhoto(photoId: number, fileName: string) {
+    const confirmDelete = confirm(
+      `Are you sure you want to delete "${fileName}"?\n\nThis action cannot be undone.`
+    );
+
+    if (confirmDelete) {
+      try {
+        await this.profilePhotoService.deleteProfilePhoto(photoId);
+        this.photoUploadSuccess.set('Profile photo deleted successfully!');
+        await this.loadExistingProfilePhotos();
+        await this.loadActiveProfilePhotoInfo();
+
+        // Clear success message after 3 seconds
+        setTimeout(() => {
+          this.photoUploadSuccess.set('');
+          this.cdr.markForCheck();
+        }, 3000);
+      } catch (error: any) {
+        console.error('Error deleting profile photo:', error);
+        this.photoUploadError.set(
+          error.message || 'Failed to delete profile photo'
+        );
+      }
+      this.cdr.markForCheck();
+    }
+  }
+
+  previewProfilePhoto(photoId: number) {
+    const previewUrl = this.profilePhotoService.getProfilePhotoUrl(photoId);
+    window.open(previewUrl, '_blank');
+  }
+
+  /**
+   * UPDATED: Get profile photo URL for hero section - with better error handling
+   */
+  getActiveProfilePhotoUrl(): string | null {
+    const photoInfo = this.activeProfilePhotoInfo();
+    console.log('Active photo info:', photoInfo);
+
+    if (photoInfo && photoInfo.available && photoInfo.imageUrl) {
+      const baseUrl = this.configService.apiUrl.replace('/api', ''); // Remove /api to get base URL
+      const fullUrl = baseUrl + photoInfo.imageUrl;
+      console.log('Constructed photo URL:', fullUrl);
+      return fullUrl;
+    }
+
+    console.log('No active photo found, showing placeholder');
+    return null;
+  }
+
+  /**
+   * Handle profile image load success
+   */
+  onProfileImageLoad(event: Event) {
+    console.log('Profile image loaded successfully:', event);
+  }
+
+  /**
+   * Handle profile image load error
+   */
+  onProfileImageError(event: Event) {
+    console.error('Profile image failed to load:', event);
+    const img = event.target as HTMLImageElement;
+
+    // Hide the failed image and show placeholder
+    img.style.display = 'none';
+
+    // Force update to show placeholder
+    this.activeProfilePhotoInfo.set(null);
+    this.cdr.markForCheck();
   }
 }
